@@ -1,2 +1,2 @@
 # remote_switch
-Code for remote switch project
+A program that automatically calls phones.
