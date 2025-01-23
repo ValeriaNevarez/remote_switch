@@ -1,7 +1,9 @@
-from twilio_util import Send_message
+from twilio_util import Send_message,Outbound_call
+import time 
 
 
-message_to_change_master = '*1234546*#+18667487103#'
+test_phone = '+16508611877'
+message_to_change_master = '*123456*#+18667487103#'
 phone_list = ['+528711213669',
 '+528711222383',
 '+528711203824',
@@ -23,7 +25,12 @@ phone_list = ['+528711213669',
 '+528711209395',
 '+528712321992']
 
+# for phone_number in phone_list:
+#     sid = Send_message(phone_number,message_to_change_master)
+#     print(phone_number,sid)
+
 for phone_number in phone_list:
-    sid = Send_message(phone_number,message_to_change_master)
+    sid = Outbound_call(phone_number)
     print(phone_number,sid)
+    time.sleep(80)
 
