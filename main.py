@@ -1,4 +1,4 @@
-from twilio_util import Send_message,Outbound_call
+from twilio_util import Send_message,Outbound_call,Call_status,Sid_call_logs
 import time 
 
 
@@ -27,10 +27,20 @@ phone_list = ['+528711213669',
 
 # for phone_number in phone_list:
 #     sid = Send_message(phone_number,message_to_change_master)
+    # print(phone_number,sid)
+
+# for phone_number in phone_list:
+#     sid = Outbound_call(phone_number)
 #     print(phone_number,sid)
+#     time.sleep(80)
+
+# Call_status('CA1041dd66e60d823d35a05b882829ef13')
 
 for phone_number in phone_list:
-    sid = Outbound_call(phone_number)
-    print(phone_number,sid)
-    time.sleep(80)
+    sid_logs = Sid_call_logs(phone_number)
+    for phone_number in sid_logs:
+        Call_status(phone_number)
+
+
+
 
