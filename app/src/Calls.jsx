@@ -3,7 +3,7 @@ import { auth } from "./firebase";
 import { signOut } from "firebase/auth";
 import Header from "./Header";
 
-const Profile = () => {
+const Calls = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
 
@@ -40,4 +40,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Calls;

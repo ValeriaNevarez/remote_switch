@@ -19,7 +19,7 @@ function Header() {
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav d-flex justify-content-evenly">
             <li class="nav-item">
-              <a class="nav-link active px-4" aria-current="page" href="#">
+              <a class="nav-link active px-4" aria-current="page" href="./lista">
                 Lista dispositivos
               </a>
             </li>
