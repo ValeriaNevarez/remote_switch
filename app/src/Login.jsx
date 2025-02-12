@@ -2,6 +2,7 @@ import { useState } from "react";
 import { auth } from "./firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
+import Header from "./Header";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Login = () => {
     }
 
     return(
+        <>
+        
         <div className = "container">
             <div className = "row justify-content-center">
                 <form className = "col-md-4 mt-3 pt-3 pb-3">
@@ -43,6 +46,7 @@ const Login = () => {
                 </form>
             </div>
         </div>
+        </>
     )
 }
 
