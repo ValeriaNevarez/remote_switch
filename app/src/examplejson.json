@@ -1,0 +1,14 @@
+{
+    "devices": [
+        {
+            "serial_number": 1,
+            "phone_number": "+528712743266",
+            "is_active": true
+        },
+        {
+            "serial_number": 2,
+            "phone_number": "+16506697507",
+            "is_active": true
+        }
+    ]
+}

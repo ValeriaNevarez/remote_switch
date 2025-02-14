@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import  auth  from "./firebase";
+import  auth, {database}  from "./firebase";
 import { signOut } from "firebase/auth";
 import Header from "./Header";
+import { writeUserData, readDatabase} from "./database_util";
 
 const List = () => {
   const navigate = useNavigate();
@@ -14,17 +15,17 @@ const List = () => {
     navigate("/");
   };
 
+  // Empieza codigo.
+  console.log(readDatabase());
+  // Termina codigo.
+
   return (
     <>
       <Header> </Header>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-4 text-center">
-            <p>
-              Welcome{" "}
-              <em className="text-decoration-underline">{user.email}</em>. You
-              are logged in!
-            </p>
+            
             <div className="d-grid gap-2">
               <button
                 type="submit"
