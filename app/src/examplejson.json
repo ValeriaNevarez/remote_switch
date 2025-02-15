@@ -1,13 +1,118 @@
 {
     "devices": [
         {
-            "serial_number": 1,
-            "phone_number": "+528712743266",
+            "serial_number": 4,
+            "phone_number": "+528713865040",
             "is_active": true
         },
         {
-            "serial_number": 2,
-            "phone_number": "+16506697507",
+            "serial_number": 5,
+            "phone_number": "+528713971807",
+            "is_active": true
+        },
+        {
+            "serial_number": 6,
+            "phone_number": "+528713460690",
+            "is_active": true
+        },
+        {
+            "serial_number": 31,
+            "phone_number": "+528711213669",
+            "is_active": true
+        },
+        {
+            "serial_number": 32,
+            "phone_number": "+528711222383",
+            "is_active": true
+        },
+        {
+            "serial_number": 33,
+            "phone_number": "+528711203824",
+            "is_active": true
+        },
+        {
+            "serial_number": 34,
+            "phone_number": "+528711226965",
+            "is_active": true
+        },
+        {
+            "serial_number": 35,
+            "phone_number": "+528711213670",
+            "is_active": true
+        },
+        {
+            "serial_number": 36,
+            "phone_number": "+528711212584",
+            "is_active": true
+        },
+        {
+            "serial_number": 37,
+            "phone_number": "+528712321789",
+            "is_active": true
+        },
+        {
+            "serial_number": 38,
+            "phone_number": "+528713993607",
+            "is_active": true
+        },
+        {
+            "serial_number": 39,
+            "phone_number": "+528715775427",
+            "is_active": true
+        },
+        {
+            "serial_number": 40,
+            "phone_number": "+528711226991",
+            "is_active": true
+        },
+        {
+            "serial_number": 41,
+            "phone_number": "+528717812721",
+            "is_active": true
+        },
+        {
+            "serial_number": 42,
+            "phone_number": "+528712331536",
+            "is_active": true
+        },
+        {
+            "serial_number": 43,
+            "phone_number": "+528717812697",
+            "is_active": true
+        },
+        {
+            "serial_number": 44,
+            "phone_number": "+528712311936",
+            "is_active": true
+        },
+        {
+            "serial_number": 45,
+            "phone_number": "+528711201654",
+            "is_active": true
+        },
+        {
+            "serial_number": 46,
+            "phone_number": "+528713952058",
+            "is_active": true
+        },
+        {
+            "serial_number": 47,
+            "phone_number": "+528712315092",
+            "is_active": true
+        },
+        {
+            "serial_number": 48,
+            "phone_number": "+528713956413",
+            "is_active": true
+        },
+        {
+            "serial_number": 49,
+            "phone_number": "+528711209395",
+            "is_active": true
+        },
+        {
+            "serial_number": 50,
+            "phone_number": "+528712321992",
             "is_active": true
         }
     ]

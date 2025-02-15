@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import  auth, {database}  from "./firebase";
+import auth, { database } from "./firebase";
 import { signOut } from "firebase/auth";
 import Header from "./Header";
-import { writeUserData, readDatabase} from "./database_util";
+import { GetIdForSerialNumber, readDatabase } from "./database_util";
+import React, { useState, useEffect } from "react";
 
 const List = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
+  const [databaseContent, setDatabaseContents] = useState([]);
+  const [id, setId] = useState(-1);
 
   const logoutUser = async (e) => {
     e.preventDefault();
@@ -16,8 +19,20 @@ const List = () => {
   };
 
   // Empieza codigo.
-  console.log(readDatabase());
+  useEffect(() => {
+    GetIdForSerialNumber(37).then((result) => {
+      setId(result);
+    });
+  }, []);
+
   // Termina codigo.
+  useEffect(() => {
+    console.log(id)
+    // if (databaseContent.length != 0) {
+    //   console.log(databaseContent);
+    //   // console.log(databaseContent[0]['phone_number']);
+    // }
+  }, [id]);
 
   return (
     <>
@@ -25,7 +40,6 @@ const List = () => {
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-4 text-center">
-            
             <div className="d-grid gap-2">
               <button
                 type="submit"
