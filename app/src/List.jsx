@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import auth, { database } from "./firebase";
 import { signOut } from "firebase/auth";
 import Header from "./Header";
-import { GetIdForSerialNumber, readDatabase } from "./database_util";
+import { GetIdForSerialNumber, ReadDatabase, ChangeDeviceActive } from "./database_util";
 import React, { useState, useEffect } from "react";
 
 const List = () => {
@@ -18,11 +18,14 @@ const List = () => {
     navigate("/");
   };
 
-  // Empieza codigo.
+  // Codigo que se hace una vez
   useEffect(() => {
-    GetIdForSerialNumber(37).then((result) => {
-      setId(result);
-    });
+    ChangeDeviceActive(500,true).catch((error) => {
+      console.error(error);
+    } )
+    // GetIdForSerialNumber(37).then((result) => {
+    //   setId(result);
+    // });
   }, []);
 
   // Termina codigo.
