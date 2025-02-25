@@ -1,12 +1,12 @@
 function Header() {
   return (
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" >
+    <nav className="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+      <div className="container-fluid">
+        <a className="navbar-brand" >
           Switch Remoto
         </a>
         <button
-          class="navbar-toggler"
+          className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
@@ -14,27 +14,27 @@ function Header() {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span class="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav d-flex justify-content-evenly">
-            <li class="nav-item">
-              <a class="nav-link active px-4" aria-current="page" href="./lista">
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav d-flex justify-content-evenly">
+            <li className="nav-item">
+              <a className="nav-link active px-4" aria-current="page" href="./lista">
                 Lista dispositivos
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link px-4" href="#">
+            <li className="nav-item">
+              <a className="nav-link px-4" href="#">
                 Realizar llamada
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link px-4" href="#">
+            <li className="nav-item">
+              <a className="nav-link px-4" href="#">
                 Activar/Desactivar dispositivo
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link px-4" href="#">
+            <li className="nav-item">
+              <a className="nav-link px-4" href="#">
                 Reporte
               </a>
             </li>
