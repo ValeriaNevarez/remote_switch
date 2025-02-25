@@ -4,6 +4,8 @@ import { signOut } from "firebase/auth";
 import Header from "./Header";
 import { GetIdForSerialNumber, ReadDatabase, ChangeDeviceActive } from "./database_util";
 import React, { useState, useEffect } from "react";
+import {SendMessage, MakeCall, GetLastCallStatus, GetLastCompletedCallDate, GetStatusList} from "./twilio_util";
+
 
 const List = () => {
   const navigate = useNavigate();
@@ -18,11 +20,16 @@ const List = () => {
     navigate("/");
   };
 
-  // Codigo que se hace una vez
+  // Codigo que se hace una vezcd 
   useEffect(() => {
-    ChangeDeviceActive(500,true).catch((error) => {
-      console.error(error);
-    } )
+    GetStatusList(['+16506697507', '+16508611877','pepe']);
+    // GetLastCompletedCallDate('+16508611877');
+    // GetLastCallStatus('+16508611877').then((status)=> {console.log("react"+status)})
+    // MakeCall('+16508611877');
+    // SendMessage('+16508611877','hello')
+    // ChangeDeviceActive(500,true).catch((error) => {
+    //   console.error(error);
+    // } )
     // GetIdForSerialNumber(37).then((result) => {
     //   setId(result);
     // });
