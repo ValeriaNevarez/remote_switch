@@ -12,10 +12,14 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const loginUser = (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    signInWithEmailAndPassword(auth, email, password).catch((error) => {
+      setError(true);
+      setLoading(false);
+    });
   };
 
   const logOut = () => {
@@ -39,6 +43,7 @@ const AuthProvider = ({ children }) => {
     loginUser,
     logOut,
     loading,
+    error,
   };
 
   return (

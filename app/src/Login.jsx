@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 
 const Login = () => {
-  const { loginUser, loading, user } = useContext(AuthContext);
+  const { loginUser, loading, user, error } = useContext(AuthContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,14 +12,20 @@ const Login = () => {
 
   const loginWithUsernameAndPassword = async (e) => {
     e.preventDefault();
+    loginUser(email, password);
+  };
 
-    try {
-      await loginUser(email, password);
+  useEffect(() => {
+    if (user) {
       navigate("/");
-    } catch {
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (error) {
       setNotice("Usuario o contraseña incorrectos.");
     }
-  };
+  }, [error]);
 
   return (
     <>
