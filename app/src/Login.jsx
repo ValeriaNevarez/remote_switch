@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -15,15 +15,11 @@ const Login = () => {
 
     try {
       await loginUser(email, password);
-      navigate("/lista");
+      navigate("/");
     } catch {
       setNotice("Usuario o contraseña incorrectos.");
     }
   };
-
-  if (user) {
-    navigate("/lista");
-  }
 
   return (
     <>

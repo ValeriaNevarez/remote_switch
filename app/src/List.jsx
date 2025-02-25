@@ -25,7 +25,7 @@ const List = () => {
   const logoutUser = async (e) => {
     e.preventDefault();
     await logOut();
-    navigate("/");
+    navigate("/login");
   };
 
   // Codigo que se hace una vezcd

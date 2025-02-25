@@ -4,8 +4,9 @@ import Login from "./Login";
 import List from "./List";
 import Calls from "./Calls";
 import ActivateDeactivate from "./ActivateDeactivate";
-import Report from "./Report"
+import Report from "./Report";
 import PrivateRoute from "./PrivateRoute";
+import LoginRoute from "./LoginRoute";
 
 const router = createBrowserRouter([
   {
@@ -14,10 +15,14 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <LoginRoute>
+            <Login />
+          </LoginRoute>
+        ),
       },
       {
-        path: "/lista",
+        index: true,
         element: (
           <PrivateRoute>
             <List />
