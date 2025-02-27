@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import {
   GetIdForSerialNumber,
@@ -14,23 +13,11 @@ import {
   GetStatusList,
 } from "./twilio_util";
 
-import { AuthContext } from "./AuthProvider";
-import { useContext } from "react";
 
 const List = () => {
-  const navigate = useNavigate();
-  const { logOut } = useContext(AuthContext);
-  const [id, setId] = useState(-1);
-
-  const logoutUser = async (e) => {
-    e.preventDefault();
-    await logOut();
-    navigate("/login");
-  };
-
-  // Codigo que se hace una vezcd
+  // Codigo que se hace una vez
   useEffect(() => {
-    GetStatusList(["+16506697507", "+16508611877", "pepe"]);
+    GetStatusList(["+16506697507", "+16508611877"]);
     // GetLastCompletedCallDate('+16508611877');
     // GetLastCallStatus('+16508611877').then((status)=> {console.log("react"+status)})
     // MakeCall('+16508611877');
@@ -59,13 +46,6 @@ const List = () => {
         <div className="row justify-content-center">
           <div className="col-md-4 text-center">
             <div className="d-grid gap-2">
-              <button
-                type="submit"
-                className="btn btn-primary pt-3 pb-3"
-                onClick={(e) => logoutUser(e)}
-              >
-                Logout
-              </button>
             </div>
           </div>
         </div>
