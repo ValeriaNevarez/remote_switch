@@ -30,15 +30,6 @@ const List = () => {
     // });
   }, []);
 
-  // Termina codigo.
-  useEffect(() => {
-    console.log(id);
-    // if (databaseContent.length != 0) {
-    //   console.log(databaseContent);
-    //   // console.log(databaseContent[0]['phone_number']);
-    // }
-  }, [id]);
-
   return (
     <>
       <Header> </Header>
