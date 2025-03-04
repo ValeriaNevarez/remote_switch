@@ -52,11 +52,40 @@ export default async (req, res) => {
   let dictionary = {};
   for (const phone_number of phone_numbers) {
     dictionary[phone_number] = {};
-    dictionary[phone_number]["status"] = await GetLastCallStatus(phone_number);
-    dictionary[phone_number]["date"] = await GetLastCompletedCallDate(
-      phone_number
-    );
-  }
+  } 
+  const promise1 = Promise.all(
+    phone_numbers.map(async (phone_number) => {
+      dictionary[phone_number]["status"] = await GetLastCallStatus(
+        phone_number
+      );
+    })
+  );
+
+  const promise2 = Promise.all(
+    phone_numbers.map(async (phone_number) => {
+          dictionary[phone_number]["date"] = await GetLastCompletedCallDate(
+        phone_number
+      );
+    })
+  );
+
+  await Promise.all([promise1,promise2]);
+
+  // for (const phone_number of phone_numbers) {
+  //   dictionary[phone_number] = {};
+  //   dictionary[phone_number]["status"] = await GetLastCallStatus(phone_number);
+  //   dictionary[phone_number]["date"] = await GetLastCompletedCallDate(
+  //     phone_number
+  //   );
+  // }
 
   res.send(JSON.stringify({ dictionary: dictionary }));
 };
+
+// Promise.all(res.data.map(async (post) => {
+//   if (post.categories.includes(NEWS_CATEGORY_ID)) {
+//       const response = await getMediaInfo(post.featured_media);
+//       post = {...post, featured_url: response};
+//       return post;
+//   }
+// })).then(postsWithImageURLS => console.log(postsWithImageURLS));
