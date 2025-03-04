@@ -98,7 +98,7 @@ const GetStatusList = async (phone_numbers) => {
     });
 
     const data = await res.json();
-
+    console.log(data["dictionary"]);
 
     return data["dictionary"];
 

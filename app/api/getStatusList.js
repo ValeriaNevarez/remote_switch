@@ -6,6 +6,7 @@ import twilio from "twilio";
 const GetLastCallStatus = async (phone_number) => {
   const client = twilio(account_sid, auth_token);
   let status = "Internal error";
+  let date = "";
   await client.calls
     .list({
       to: phone_number,
@@ -14,13 +15,14 @@ const GetLastCallStatus = async (phone_number) => {
     .then((CallInstances) => {
       if (CallInstances.length != 0) {
         status = CallInstances[0]["status"];
+        date = CallInstances[0]["dateCreated"];
       }
     })
     .catch((err) => {
       console.log(err);
     });
 
-  return status;
+  return {status: status, date: date};
 };
 
 const GetLastCompletedCallDate = async (phone_number) => {
@@ -55,9 +57,11 @@ export default async (req, res) => {
   } 
   const promise1 = Promise.all(
     phone_numbers.map(async (phone_number) => {
-      dictionary[phone_number]["status"] = await GetLastCallStatus(
+      let status_and_date = await GetLastCallStatus(
         phone_number
       );
+      dictionary[phone_number]["status"] = status_and_date["status"];
+      dictionary[phone_number]["status_date"] = status_and_date["date"];
     })
   );
 
