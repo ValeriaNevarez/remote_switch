@@ -34,13 +34,13 @@ function Header() {
               <a
                 className="nav-link active px-4"
                 aria-current="page"
-                href="./lista"
+                href="./"
               >
                 Lista dispositivos
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link px-4" href="#">
+              <a className="nav-link px-4" href="/llamadas">
                 Realizar llamada
               </a>
             </li>

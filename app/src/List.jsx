@@ -4,8 +4,52 @@ import React, { useState, useEffect } from "react";
 import { GetStatusList } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
+import {Modal} from "bootstrap";
 
 DataTable.use(DT);
+
+const CallModal = () => {
+  return (
+    <div
+      className="modal fade"
+      id="modal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabIndex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h1 className="modal-title fs-5" id="staticBackdropLabel">
+              Modal title
+            </h1>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div className="modal-body">...</div>
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" className="btn btn-primary">
+              Understood
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const List = () => {
   const [dataArray, setDataArray] = useState([]);
@@ -31,6 +75,11 @@ const List = () => {
     if (data.is_active == "Activo" && !data.status.includes("completed")) {
       row.className = "table-danger";
     }
+    row.onclick = () => {
+      const modal = new Modal('#modal')
+      console.log("hello", data);
+      modal.show()
+    };
   };
 
   const dataTableOptions = {
@@ -50,6 +99,7 @@ const List = () => {
 
   return (
     <>
+    <CallModal></CallModal>
       <Header> </Header>
       <div className="container">
         <DataTable
