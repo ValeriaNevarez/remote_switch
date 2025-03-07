@@ -2,14 +2,49 @@ import Header from "./Header";
 import { ReadDatabase } from "./database_util";
 import React, { useState, useEffect } from "react";
 import { GetStatusList } from "./twilio_util";
+import DataTable from "datatables.net-react";
+import DT from "datatables.net-bs5";
+
+DataTable.use(DT);
 
 const List = () => {
-  const [list, setList] = useState({});
+  const [dataArray, setDataArray] = useState([]);
+  const columns = [
+    { data: "serial_number" },
+    { data: "phone_number" },
+    { data: "is_active" },
+    { data: "status" },
+    { data: "date" },
+  ];
+
+  const dataTableLayout = {
+    topEnd: {},
+    topStart: {
+      search: {
+        placeholder: "",
+        text: "Buscar:",
+      },
+    },
+  };
+
+  const dataTableRowCallback = (row, data) => {
+    if (data.is_active == "Activo" && !data.status.includes("completed")) {
+      row.className = "table-danger";
+    }
+  };
+
+  const dataTableOptions = {
+    paging: false,
+    layout: dataTableLayout,
+    rowCallback: dataTableRowCallback,
+  };
 
   // Codigo que se hace una vez
   useEffect(() => {
     GetList().then((result) => {
-      setList(result);
+      const data = ListToDataArray(result);
+      console.log(data);
+      setDataArray(data);
     });
   }, []);
 
@@ -17,7 +52,12 @@ const List = () => {
     <>
       <Header> </Header>
       <div className="container">
-        <table className="table">
+        <DataTable
+          className="table table-hover"
+          data={dataArray}
+          columns={columns}
+          options={dataTableOptions}
+        >
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -27,27 +67,7 @@ const List = () => {
               <th scope="col"> Última llamada completada</th>
             </tr>
           </thead>
-          <tbody className="table-group-divider">
-            {Object.entries(list).map((entry) => {
-              let phoneNumber = entry[0];
-              let value = entry[1];
-              let status = value["status"]
-              return (
-                <tr className= {status == "completed" ? "" : "table-danger" } key={phoneNumber}>
-                  <th scope="row">{value["serial_number"]}</th>
-                  <td>{phoneNumber}</td>
-                  <td>{value["is_active"] ? "Activo" : "Inactivo"} </td>
-                  <td >
-                    {status} ({FormatDate(value["status_date"])})  
-                  </td>
-                  <td>
-                    {FormatDate(value["date"])}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        </DataTable>
       </div>
     </>
   );
@@ -74,8 +94,8 @@ const GetList = async () => {
 
 const FormatDate = (date) => {
   let dt = new Date(date);
-  if(isNaN(dt)) {
-    return "-"
+  if (isNaN(dt)) {
+    return "-";
   }
 
   const year = dt.getFullYear();
@@ -83,6 +103,21 @@ const FormatDate = (date) => {
   const day = dt.getDate().toString().padStart(2, "0");
 
   return day + "/" + month + "/" + year;
+};
+
+const ListToDataArray = (list) => {
+  return Object.entries(list).map((entry) => {
+    let phoneNumber = entry[0];
+    let value = entry[1];
+    let status = value["status"];
+    return {
+      serial_number: value["serial_number"],
+      phone_number: phoneNumber,
+      is_active: value["is_active"] ? "Activo" : "Inactivo",
+      status: status + "  (" + FormatDate(value["status_date"]) + ") ",
+      date: FormatDate(value["date"]),
+    };
+  });
 };
 
 export default List;
