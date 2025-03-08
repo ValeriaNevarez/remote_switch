@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { ReadDatabase } from "./database_util";
+import { ChangeDeviceActive, ReadDatabase } from "./database_util";
 import React, { useState, useEffect } from "react";
 import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
@@ -41,26 +41,48 @@ const CallModal = ({ data }) => {
             <b>Celular: </b>
             {data.phone_number}
             <br />
+            <b>Estado actual: </b>
+            {data.is_active}
+            <br />
             <br />
             <button
               type="button"
               onClick={() => {
-                setCallButtonEnabled(false)
+                setCallButtonEnabled(false);
                 MakeCall(data.phone_number)
                   .then(() => {
-                    setNotice("Completado");
+                    setNotice("Se realizó la llamada");
                   })
                   .catch((e) => {
-                    setNotice("Llamada fallida:" + error);
+                    setNotice("Error al realizar la llamada:" + error);
                   });
               }}
-              className="btn btn-primary"
+              className="btn btn-dark"
               disabled={!callButtonEnabled}
             >
               Llamar
             </button>
-            <button type="button" className="btn btn-success">
-              Success
+            <button
+              type="button"
+              onClick={() => {
+                ChangeDeviceActive(
+                  data.serial_number,
+                  data.is_active == "Activo" ? false : true
+                )
+                  .then(() => {
+                    setNotice("Se actualizó el estado");
+                  })
+                  .catch((e) => {
+                    setNotice("Error al actualizar el estado: " + error);
+                  });
+              }}
+              className={
+                data.is_active == "Activo"
+                  ? "btn btn-secondary"
+                  : "btn btn-primary"
+              }
+            >
+              {data.is_active == "Activo" ? "Desactivar" : "Activar"}
             </button>
             {"" !== notice && (
               <div className="alert alert-warning" role="alert">
@@ -86,6 +108,7 @@ const CallModal = ({ data }) => {
 const List = () => {
   const [modalData, setModalData] = useState({});
   const [dataArray, setDataArray] = useState([]);
+
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
@@ -108,6 +131,7 @@ const List = () => {
     if (data.is_active == "Activo" && !data.status.includes("completed")) {
       row.className = "table-danger";
     }
+
     row.onclick = () => {
       const modal = new Modal("#modal");
       console.log("hello", data);
@@ -124,11 +148,15 @@ const List = () => {
 
   // Codigo que se hace una vez
   useEffect(() => {
-    GetList().then((result) => {
-      const data = ListToDataArray(result);
-      console.log(data);
-      setDataArray(data);
-    });
+    const update = () => {
+      GetList().then((result) => {
+        const data = ListToDataArray(result);
+        console.log(data);
+        setDataArray(data);
+      });
+    };
+    update()
+    setInterval(() => {update()}, 5000);
   }, []);
 
   return (
