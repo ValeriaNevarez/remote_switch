@@ -5,12 +5,15 @@ import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
+import { data } from "react-router-dom";
 
 DataTable.use(DT);
 
 const CallModal = ({ data }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
+
+  if (!data) return (<></>);
   return (
     <div
       className="modal fade"
@@ -108,6 +111,7 @@ const CallModal = ({ data }) => {
 const List = () => {
   const [modalData, setModalData] = useState({});
   const [dataArray, setDataArray] = useState([]);
+  const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
 
   const columns = [
     { data: "serial_number" },
@@ -134,8 +138,8 @@ const List = () => {
 
     row.onclick = () => {
       const modal = new Modal("#modal");
-      console.log("hello", data);
       modal.show();
+      setSelectedSerialNumber(data.serial_number);
       setModalData(data);
     };
   };
@@ -151,13 +155,25 @@ const List = () => {
     const update = () => {
       GetList().then((result) => {
         const data = ListToDataArray(result);
-        console.log(data);
         setDataArray(data);
       });
     };
-    update()
-    setInterval(() => {update()}, 5000);
+    update();
+    setInterval(() => {
+      update();
+    }, 5000);
   }, []);
+
+  useEffect(() => {
+    if (selectedSerialNumber !== null) {
+      setModalData(
+        dataArray.find((data) => {
+          return selectedSerialNumber == data.serial_number
+        })
+      );
+
+    }
+  }, [dataArray]);
 
   return (
     <>
