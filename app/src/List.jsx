@@ -1,14 +1,16 @@
 import Header from "./Header";
 import { ReadDatabase } from "./database_util";
 import React, { useState, useEffect } from "react";
-import { GetStatusList } from "./twilio_util";
+import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
-import {Modal} from "bootstrap";
+import { Modal } from "bootstrap";
 
 DataTable.use(DT);
 
-const CallModal = () => {
+const CallModal = ({ data }) => {
+  const [notice, setNotice] = useState("");
+  const [callButtonEnabled, setCallButtonEnabled] = useState(true);
   return (
     <div
       className="modal fade"
@@ -23,7 +25,7 @@ const CallModal = () => {
         <div className="modal-content">
           <div className="modal-header">
             <h1 className="modal-title fs-5" id="staticBackdropLabel">
-              Modal title
+              Panel de control
             </h1>
             <button
               type="button"
@@ -32,7 +34,40 @@ const CallModal = () => {
               aria-label="Close"
             ></button>
           </div>
-          <div className="modal-body">...</div>
+          <div className="modal-body">
+            <b>Número de serie: </b>
+            {data.serial_number}
+            <br />
+            <b>Celular: </b>
+            {data.phone_number}
+            <br />
+            <br />
+            <button
+              type="button"
+              onClick={() => {
+                setCallButtonEnabled(false)
+                MakeCall(data.phone_number)
+                  .then(() => {
+                    setNotice("Completado");
+                  })
+                  .catch((e) => {
+                    setNotice("Llamada fallida:" + error);
+                  });
+              }}
+              className="btn btn-primary"
+              disabled={!callButtonEnabled}
+            >
+              Llamar
+            </button>
+            <button type="button" className="btn btn-success">
+              Success
+            </button>
+            {"" !== notice && (
+              <div className="alert alert-warning" role="alert">
+                {notice}
+              </div>
+            )}
+          </div>
           <div className="modal-footer">
             <button
               type="button"
@@ -40,9 +75,6 @@ const CallModal = () => {
               data-bs-dismiss="modal"
             >
               Close
-            </button>
-            <button type="button" className="btn btn-primary">
-              Understood
             </button>
           </div>
         </div>
@@ -52,6 +84,7 @@ const CallModal = () => {
 };
 
 const List = () => {
+  const [modalData, setModalData] = useState({});
   const [dataArray, setDataArray] = useState([]);
   const columns = [
     { data: "serial_number" },
@@ -76,9 +109,10 @@ const List = () => {
       row.className = "table-danger";
     }
     row.onclick = () => {
-      const modal = new Modal('#modal')
+      const modal = new Modal("#modal");
       console.log("hello", data);
-      modal.show()
+      modal.show();
+      setModalData(data);
     };
   };
 
@@ -99,7 +133,7 @@ const List = () => {
 
   return (
     <>
-    <CallModal></CallModal>
+      <CallModal data={modalData}></CallModal>
       <Header> </Header>
       <div className="container">
         <DataTable
