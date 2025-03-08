@@ -10,8 +10,6 @@ const SendMessage = async (to,text) => {
       });
   
       const data = await res.json();
-
-      console.log(data);
     } catch (error) {
         console.log(error);
         throw error;
@@ -51,8 +49,6 @@ const GetLastCallStatus = async (phone_number) => {
     if (data["success"] === false) {
       return "Error"
     }
-
-    console.log(data["status"]);
     return data["status"];
 
   } catch (error) {
@@ -76,8 +72,6 @@ const GetLastCompletedCallDate = async (phone_number) => {
     if (data["success"] === false) {
       return "Error"
     }
-
-    console.log(data["lastCallDate"]);
     return data["lastCallDate"];
 
   } catch (error) {
@@ -98,8 +92,6 @@ const GetStatusList = async (phone_numbers) => {
     });
 
     const data = await res.json();
-    console.log(data["dictionary"]);
-
     return data["dictionary"];
 
   } catch (error) {
