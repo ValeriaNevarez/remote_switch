@@ -81,8 +81,8 @@ const CallModal = ({ data }) => {
               }}
               className={
                 data.is_active == "Activo"
-                  ? "btn btn-secondary"
-                  : "btn btn-primary"
+                  ? "btn btn-secondary ms-3"
+                  : "btn btn-primary ms-3"
               }
             >
               {data.is_active == "Activo" ? "Desactivar" : "Activar"}
