@@ -16,6 +16,9 @@ const GetLastCallStatus = async (phone_number) => {
       if (CallInstances.length != 0) {
         status = CallInstances[0]["status"];
         date = CallInstances[0]["dateCreated"];
+        if(CallInstances[0]["duration"] < 60 && status == "completed") {
+          status = "incomplete"
+        }
       }
     })
     .catch((err) => {

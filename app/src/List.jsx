@@ -13,6 +13,14 @@ const CallModal = ({ data }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
 
+  useEffect(() => {
+    if(notice != "") {
+      setTimeout(() => {
+        setNotice("");
+      }, 2000);
+    }
+    }, [notice]);
+
   if (!data) return <></>;
   return (
     <div
