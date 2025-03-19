@@ -13,7 +13,7 @@ const CallModal = ({ data }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
 
-  if (!data) return (<></>);
+  if (!data) return <></>;
   return (
     <div
       className="modal fade"
@@ -96,10 +96,10 @@ const CallModal = ({ data }) => {
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               data-bs-dismiss="modal"
             >
-              Close
+              Cerrar
             </button>
           </div>
         </div>
@@ -168,10 +168,9 @@ const List = () => {
     if (selectedSerialNumber !== null) {
       setModalData(
         dataArray.find((data) => {
-          return selectedSerialNumber == data.serial_number
+          return selectedSerialNumber == data.serial_number;
         })
       );
-
     }
   }, [dataArray]);
 
