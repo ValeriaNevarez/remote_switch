@@ -29,13 +29,9 @@ function Header() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav d-flex justify-content-evenly">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a
-                className="nav-link active px-4"
-                aria-current="page"
-                href="./"
-              >
+              <a className="nav-link active px-4" aria-current="page" href="./">
                 Lista dispositivos
               </a>
             </li>
@@ -54,16 +50,14 @@ function Header() {
                 Reporte
               </a>
             </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-primary "
-                type="submit"
-                onClick={(e) => logoutUser(e)}
-              >
-                Cerrar sesión
-              </button>
-            </li>
           </ul>
+          <button
+            className="btn btn-primary d-flex"
+            type="submit"
+            onClick={(e) => logoutUser(e)}
+          >
+            Cerrar sesión
+          </button>
         </div>
       </div>
     </nav>
