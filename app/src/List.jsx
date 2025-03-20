@@ -9,7 +9,7 @@ import { data } from "react-router-dom";
 
 DataTable.use(DT);
 
-const CallModal = ({ data }) => {
+const CallModal = ({ data, update }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
 
@@ -82,9 +82,10 @@ const CallModal = ({ data }) => {
                 )
                   .then(() => {
                     setNotice("Se actualizó el estado");
+                    update();
                   })
                   .catch((e) => {
-                    setNotice("Error al actualizar el estado: " + error);
+                    setNotice("Error al actualizar el estado: " + e);
                   });
               }}
               className={
@@ -96,7 +97,7 @@ const CallModal = ({ data }) => {
               {data.is_active == "Activo" ? "Desactivar" : "Activar"}
             </button>
             {"" !== notice && (
-              <div className="alert alert-warning" role="alert">
+              <div className="alert alert-warning mt-3" role="alert">
                 {notice}
               </div>
             )}
@@ -158,18 +159,19 @@ const List = () => {
     rowCallback: dataTableRowCallback,
   };
 
+  const update = () => {
+    GetList().then((result) => {
+      const data = ListToDataArray(result);
+      setDataArray(data);
+    });
+  };
+
   // Codigo que se hace una vez
   useEffect(() => {
-    const update = () => {
-      GetList().then((result) => {
-        const data = ListToDataArray(result);
-        setDataArray(data);
-      });
-    };
     update();
-    setInterval(() => {
-      update();
-    }, 5000);
+    // setInterval(() => {
+    //   update();
+    // }, 60000);
   }, []);
 
   useEffect(() => {
@@ -184,7 +186,7 @@ const List = () => {
 
   return (
     <>
-      <CallModal data={modalData}></CallModal>
+      <CallModal data={modalData} update= {()=>{update()}}></CallModal>
       <Header> </Header>
       <div className="container">
         <DataTable

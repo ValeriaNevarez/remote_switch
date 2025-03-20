@@ -36,16 +36,6 @@ function Header() {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link px-4" href="/llamadas">
-                Realizar llamada
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link px-4" href="#">
-                Activar/Desactivar dispositivo
-              </a>
-            </li>
-            <li className="nav-item">
               <a className="nav-link px-4" href="#">
                 Reporte
               </a>

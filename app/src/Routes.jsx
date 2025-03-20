@@ -2,8 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import Login from "./Login";
 import List from "./List";
-import Calls from "./Calls";
-import ActivateDeactivate from "./ActivateDeactivate";
 import Report from "./Report";
 import PrivateRoute from "./PrivateRoute";
 import LoginRoute from "./LoginRoute";
@@ -26,22 +24,6 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <List />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/llamadas",
-        element: (
-          <PrivateRoute>
-            <Calls />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/activar-desactivar",
-        element: (
-          <PrivateRoute>
-            <ActivateDeactivate />
           </PrivateRoute>
         ),
       },

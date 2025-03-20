@@ -37,6 +37,8 @@ const Login = () => {
                 {notice}
               </div>
             )}
+            <img src="logo2.png" alt="logo" className="img-fluid"></img>
+            <p></p>
             <div className="form-floating mb-3">
               <input
                 type="email"
@@ -48,7 +50,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
               ></input>
               <label htmlFor="exampleInputEmail1" className="form-label">
-                Email address
+                Correo electrónico
               </label>
             </div>
             <div className="form-floating mb-3">
@@ -61,7 +63,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               ></input>
               <label htmlFor="exampleInputPassword1" className="form-label">
-                Password
+                Contraseña
               </label>
             </div>
             <div className="d-grid">
@@ -70,7 +72,7 @@ const Login = () => {
                 className="btn btn-primary pt-3 pb-3"
                 onClick={(e) => loginWithUsernameAndPassword(e)}
               >
-                Submit
+                Ingresar
               </button>
             </div>
           </form>
