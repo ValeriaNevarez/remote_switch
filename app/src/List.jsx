@@ -189,7 +189,7 @@ const List = () => {
   return (
     <>
       <CallModal data={modalData} update= {()=>{update()}}></CallModal>
-      <Header> </Header>
+      <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
           className="table table-hover"

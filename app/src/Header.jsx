@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "./AuthProvider";
 import React from "react";
 
-function Header() {
+const Header = ({ currentPage }) => {
   const navigate = useNavigate();
   const { logOut } = useContext(AuthContext);
 
@@ -31,12 +31,27 @@ function Header() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a className="nav-link active px-4" aria-current="page" href="./">
+              <a
+                className={
+                  currentPage == "lista"
+                    ? "nav-link active px-4"
+                    : "nav-link px-4"
+                }
+                aria-current="page"
+                href={currentPage == "lista" ? "#" : "./"}
+              >
                 Lista dispositivos
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link px-4" href="#">
+              <a
+                className={
+                  currentPage == "reporte"
+                    ? "nav-link active px-4"
+                    : "nav-link px-4"
+                }
+                href={currentPage == "reporte" ? "#" : "./reporte"}
+              >
                 Reporte
               </a>
             </li>
@@ -52,6 +67,6 @@ function Header() {
       </div>
     </nav>
   );
-}
+};
 
 export default Header;

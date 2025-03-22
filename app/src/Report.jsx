@@ -3,6 +3,7 @@ import auth  from "./firebase";
 import { signOut } from "firebase/auth";
 import Header from "./Header";
 
+
 const Report = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
@@ -15,7 +16,7 @@ const Report = () => {
   };
   return (
     <>
-      <Header> </Header>
+      <Header currentPage={"reporte"}> </Header>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-4 text-center">
