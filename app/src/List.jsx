@@ -141,7 +141,9 @@ const List = () => {
   };
 
   const dataTableRowCallback = (row, data) => {
-    if (data.is_active == "Activo" && !data.status.includes("completed")) {
+    if( data.status.includes("in-progress") || data.status.includes("ringing") || data.status.includes("queued")) {
+      row.className = "table-info";
+    } else if (data.is_active == "Activo" && !data.status.includes("completed")) {
       row.className = "table-danger";
     }
 
