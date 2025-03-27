@@ -3,50 +3,11 @@ const auth_token = process.env.TWILIO_AUTH_TOKEN;
 
 import twilio from "twilio";
 
-const GetLastCallStatus = async (phone_number) => {
+const GetCallList = async () => {
   const client = twilio(account_sid, auth_token);
-  let status = "Internal error";
-  let date = "";
-  await client.calls
-    .list({
-      to: phone_number,
-      limit: 1,
-    })
-    .then((CallInstances) => {
-      if (CallInstances.length != 0) {
-        status = CallInstances[0]["status"];
-        date = CallInstances[0]["dateCreated"];
-        if(CallInstances[0]["duration"] < 60 && status == "completed") {
-          status = "incomplete"
-        }
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return {status: status, date: date};
-};
-
-const GetLastCompletedCallDate = async (phone_number) => {
-  const client = twilio(account_sid, auth_token);
-  let date = "Internal error";
-  await client.calls
-    .list({
-      to: phone_number,
-      status: "completed",
-      limit: 1,
-    })
-    .then((CallInstances) => {
-      if (CallInstances.length != 0) {
-        date = CallInstances[0]["dateCreated"];
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return date;
+  return await client.calls.list({
+    pageSize: 1000,
+  });
 };
 
 export default async (req, res) => {
@@ -56,43 +17,36 @@ export default async (req, res) => {
   const phone_numbers = req.body.phone_numbers;
   let dictionary = {};
   for (const phone_number of phone_numbers) {
-    dictionary[phone_number] = {};
-  } 
-  const promise1 = Promise.all(
-    phone_numbers.map(async (phone_number) => {
-      let status_and_date = await GetLastCallStatus(
-        phone_number
-      );
-      dictionary[phone_number]["status"] = status_and_date["status"];
-      dictionary[phone_number]["status_date"] = status_and_date["date"];
-    })
-  );
+    dictionary[phone_number] = {
+      date: null,
+      status: null,
+      status_date: null,
+    };
+  }
 
-  const promise2 = Promise.all(
-    phone_numbers.map(async (phone_number) => {
-          dictionary[phone_number]["date"] = await GetLastCompletedCallDate(
-        phone_number
-      );
-    })
-  );
+  const call_list = await GetCallList();
+  for (const element of call_list) {
+    const date_created = element["dateCreated"];
+    const phone_to = element["to"];
+    const status = element["status"];
+    const duration = element["duration"];
 
-  await Promise.all([promise1,promise2]);
+    if (!(phone_to in dictionary)) {
+      continue;
+    }
 
-  // for (const phone_number of phone_numbers) {
-  //   dictionary[phone_number] = {};
-  //   dictionary[phone_number]["status"] = await GetLastCallStatus(phone_number);
-  //   dictionary[phone_number]["date"] = await GetLastCompletedCallDate(
-  //     phone_number
-  //   );
-  // }
+    if (status == "complete" && duration < 60) {
+      status = "incomplete";
+    }
+    // Con esto llenamos la última llamada completada
+    if (dictionary[phone_to]["date"] == null && status == "completed") {
+      dictionary[phone_to]["date"] = date_created;
+    }
+    if (dictionary[phone_to]["status"] == null) {
+      dictionary[phone_to]["status"] = status;
+      dictionary[phone_to]["status_date"] = date_created;
+    }
+  }
 
   res.send(JSON.stringify({ dictionary: dictionary }));
 };
-
-// Promise.all(res.data.map(async (post) => {
-//   if (post.categories.includes(NEWS_CATEGORY_ID)) {
-//       const response = await getMediaInfo(post.featured_media);
-//       post = {...post, featured_url: response};
-//       return post;
-//   }
-// })).then(postsWithImageURLS => console.log(postsWithImageURLS));
