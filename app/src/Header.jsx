@@ -43,18 +43,6 @@ const Header = ({ currentPage }) => {
                 Lista dispositivos
               </a>
             </li>
-            <li className="nav-item">
-              <a
-                className={
-                  currentPage == "reporte"
-                    ? "nav-link active px-4"
-                    : "nav-link px-4"
-                }
-                href={currentPage == "reporte" ? "#" : "./reporte"}
-              >
-                Reporte
-              </a>
-            </li>
           </ul>
           <button
             className="btn btn-primary d-flex"
