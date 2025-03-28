@@ -14,12 +14,12 @@ const CallModal = ({ data, update }) => {
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
 
   useEffect(() => {
-    if(notice != "") {
+    if (notice != "") {
       setTimeout(() => {
         setNotice("");
       }, 2000);
     }
-    }, [notice]);
+  }, [notice]);
 
   if (!data) return <></>;
   return (
@@ -141,9 +141,16 @@ const List = () => {
   };
 
   const dataTableRowCallback = (row, data) => {
-    if( data.status.includes("in-progress") || data.status.includes("ringing") || data.status.includes("queued")) {
+    if (
+      data.status.includes("in-progress") ||
+      data.status.includes("ringing") ||
+      data.status.includes("queued")
+    ) {
       row.className = "table-info";
-    } else if (data.is_active == "Activo" && !data.status.includes("completed")) {
+    } else if (
+      data.is_active == "Activo" &&
+      !data.status.includes("completed")
+    ) {
       row.className = "table-danger";
     }
 
@@ -188,7 +195,12 @@ const List = () => {
 
   return (
     <>
-      <CallModal data={modalData} update= {()=>{update()}}></CallModal>
+      <CallModal
+        data={modalData}
+        update={() => {
+          update();
+        }}
+      ></CallModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
@@ -232,30 +244,31 @@ const GetList = async () => {
 };
 
 const FormatDate = (date) => {
-   
-  if(date == null){
-    return "-"
+  if (date == null) {
+    return "-";
   }
-  
+
   let dt = new Date(date);
   if (isNaN(dt)) {
     return "-";
   }
-  const year = dt.getFullYear();
-  const month = (dt.getMonth() + 1).toString().padStart(2, "0");
-  const day = dt.getDate().toString().padStart(2, "0");
-  let call_date = day+month+year
 
+  const date1 = dt;
   let today = new Date();
-  const day_today = today.getDate().toString().padStart(2,"0");
-  const month_today = (today.getMonth() + 1).toString().padStart(2,"0");
-  const year_today = today.getFullYear();
+  const date2 = today;
 
-  today = day_today+month_today+year_today;
-  
+  const diffTime = Math.abs(date2.getTime() - date1.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
 
-  return day + "/" + month + "/" + year;
+  let days = "";
+  if (diffDays == 1) {
+    days = " día";
+  } else {
+    days = " días";
+  }
+
+  return "Hace " + diffDays + days;
 };
 
 const ListToDataArray = (list) => {
