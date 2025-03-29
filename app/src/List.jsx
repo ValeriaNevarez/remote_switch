@@ -27,7 +27,7 @@ const CallModal = ({ data, update }) => {
       className="modal fade"
       id="modal"
       data-bs-backdrop="static"
-      data-bs-keyboard="false"
+      data-bs-keyboard="true"
       tabIndex="-1"
       aria-labelledby="staticBackdropLabel"
       aria-hidden="true"
@@ -55,6 +55,9 @@ const CallModal = ({ data, update }) => {
             <b>Estado actual: </b>
             {data.is_active}
             <br />
+            <b>Último estatus: </b>
+            {data.status}
+            <br />
             <br />
             <button
               type="button"
@@ -63,6 +66,14 @@ const CallModal = ({ data, update }) => {
                 MakeCall(data.phone_number)
                   .then(() => {
                     setNotice("Se realizó la llamada");
+                    update();
+                    setTimeout(() => {
+                      update();
+                    }, 10000);
+                    setTimeout(() => {
+                      update();
+                      setCallButtonEnabled(true);
+                    }, 80000);
                   })
                   .catch((e) => {
                     setNotice("Error al realizar la llamada:" + error);
@@ -259,7 +270,6 @@ const FormatDate = (date) => {
 
   const diffTime = Math.abs(date2.getTime() - date1.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
 
   let days = "";
   if (diffDays == 1) {
