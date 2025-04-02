@@ -21,7 +21,7 @@ const CallModal = ({ data, update }) => {
     if (notice != "") {
       setTimeout(() => {
         setNotice("");
-      }, 2000);
+      }, 3000);
     }
   }, [notice]);
 
@@ -70,7 +70,7 @@ const CallModal = ({ data, update }) => {
               type="button"
               onClick={() => {
                 setCallButtonEnabled(false);
-                MakeCall(data.phone_number)
+                MakeCall(data.phone_number, data.enable == "On")
                   .then(() => {
                     setNotice("Se realizó la llamada");
                     update();
@@ -117,13 +117,33 @@ const CallModal = ({ data, update }) => {
             <button
               type="button"
               onClick={() => {
+                const currentEnable = data.enable
+                const newEnable = data.enable == "On" ? false : true
                 ChangeDeviceEnable(
                   data.serial_number,
-                  data.enable == "On" ? false : true
+                  newEnable
                 )
                   .then(() => {
                     setNotice("Se actualizó el estado");
                     update();
+                    setCallButtonEnabled(false);
+                    MakeCall(data.phone_number, newEnable)
+                      .then(() => {
+                        setNotice(
+                          "Se realizó la llamada para cambiar el estado."
+                        );
+                        update();
+                        setTimeout(() => {
+                          update();
+                        }, 10000);
+                        setTimeout(() => {
+                          update();
+                          setCallButtonEnabled(true);
+                        }, 80000);
+                      })  
+                      .catch((e) => {
+                        setNotice("Error al realizar la llamada:" + error);
+                      });
                   })
                   .catch((e) => {
                     setNotice("Error al actualizar el estado: " + e);

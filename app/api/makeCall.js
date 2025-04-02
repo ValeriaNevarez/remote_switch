@@ -25,7 +25,12 @@ export default async (req, res) => {
     req.body.to == "+528713971807" ||
     req.body.to == "+528713460690";
 
-  const digits = is_inverted == true ? "w1" : "w5";
+  let digits = null;
+  if(req.body.enable){
+    digits = is_inverted == true ? "w1" : "w5";
+  } else {
+    digits = is_inverted == true ? "w5" : "w1";
+  }
 
   response.play({
     digits: digits,

@@ -16,14 +16,14 @@ const SendMessage = async (to,text) => {
     }
 }
 
-const MakeCall = async (to) => {
+const MakeCall = async (to,enable) => {
   try {
     const res = await fetch("/api/makeCall", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({to:to}),
+      body: JSON.stringify({to:to,enable:enable}),
     });
 
     const data = await res.json();
