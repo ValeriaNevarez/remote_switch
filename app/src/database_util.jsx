@@ -13,6 +13,18 @@ const ChangeActive = async (deviceId, isActive) => {
   }
 };
 
+const ChangeEnable = async (deviceId, isEnabled) => {
+  try {
+    const db = database;
+    await update(ref(db, "devices/" + deviceId), {
+      enabled: isEnabled,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 const ChangeDeviceActive = async (serial, newIsActive) => {
   try {
     const id = await GetIdForSerialNumber(serial);
@@ -22,6 +34,16 @@ const ChangeDeviceActive = async (serial, newIsActive) => {
     throw error;
   }
 };
+
+const ChangeDeviceEnable = async (serial, newIsEnabled ) => {
+  try {
+    const id = await GetIdForSerialNumber(serial);
+    await ChangeEnable(id, newIsEnabled);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 
 // Modificar para que regrese los contenidos de la base de datos.
 const ReadDatabase = async () => {
@@ -61,4 +83,4 @@ const GetIdForSerialNumber = async (serial_number) => {
 //   return "su phone number y su active";
 // }
 
-export { ChangeDeviceActive, ReadDatabase, GetIdForSerialNumber };
+export { ChangeDeviceActive, ReadDatabase, GetIdForSerialNumber, ChangeDeviceEnable };

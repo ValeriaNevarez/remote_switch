@@ -1,5 +1,9 @@
 import Header from "./Header";
-import { ChangeDeviceActive, ReadDatabase } from "./database_util";
+import {
+  ChangeDeviceActive,
+  ReadDatabase,
+  ChangeDeviceEnable,
+} from "./database_util";
 import React, { useState, useEffect } from "react";
 import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
@@ -58,6 +62,9 @@ const CallModal = ({ data, update }) => {
             <b>Último estatus: </b>
             {data.status}
             <br />
+            <b>On/Off: </b>
+            {data.enable}
+            <br />
             <br />
             <button
               type="button"
@@ -107,20 +114,35 @@ const CallModal = ({ data, update }) => {
             >
               {data.is_active == "Activo" ? "Desactivar" : "Activar"}
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                ChangeDeviceEnable(
+                  data.serial_number,
+                  data.enable == "On" ? false : true
+                )
+                  .then(() => {
+                    setNotice("Se actualizó el estado");
+                    update();
+                  })
+                  .catch((e) => {
+                    setNotice("Error al actualizar el estado: " + e);
+                  });
+              }}
+              className={
+                data.enable == "On"
+                  ? "btn btn-secondary ms-3"
+                  : "btn btn-primary ms-3"
+              }
+            >
+              {data.enable == "On" ? "Apagar" : "Encender"}
+            </button>
+
             {"" !== notice && (
               <div className="alert alert-warning mt-3" role="alert">
                 {notice}
               </div>
             )}
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-primary"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
           </div>
         </div>
       </div>
@@ -139,6 +161,7 @@ const List = () => {
     { data: "is_active" },
     { data: "status" },
     { data: "date" },
+    { data: "enable" },
   ];
 
   const dataTableLayout = {
@@ -183,6 +206,7 @@ const List = () => {
     GetList().then((result) => {
       const data = ListToDataArray(result);
       setDataArray(data);
+      console.log(result);
     });
   };
 
@@ -226,7 +250,8 @@ const List = () => {
               <th scope="col">No. de celular</th>
               <th scope="col">Activo / Inactivo</th>
               <th scope="col">Estatus</th>
-              <th scope="col"> Última llamada completada</th>
+              <th scope="col">Última llamada completada</th>
+              <th scope="col">On / Off</th>
             </tr>
           </thead>
         </DataTable>
@@ -249,6 +274,8 @@ const GetList = async () => {
     const serialNumber = e["serial_number"];
     statusList[phoneNumber]["is_active"] = isActive;
     statusList[phoneNumber]["serial_number"] = serialNumber;
+    const enable = e["enabled"];
+    statusList[phoneNumber]["enabled"] = enable;
   }
 
   return statusList;
@@ -292,6 +319,7 @@ const ListToDataArray = (list) => {
       is_active: value["is_active"] ? "Activo" : "Inactivo",
       status: status + "  (" + FormatDate(value["status_date"]) + ") ",
       date: FormatDate(value["date"]),
+      enable: value["enabled"] ? "On" : "Off",
     };
   });
 };
