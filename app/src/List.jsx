@@ -117,12 +117,9 @@ const CallModal = ({ data, update }) => {
             <button
               type="button"
               onClick={() => {
-                const currentEnable = data.enable
-                const newEnable = data.enable == "On" ? false : true
-                ChangeDeviceEnable(
-                  data.serial_number,
-                  newEnable
-                )
+                const currentEnable = data.enable;
+                const newEnable = data.enable == "On" ? false : true;
+                ChangeDeviceEnable(data.serial_number, newEnable)
                   .then(() => {
                     setNotice("Se actualizó el estado");
                     update();
@@ -140,7 +137,7 @@ const CallModal = ({ data, update }) => {
                           update();
                           setCallButtonEnabled(true);
                         }, 80000);
-                      })  
+                      })
                       .catch((e) => {
                         setNotice("Error al realizar la llamada:" + error);
                       });
@@ -178,7 +175,13 @@ const List = () => {
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
-    { data: "is_active" },
+    { data: "is_active", render: (is_active)=>{
+      if (is_active == "Activo") {
+        return '<i class="bi bi-check-lg"></i>'
+      } else {
+        return '<i class="bi bi-x-lg"></i>'
+      }
+    }},
     { data: "status" },
     { data: "date" },
     { data: "enable" },
@@ -258,23 +261,25 @@ const List = () => {
       ></CallModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
-        <DataTable
-          className="table table-hover"
-          data={dataArray}
-          columns={columns}
-          options={dataTableOptions}
-        >
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">No. de celular</th>
-              <th scope="col">Activo / Inactivo</th>
-              <th scope="col">Estatus</th>
-              <th scope="col">Última llamada completada</th>
-              <th scope="col">On / Off</th>
-            </tr>
-          </thead>
-        </DataTable>
+        <div class="table-responsive">
+          <DataTable
+            className="table table-hover"
+            data={dataArray}
+            columns={columns}
+            options={dataTableOptions}
+          >
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">No. de celular</th>
+                <th scope="col">Activo / Inactivo</th>
+                <th scope="col">Estatus</th>
+                <th scope="col">Última llamada completada</th>
+                <th scope="col">On / Off</th>
+              </tr>
+            </thead>
+          </DataTable>
+        </div>
       </div>
     </>
   );
