@@ -229,7 +229,6 @@ const List = () => {
     GetList().then((result) => {
       const data = ListToDataArray(result);
       setDataArray(data);
-      console.log(result);
     });
   };
 
