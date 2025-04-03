@@ -175,13 +175,16 @@ const List = () => {
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
-    { data: "is_active", render: (is_active)=>{
-      if (is_active == "Activo") {
-        return '<i class="bi bi-circle-fill"></i>'
-      } else {
-        return '<i class="bi bi-circle"></i>'
-      }
-    }},
+    {
+      data: "is_active",
+      render: (is_active) => {
+        if (is_active == "Activo") {
+          return '<i class="bi bi-circle-fill"></i>';
+        } else {
+          return '<i class="bi bi-circle"></i>';
+        }
+      },
+    },
     { data: "enable" },
     { data: "status" },
     { data: "date" },
@@ -208,7 +211,9 @@ const List = () => {
       data.is_active == "Activo" &&
       !data.status.includes("completed")
     ) {
-      row.className = "table-danger";
+      row.className = "table-warning";
+    } else if (data.is_active == "Inactivo") {
+      row.className = "table-secondary";
     }
 
     row.onclick = () => {
@@ -305,22 +310,29 @@ const GetList = async () => {
   return statusList;
 };
 
-const FormatDate = (date) => {
-  if (date == null) {
-    return "-";
+const GetDaysSince = (date_str) => {
+  if (date_str == null) {
+    return null;
   }
 
-  let dt = new Date(date);
-  if (isNaN(dt)) {
-    return "-";
+  let date = new Date(date_str);
+  if (isNaN(date)) {
+    return null;
   }
 
-  const date1 = dt;
   let today = new Date();
-  const date2 = today;
 
-  const diffTime = Math.abs(date2.getTime() - date1.getTime());
+  const diffTime = Math.abs(today.getTime() - date.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays
+};
+
+const FormatDate = (date_str) => {
+  const diffDays = GetDaysSince(date_str)
+  if (diffDays == null){
+    return "-"
+  }
 
   let days = "";
   if (diffDays == 1) {
@@ -341,7 +353,10 @@ const ListToDataArray = (list) => {
       serial_number: value["serial_number"],
       phone_number: phoneNumber,
       is_active: value["is_active"] ? "Activo" : "Inactivo",
-      status: status == null ? "-" : status + "  (" + FormatDate(value["status_date"]) + ") ",
+      status:
+        status == null
+          ? "-"
+          : status + "  (" + FormatDate(value["status_date"]) + ") ",
       date: FormatDate(value["date"]),
       enable: value["enabled"] ? "On" : "Off",
     };
