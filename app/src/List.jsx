@@ -177,14 +177,14 @@ const List = () => {
     { data: "phone_number" },
     { data: "is_active", render: (is_active)=>{
       if (is_active == "Activo") {
-        return '<i class="bi bi-check-lg"></i>'
+        return '<i class="bi bi-circle-fill"></i>'
       } else {
-        return '<i class="bi bi-x-lg"></i>'
+        return '<i class="bi bi-circle"></i>'
       }
     }},
+    { data: "enable" },
     { data: "status" },
     { data: "date" },
-    { data: "enable" },
   ];
 
   const dataTableLayout = {
@@ -271,10 +271,10 @@ const List = () => {
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">No. de celular</th>
-                <th scope="col">Activo / Inactivo</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
                 <th scope="col">Estatus</th>
                 <th scope="col">Última llamada completada</th>
-                <th scope="col">On / Off</th>
               </tr>
             </thead>
           </DataTable>
@@ -329,7 +329,7 @@ const FormatDate = (date) => {
     days = " días";
   }
 
-  return "Hace " + diffDays + days;
+  return diffDays + days;
 };
 
 const ListToDataArray = (list) => {
@@ -341,7 +341,7 @@ const ListToDataArray = (list) => {
       serial_number: value["serial_number"],
       phone_number: phoneNumber,
       is_active: value["is_active"] ? "Activo" : "Inactivo",
-      status: status + "  (" + FormatDate(value["status_date"]) + ") ",
+      status: status == null ? "-" : status + "  (" + FormatDate(value["status_date"]) + ") ",
       date: FormatDate(value["date"]),
       enable: value["enabled"] ? "On" : "Off",
     };
