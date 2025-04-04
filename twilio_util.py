@@ -19,7 +19,10 @@ def Send_message(to,text):
 def Outbound_call(phone_number):
   response = VoiceResponse()
   response.pause(length=10)
-  response.play('', digits='w5')
+  if phone_number == "+528713865040":
+    response.play('', digits='w1')
+  else:
+    response.play('', digits='w5')
   response.pause(length=60)
   
   print(response)
@@ -46,3 +49,14 @@ def Sid_call_logs(phone_number):
     sid_array.append(record.sid)
   return sid_array 
 
+def Call_list():
+  call_list = client.calls.list()
+  phone_date_status_array = []
+  for record in call_list:
+    phone = record.to
+    date = record.date_created
+    status = record.status
+    entry = {"phone": phone, "date": date, "status": status }
+    phone_date_status_array.append(entry)
+  
+  return phone_date_status_array
