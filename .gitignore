@@ -4,3 +4,5 @@ __pycache__/
 secret.py
 
 app/.env
+
+firebase_private_key.json
