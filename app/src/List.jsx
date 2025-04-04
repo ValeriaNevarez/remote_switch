@@ -149,7 +149,7 @@ const CallModal = ({ data, update }) => {
               className={
                 data.enable == "On"
                   ? "btn btn-secondary ms-3"
-                  : "btn btn-primary ms-3"
+                  : "btn btn-success ms-3"
               }
             >
               {data.enable == "On" ? "Apagar" : "Encender"}
@@ -175,19 +175,17 @@ const List = () => {
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
-    {
-      data: "is_active",
-      render: (is_active) => {
-        if (is_active == "Activo") {
-          return '<i class="bi bi-circle-fill"></i>';
+    { data: "enable", 
+      render: (enable) => {
+        if (enable == "On"){
+          return '<i class="bi bi-circle-fill" style="font-size: 1rem; color: green;"></i>';
         } else {
-          return '<i class="bi bi-circle"></i>';
+          return  '<i class="bi bi-circle-fill" style="font-size: 1rem; color: rgb(194, 66, 66);"></i>';
         }
-      },
-    },
-    { data: "enable" },
-    { data: "status" },
-    { data: "date" },
+      }
+     },
+    { data: "status"    },
+    { data: "date" }
   ];
 
   const dataTableLayout = {
@@ -214,7 +212,12 @@ const List = () => {
       row.className = "table-warning";
     } else if (data.is_active == "Inactivo") {
       row.className = "table-secondary";
+    } if(
+      data.diffDays > 30
+    ) {
+      row.className = "table-danger";
     }
+
 
     row.onclick = () => {
       const modal = new Modal("#modal");
@@ -265,7 +268,6 @@ const List = () => {
       ></CallModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
-        <div class="table-responsive">
           <DataTable
             className="table table-hover"
             data={dataArray}
@@ -276,15 +278,13 @@ const List = () => {
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">No. de celular</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
+                <th scope="col"><i className="bi bi-power" style={{stroke: 5 }}></i></th>
                 <th scope="col">Estatus</th>
-                <th scope="col">Última llamada completada</th>
+                <th scope="col">Último enlace</th>
               </tr>
             </thead>
           </DataTable>
         </div>
-      </div>
     </>
   );
 };
@@ -358,7 +358,9 @@ const ListToDataArray = (list) => {
           ? "-"
           : status + "  (" + FormatDate(value["status_date"]) + ") ",
       date: FormatDate(value["date"]),
+      diffDays: GetDaysSince(value["date"]),
       enable: value["enabled"] ? "On" : "Off",
+      status_icon: status,
     };
   });
 };
