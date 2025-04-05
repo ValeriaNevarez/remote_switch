@@ -28,15 +28,15 @@ export default async (req, res) => {
   for (const element of call_list) {
     const date_created = element["dateCreated"];
     const phone_to = element["to"];
-    const status = element["status"];
+    let status = element["status"];
     const duration = element["duration"];
 
     if (!(phone_to in dictionary)) {
       continue;
     }
 
-    if (status == "complete" && duration < 60) {
-      status = "incomplete";
+    if (status == "completed" && duration < 60) {
+      status = "incompleted";
     }
     // Con esto llenamos la última llamada completada
     if (dictionary[phone_to]["date"] == null && status == "completed") {
