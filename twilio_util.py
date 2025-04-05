@@ -16,16 +16,22 @@ def Send_message(to,text):
   return message.sid
 
 #Función que acepta un número de teléfono y lo llama. Sostiene la llamada por 70 segundos y retorna el sid de la llamada.
-def Outbound_call(phone_number):
+def Outbound_call(phone_number : str, enabled: bool) -> str:
   response = VoiceResponse()
   response.pause(length=10)
-  if phone_number == "+528713865040":
-    response.play('', digits='w1')
+
+  if(enabled == True):
+    if(phone_number == "+528713865040"):
+      response.play('', digits='w1')
+    else:
+      response.play('', digits='w5')
   else:
-    response.play('', digits='w5')
-  response.pause(length=60)
+    if(phone_number == "+528713865040"):
+      response.play('', digits='w5')
+    else:
+      response.play('', digits='w1')
   
-  print(response)
+  response.pause(length=60)
 
   call = client.calls.create(
     from_= '+18667487103' ,
@@ -60,3 +66,21 @@ def Call_list():
     phone_date_status_array.append(entry)
   
   return phone_date_status_array
+
+
+def GetLastCallStatus(phone_number):
+  call_list = client.calls.list(limit= 1,to = phone_number)
+  if(call_list == []):
+    return None
+
+  record = call_list[0]
+
+  status = record.status
+  date = record.date_created
+  duration = record.duration
+
+  if(status == "completed" and int(duration) < 60):
+    status = "incompleted"
+  
+  return {"status" : status, "date": date}
+

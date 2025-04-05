@@ -1,55 +1,76 @@
-from twilio_util import Send_message,Outbound_call,Call_status,Sid_call_logs
+from twilio_util import Send_message,Outbound_call,Call_status,Sid_call_logs, Call_list,GetLastCallStatus
 import time 
+from database_util import GetListArray
+from datetime import date,datetime,timezone
+
+database_list = GetListArray()
+
+def MakeACall(phone_number,enabled):
+    print("calling ",phone_number, enabled)
+    # sid = Outbound_call(phone_number,enabled)
+    # print(phone_number,sid)
+    # time.sleep(80)
+
+def ChangeMaster(phone_number):
+    print("sending message", phone_number)
+    # message_to_change_master = '*123456*#+18667487103#'
+    # Send_message(phone_number, message_to_change_master)
+
+def CallAllNumbers():
+    database_list_range = range(0,len(database_list))
+    for i in database_list_range:
+        phone_number = database_list[i].get("phone_number")
+        enabled = database_list[i].get("enabled")
+        MakeACall(phone_number,enabled)
+
+def CallAllActiveNumbers():
+    database_list_range = range(0,len(database_list))
+    for i in database_list_range:
+        is_active = database_list[i].get("is_active")
+        if(is_active == True):
+            active_phone = database_list[i].get("phone_number")
+            enabled = database_list[i].get("enabled")
+            MakeACall(active_phone,enabled)
+
+def CallNumbersThatNeedIt():
+    database_list_range = range(0,len(database_list))
+    for i in database_list_range:
+        is_active = database_list[i].get("is_active")
+        if(is_active == True):
+            active_phone = database_list[i].get("phone_number")
+            last_call_status = GetLastCallStatus(active_phone)
+            status_active_phone = last_call_status.get("status")
+            date_active_phone = last_call_status.get("date")
+            days_since_call = GetDaysSince(date_active_phone)
+            enabled = database_list[i].get("enabled")
+            checkpoint = False
+            if(status_active_phone != "completed"):
+                print("estatus differente a completed",active_phone, status_active_phone)
+                MakeACall(active_phone,enabled)
+                checkpoint = True
+            if(status_active_phone == None):
+                print("estatus igual a None", active_phone)
+                ChangeMaster(active_phone)
+                MakeACall(active_phone,enabled)
+            if(checkpoint == False and days_since_call > 20):
+                print("dias sin llamada completada mayor a 20", active_phone)
+                MakeACall(active_phone,enabled)
 
 
-test_phone = '+16508611877'
-message_to_change_master = '*123456*#+18667487103#'
-phone_list = ['+528711213669',
-'+528711222383',
-'+528711203824',
-'+528711226965',
-'+528711213670',
-'+528711212584',
-'+528712321789',
-'+528713993607',
-'+528715775427',
-'+528711226991',
-'+528717812721',
-'+528712331536',
-'+528717812697',
-'+528712311936',
-'+528711201654',
-'+528713952058',
-'+528712315092',
-'+528713956413',
-'+528711209395',
-'+528712321992',
-'+528713865040',
-'+528713971807',
-'+528713460690']
+def GetDaysSince(date: datetime) -> int | None:
+    if(date == None):
+        return None
+    today = datetime.now(timezone.utc)
+    diff_days = today - date
 
-# +528711213668 lo quito cristian y lo cambio por el +528715775427
-# +528711226763 lo quito cristian y lo cambio por el +528717812721
+    return diff_days.days
+
+
+CallNumbersThatNeedIt()
+
+
     
-# new_phone_list = ['+528711226991', 
-# '+528712315092']
 
-# for phone_number in new_phone_list:
-#     sid = Send_message(phone_number,message_to_change_master)
-#     print(phone_number,sid)
 
-for phone_number in phone_list:
-    sid = Outbound_call(phone_number)
-    print(phone_number,sid)
-    time.sleep(80)
 
-# Call_status('CA1041dd66e60d823d35a05b882829ef13')
 
-# for phone_number in phone_list:
-#     sid_logs = Sid_call_logs(phone_number)
-#     for phone_number in sid_logs:
-#         Call_status(phone_number)
-
-# print(Send_message('+528711226965',message_to_change_master))
-# time.sleep(60)
-# print(Outbound_call('+528711213003'))
