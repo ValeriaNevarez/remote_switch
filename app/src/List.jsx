@@ -151,6 +151,7 @@ const CallModal = ({ data, update }) => {
                   ? "btn btn-secondary ms-3"
                   : "btn btn-success ms-3"
               }
+              disabled={!callButtonEnabled}
             >
               {data.enable == "On" ? "Apagar" : "Encender"}
             </button>
@@ -175,17 +176,70 @@ const List = () => {
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
-    { data: "enable", 
-      render: (enable) => {
-        if (enable == "On"){
-          return '<i class="bi bi-circle-fill" style="font-size: 1rem; color: green;"></i>';
-        } else {
-          return  '<i class="bi bi-circle-fill" style="font-size: 1rem; color: rgb(194, 66, 66);"></i>';
+    {
+      data: "enabled_and_is_active",
+      render: (enabled_and_is_active, type) => {
+        const enabled = enabled_and_is_active["enabled"];
+        const is_active = enabled_and_is_active["is_active"];
+
+        if (type !== "display") {
+          if (is_active == false) {
+            return "inactivo";
+          }
+          if (is_active == true && enabled == true) {
+            return "on";
+          }
+          if (is_active == true && enabled == false) {
+            return "off";
+          }
         }
-      }
-     },
-    { data: "status"    },
-    { data: "date" }
+        if (is_active == false) {
+          return '<i class="bi bi-circle"></i>';
+        }
+        if (is_active == true && enabled == true) {
+          return '<i class="bi bi-circle-fill" style="font-size: 1rem; color: green;"></i>';
+        }
+        if (is_active == true && enabled == false) {
+          return '<i class="bi bi-circle-fill" style="font-size: 1rem; color: rgb(194, 66, 66);"></i>';
+        }
+      },
+    },
+    {
+      data: "status_and_diff_days",
+      render: (status_and_diff_days, type) => {
+        const status = status_and_diff_days["status"];
+        const diff_days = status_and_diff_days["diff_days"];
+
+        if (type !== "display") {
+          if (status == "completed") {
+            return "aacompleted";
+          } else {
+            return "bb" + status;
+          }
+        }
+
+        if (status == "completed") {
+          return (
+            '<i class="bi bi-check-lg" style="color: rgb(40, 179, 86);"></i>' +
+            " " +
+            diff_days
+          );
+        } else if (
+          status == "in-progress" ||
+          status == "ringing" ||
+          status == "queued"
+        ) {
+          return '<i class="bi bi-telephone-outbound" style="color: rgb(35, 101, 177);" ></i>';
+        } else {
+          return (
+            '<i class="bi bi-telephone-x" style="color: rgb(194, 66, 66);"></i>' +
+            " " +
+            diff_days
+          );
+        }
+      },
+    },
+    { data: "date" },
   ];
 
   const dataTableLayout = {
@@ -210,14 +264,10 @@ const List = () => {
       !data.status.includes("completed")
     ) {
       row.className = "table-warning";
-    } else if (data.is_active == "Inactivo") {
-      row.className = "table-secondary";
-    } if(
-      data.diffDays > 30
-    ) {
+    }
+    if (data.diffDays > 30) {
       row.className = "table-danger";
     }
-
 
     row.onclick = () => {
       const modal = new Modal("#modal");
@@ -240,12 +290,8 @@ const List = () => {
     });
   };
 
-  // Codigo que se hace una vez
   useEffect(() => {
     update();
-    // setInterval(() => {
-    //   update();
-    // }, 60000);
   }, []);
 
   useEffect(() => {
@@ -268,23 +314,25 @@ const List = () => {
       ></CallModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
-          <DataTable
-            className="table table-hover"
-            data={dataArray}
-            columns={columns}
-            options={dataTableOptions}
-          >
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">No. de celular</th>
-                <th scope="col"><i className="bi bi-power" style={{stroke: 5 }}></i></th>
-                <th scope="col">Estatus</th>
-                <th scope="col">Último enlace</th>
-              </tr>
-            </thead>
-          </DataTable>
-        </div>
+        <DataTable
+          className="table table-hover"
+          data={dataArray}
+          columns={columns}
+          options={dataTableOptions}
+        >
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">No. de celular</th>
+              <th scope="col">
+                <i className="bi bi-power"></i>
+              </th>
+              <th scope="col">Estatus</th>
+              <th scope="col">Último enlace</th>
+            </tr>
+          </thead>
+        </DataTable>
+      </div>
     </>
   );
 };
@@ -325,13 +373,13 @@ const GetDaysSince = (date_str) => {
   const diffTime = Math.abs(today.getTime() - date.getTime());
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  return diffDays
+  return diffDays;
 };
 
 const FormatDate = (date_str) => {
-  const diffDays = GetDaysSince(date_str)
-  if (diffDays == null){
-    return "-"
+  const diffDays = GetDaysSince(date_str);
+  if (diffDays == null) {
+    return "-";
   }
 
   let days = "";
@@ -361,6 +409,14 @@ const ListToDataArray = (list) => {
       diffDays: GetDaysSince(value["date"]),
       enable: value["enabled"] ? "On" : "Off",
       status_icon: status,
+      enabled_and_is_active: {
+        enabled: value["enabled"],
+        is_active: value["is_active"],
+      },
+      status_and_diff_days: {
+        status: status,
+        diff_days: FormatDate(value["status_date"]),
+      },
     };
   });
 };
