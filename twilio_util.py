@@ -1,6 +1,7 @@
 from twilio.rest import Client
 from secret import account_sid,auth_token
 from twilio.twiml.voice_response import Dial, Number, VoiceResponse
+from datetime import date,datetime,timezone
 
 
 
@@ -69,6 +70,8 @@ def Call_list():
 
 
 def GetLastCallStatus(phone_number):
+  # return {"status": "completed", "date": datetime.now(timezone.utc)}
+
   call_list = client.calls.list(limit= 1,to = phone_number)
   if(call_list == []):
     return None
@@ -83,4 +86,21 @@ def GetLastCallStatus(phone_number):
     status = "incompleted"
   
   return {"status" : status, "date": date}
+
+
+def GetLastCompletedCallDate(phone_number):
+  # return {"status": "completed", "date": datetime.now(timezone.utc)}
+
+  call_list = client.calls.list(to = phone_number, status= "completed")
+  if(call_list == []):
+    return None
+  
+  for record in call_list:
+    date = record.date_created
+    duration = record.duration
+
+    if(int(duration) > 60):
+      return date
+    
+  return None
 
