@@ -66,7 +66,15 @@ def GetDaysSince(date: datetime) -> int | None:
     return diff_days.days
 
 
-CallNumbersThatNeedIt()
+def ReportRowToString(report_row):
+    return  f"""
+    <tr>
+        <td>{report_row.get("serial_number")}</td>
+        <td>{report_row.get("phone_number")}</td>
+        <td>{report_row.get("status")}</td>
+        <td>{report_row.get("days")}</td>
+    </tr>
+    """
 
 
 def ReportRowToString(report_row):

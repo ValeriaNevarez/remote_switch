@@ -70,6 +70,8 @@ def Call_list():
 
 
 def GetLastCallStatus(phone_number):
+  # return {"status": "completed", "date": datetime.now(timezone.utc)}
+
   call_list = client.calls.list(limit= 1,to = phone_number)
   if(call_list == []):
     return None
