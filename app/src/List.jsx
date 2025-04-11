@@ -80,7 +80,7 @@ const CallModal = ({ data, update }) => {
                     setTimeout(() => {
                       update();
                       setCallButtonEnabled(true);
-                    }, 80000);
+                    }, 90000);
                   })
                   .catch((e) => {
                     setNotice("Error al realizar la llamada:" + error);
@@ -136,7 +136,7 @@ const CallModal = ({ data, update }) => {
                         setTimeout(() => {
                           update();
                           setCallButtonEnabled(true);
-                        }, 80000);
+                        }, 90000);
                       })
                       .catch((e) => {
                         setNotice("Error al realizar la llamada:" + error);
