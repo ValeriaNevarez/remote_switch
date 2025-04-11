@@ -2,6 +2,7 @@ from twilio_util import Send_message,Outbound_call,Call_status,Sid_call_logs, Ca
 import time 
 from database_util import GetListArray
 from datetime import date,datetime,timezone
+from send_email import SendEmail
 
 database_list = GetListArray()
 
@@ -43,16 +44,15 @@ def CallNumbersThatNeedIt():
             date_active_phone = last_call_status.get("date")
             days_since_call = GetDaysSince(date_active_phone)
             enabled = database_list[i].get("enabled")
-            checkpoint = False
-            if(status_active_phone != "completed"):
-                print("estatus differente a completed",active_phone, status_active_phone)
-                MakeACall(active_phone,enabled)
-                checkpoint = True
             if(status_active_phone == None):
                 print("estatus igual a None", active_phone)
                 ChangeMaster(active_phone)
+                time.sleep(60)  # Wait for the device to process the SMS.
                 MakeACall(active_phone,enabled)
-            if(checkpoint == False and days_since_call > 20):
+            elif(status_active_phone != "completed"):
+                print("estatus differente a completed",active_phone, status_active_phone)
+                MakeACall(active_phone,enabled)
+            elif(days_since_call > 20):
                 print("dias sin llamada completada mayor a 20", active_phone)
                 MakeACall(active_phone,enabled)
 
@@ -236,7 +236,10 @@ font-weight: normal}}
 </html>
     '''
     return a
-  
+
+
+SendEmail(GetReport(database_list))
+
 
         
 # string = GetReport(database_list)
