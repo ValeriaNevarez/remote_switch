@@ -160,8 +160,7 @@ font-weight: normal}}
 
 
 #actives {{  font-family: Helvetica, Arial, sans-serif;
-  border-collapse: collapse;
-  width: 40%;}}
+  border-collapse: collapse;}}
 
 #actives td, #actives th {{border: 1px solid #ddd;
   padding: 8px;}}
@@ -177,8 +176,7 @@ font-weight: normal}}
   color: white;}}
 
 #inactives {{  font-family: Helvetica, Arial, sans-serif;
-  border-collapse: collapse;
-  width: 40%;}}
+  border-collapse: collapse;}}
 
 #inactives td, #inactives th {{border: 1px solid #ddd;
   padding: 8px;}}
@@ -238,7 +236,7 @@ font-weight: normal}}
     return a
 
 
-SendEmail(GetReport(database_list))
+SendEmail(GetReport(database_list),"mvno.071095@hotmail.com")
 
 
         
