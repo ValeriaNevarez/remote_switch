@@ -6,3 +6,6 @@ secret.py
 app/.env
 
 firebase_private_key.json
+
+springwater_oauth.json
+
