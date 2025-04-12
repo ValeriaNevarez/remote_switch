@@ -253,15 +253,16 @@ const List = () => {
   };
 
   const dataTableRowCallback = (row, data) => {
+    const status = data["status_and_diff_days"]["status"]
     if (
-      data.status.includes("in-progress") ||
-      data.status.includes("ringing") ||
-      data.status.includes("queued")
+      status == "in-progress" ||
+      status == "ringing" ||
+      status == "queued"
     ) {
       row.className = "table-info";
     } else if (
       data.is_active == "Activo" &&
-      !data.status.includes("completed")
+      status != "completed"
     ) {
       row.className = "table-warning";
     }
