@@ -12,3 +12,5 @@ springwater_oauth.json
 
 token.json
 .vercel
+
+python/dev_firebase_private_key.json

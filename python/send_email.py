@@ -1,60 +1,26 @@
-from twilio_util import Send_message,Outbound_call,Call_status,Sid_call_logs, Call_list,GetLastCallStatus, GetLastCompletedCallDate
-import time 
-from database_util import GetListArray
+#
+# Followed these tutorials:
+# - https://mailtrap.io/blog/send-emails-with-gmail-api/
+# - https://developers.google.com/workspace/gmail/api/guides/sending?hl=es-419#python
+#
+
+import base64
+import os.path
+import os
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from email.message import EmailMessage
 from datetime import date,datetime,timezone
-from send_email import SendEmail
+from twilio_util import GetLastCallStatus, GetLastCompletedCallDate
+from database_util import GetListArray
 
-database_list = GetListArray()
+USER_EMAIL = "pepemanboy@gmail.com"
 
-def MakeACall(phone_number,enabled):
-    print("calling ",phone_number, enabled)
-    sid = Outbound_call(phone_number,enabled)
-    print(phone_number,sid)
-    time.sleep(80)
-
-def ChangeMaster(phone_number):
-    print("sending message", phone_number)
-    message_to_change_master = '*123456*#+18667487103#'
-    Send_message(phone_number, message_to_change_master)
-
-def CallAllNumbers():
-    database_list_range = range(0,len(database_list))
-    for i in database_list_range:
-        phone_number = database_list[i].get("phone_number")
-        enabled = database_list[i].get("enabled")
-        MakeACall(phone_number,enabled)
-
-def CallAllActiveNumbers():
-    database_list_range = range(0,len(database_list))
-    for i in database_list_range:
-        is_active = database_list[i].get("is_active")
-        if(is_active == True):
-            active_phone = database_list[i].get("phone_number")
-            enabled = database_list[i].get("enabled")
-            MakeACall(active_phone,enabled)
-
-def CallNumbersThatNeedIt():
-    database_list_range = range(0,len(database_list))
-    for i in database_list_range:
-        is_active = database_list[i].get("is_active")
-        if(is_active == True):
-            active_phone = database_list[i].get("phone_number")
-            last_call_status = GetLastCallStatus(active_phone)
-            status_active_phone = last_call_status.get("status")
-            date_active_phone = last_call_status.get("date")
-            days_since_call = GetDaysSince(date_active_phone)
-            enabled = database_list[i].get("enabled")
-            if(status_active_phone == None):
-                print("estatus igual a None", active_phone)
-                ChangeMaster(active_phone)
-                time.sleep(60)  # Wait for the device to process the SMS.
-                MakeACall(active_phone,enabled)
-            elif(status_active_phone != "completed"):
-                print("estatus differente a completed",active_phone, status_active_phone)
-                MakeACall(active_phone,enabled)
-            elif(days_since_call > 20):
-                print("dias sin llamada completada mayor a 20", active_phone)
-                MakeACall(active_phone,enabled)
+SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
 
 def GetDaysSince(date: datetime) -> int | None:
@@ -102,8 +68,6 @@ def GetReportRow(database_row):
         days = "Hace "+str(days_since) + " días"
 
     return {"serial_number":serial_number, "phone_number": phone_number, "status": status, "days" : days}
-
-    
 
 
 def GetReport(database_list):
@@ -236,12 +200,58 @@ font-weight: normal}}
     return a
 
 
-SendEmail(GetReport(database_list),"mvno.071095@hotmail.com")
+def SendEmail(body: str, to: str):
+
+  dirname = os.path.dirname(__file__)
+  token_filename = os.path.join(dirname, 'token.json')
+  secrets_filename = os.path.join(dirname, 'springwater_oauth.json')
 
 
-        
-# string = GetReport(database_list)
-# print(string)
-# f = open("myhtmlfile.html", "w")
-# f.write(string)
+  creds = None
+  # The file token.json stores the user's access and refresh tokens, and is
+  # created automatically when the authorization flow completes for the first
+  # time.
+  if os.path.exists(token_filename):
+    creds = Credentials.from_authorized_user_file(token_filename, SCOPES)
+  # If there are no (valid) credentials available, let the user log in.
+  if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+      creds.refresh(Request())
+    else:
+      flow = InstalledAppFlow.from_client_secrets_file(
+          secrets_filename, SCOPES
+      )
+      creds = flow.run_local_server(port=0)
+    # Save the credentials for the next run
+    with open(token_filename, "w") as token:
+      token.write(creds.to_json())
 
+  try:
+    service = build("gmail", "v1", credentials=creds)
+
+    message = EmailMessage()
+
+    message["To"] = to
+    message["From"] = "springwater.switchremoto@gmail.com"
+    message["Subject"] = "Reporte semanal switch remoto"
+    message["Cc"] = "pepemanboy@gmail.com"
+    message.set_content(body, subtype='html')
+
+    # encoded message
+    encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+
+    create_message = {"raw": encoded_message}
+    # pylint: disable=E1101
+    send_message = (
+        service.users()
+        .messages()
+        .send(userId="me", body=create_message)
+        .execute()
+    )
+    print(f'Message Id: {send_message["id"]}')
+  except HttpError as error:
+    print(f"An error occurred: {error}")
+
+
+database_list = GetListArray()
+SendEmail(GetReport(database_list),USER_EMAIL)
