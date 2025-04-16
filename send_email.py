@@ -43,7 +43,8 @@ def SendEmail(body: str, to: str = "pepemanboy@gmail.com"):
 
     message["To"] = to
     message["From"] = "springwater.switchremoto@gmail.com"
-    message["Subject"] = "Automated draft"
+    message["Subject"] = "Reporte semanal switch remoto"
+    message["Cc"] = "pepemanboy@gmail.com"
     message.set_content(body, subtype='html')
 
     # encoded message
