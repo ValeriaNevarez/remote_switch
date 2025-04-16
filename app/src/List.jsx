@@ -333,6 +333,7 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
+        <a href="user_manual.pdf" target="_blank">Manual de usuario</a>
       </div>
     </>
   );
