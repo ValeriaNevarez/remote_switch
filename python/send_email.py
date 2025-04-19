@@ -18,7 +18,7 @@ from datetime import date,datetime,timezone
 from twilio_util import GetLastCallStatus, GetLastCompletedCallDate
 from database_util import GetListArray
 
-USER_EMAIL = "pepemanboy@gmail.com"
+USER_EMAIL = "santiagomendoza@gmail.com"
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
@@ -234,7 +234,7 @@ def SendEmail(body: str, to: str):
     message["To"] = to
     message["From"] = "springwater.switchremoto@gmail.com"
     message["Subject"] = "Reporte semanal switch remoto"
-    message["Cc"] = "pepemanboy@gmail.com"
+    message["Cc"] = "info@springwater.com.mx, pepemanboy@gmail.com"
     message.set_content(body, subtype='html')
 
     # encoded message
