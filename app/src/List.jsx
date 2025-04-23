@@ -50,6 +50,21 @@ const CallModal = ({ data, update }) => {
             ></button>
           </div>
           <div className="modal-body">
+            <div className="input-group mb-3">
+              <span className="input-group-text">Nombre de cliente</span>
+              <input type="text" className="form-control"></input>
+              <button className="btn btn-outline-secondary" type="button">
+                <i className="bi bi-check-lg"></i>
+              </button>
+            </div>
+            <div className="input-group mb-3">
+              <span className="input-group-text">No. de cliente</span>
+              <input type="text" className="form-control"></input>
+              <button className="btn btn-outline-secondary" type="button">
+                <i className="bi bi-check-lg"></i>
+              </button>
+            </div>
+
             <b>Número de serie: </b>
             {data.serial_number}
             <br />
@@ -176,6 +191,8 @@ const List = () => {
   const columns = [
     { data: "serial_number" },
     { data: "phone_number" },
+    { data: "client_name" },
+    { data: "client_number" },
     {
       data: "enabled_and_is_active",
       render: (enabled_and_is_active, type) => {
@@ -253,17 +270,10 @@ const List = () => {
   };
 
   const dataTableRowCallback = (row, data) => {
-    const status = data["status_and_diff_days"]["status"]
-    if (
-      status == "in-progress" ||
-      status == "ringing" ||
-      status == "queued"
-    ) {
+    const status = data["status_and_diff_days"]["status"];
+    if (status == "in-progress" || status == "ringing" || status == "queued") {
       row.className = "table-info";
-    } else if (
-      data.is_active == "Activo" &&
-      status != "completed"
-    ) {
+    } else if (data.is_active == "Activo" && status != "completed") {
       row.className = "table-warning";
     }
     if (data.diffDays > 30) {
@@ -325,6 +335,8 @@ const List = () => {
             <tr>
               <th scope="col">#</th>
               <th scope="col">No. de celular</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">No. de cliente</th>
               <th scope="col">
                 <i className="bi bi-power"></i>
               </th>
@@ -333,7 +345,9 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
-        <a href="user_manual.pdf" target="_blank">Manual de usuario</a>
+        <a href="user_manual.pdf" target="_blank">
+          Manual de usuario
+        </a>
       </div>
     </>
   );
@@ -355,6 +369,8 @@ const GetList = async () => {
     statusList[phoneNumber]["serial_number"] = serialNumber;
     const enable = e["enabled"];
     statusList[phoneNumber]["enabled"] = enable;
+    statusList[phoneNumber]["client_name"] = e["client_name"];
+    statusList[phoneNumber]["client_number"] = e["client_number"];
   }
 
   return statusList;
@@ -402,6 +418,8 @@ const ListToDataArray = (list) => {
     return {
       serial_number: value["serial_number"],
       phone_number: phoneNumber,
+      client_name: value["client_name"],
+      client_number: value["client_number"],
       is_active: value["is_active"] ? "Activo" : "Inactivo",
       status:
         status == null
