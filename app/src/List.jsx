@@ -3,6 +3,8 @@ import {
   ChangeDeviceActive,
   ReadDatabase,
   ChangeDeviceEnable,
+  ChangeDeviceClientName,
+  ChangeDeviceClientNumber,
 } from "./database_util";
 import React, { useState, useEffect } from "react";
 import { GetStatusList, MakeCall } from "./twilio_util";
@@ -16,6 +18,13 @@ DataTable.use(DT);
 const CallModal = ({ data, update }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
+  const [clientNameInput, setClientNameInput] = useState("");
+  const [clientNumberInput, setClientNumberInput] = useState("");
+
+  useEffect(() => {
+    setClientNameInput("");
+    setClientNumberInput("");
+  }, [data]);
 
   useEffect(() => {
     if (notice != "") {
@@ -52,15 +61,61 @@ const CallModal = ({ data, update }) => {
           <div className="modal-body">
             <div className="input-group mb-3">
               <span className="input-group-text">Nombre de cliente</span>
-              <input type="text" className="form-control"></input>
-              <button className="btn btn-outline-secondary" type="button">
+              <input
+                type="text"
+                className="form-control"
+                placeholder={data.client_name}
+                value={clientNameInput}
+                onChange={(e) => {
+                  setClientNameInput(e.target.value);
+                }}
+              ></input>
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => {
+                  ChangeDeviceClientName(data.serial_number, clientNameInput)
+                    .then(() => {
+                      setNotice("Se actualizó el nombre del cliente");
+                      update();
+                    })
+                    .catch((e) => {
+                      setNotice(
+                        "Error al actualizar el nombre del cliente: " + e
+                      );
+                    });
+                }}
+              >
                 <i className="bi bi-check-lg"></i>
               </button>
             </div>
             <div className="input-group mb-3">
               <span className="input-group-text">No. de cliente</span>
-              <input type="text" className="form-control"></input>
-              <button className="btn btn-outline-secondary" type="button">
+              <input
+                type="text"
+                className="form-control"
+                placeholder={data.client_number}
+                value={clientNumberInput}
+                onChange={(e) => {
+                  setClientNumberInput(e.target.value);
+                }}
+              ></input>
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => {
+                  ChangeDeviceClientNumber(data.serial_number, clientNumberInput)
+                    .then(() => {
+                      setNotice("Se actualizó el número de cliente");
+                      update();
+                    })
+                    .catch((e) => {
+                      setNotice(
+                        "Error al actualizar el número de cliente: " + e
+                      );
+                    });
+                }}
+              >
                 <i className="bi bi-check-lg"></i>
               </button>
             </div>
