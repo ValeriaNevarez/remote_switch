@@ -71,6 +71,7 @@ const CallModal = ({ data, update }) => {
                 }}
               ></input>
               <button
+                disabled={clientNameInput === ""}
                 className="btn btn-outline-secondary"
                 type="button"
                 onClick={() => {
@@ -101,10 +102,14 @@ const CallModal = ({ data, update }) => {
                 }}
               ></input>
               <button
+                disabled={clientNumberInput === ""}
                 className="btn btn-outline-secondary"
                 type="button"
                 onClick={() => {
-                  ChangeDeviceClientNumber(data.serial_number, clientNumberInput)
+                  ChangeDeviceClientNumber(
+                    data.serial_number,
+                    clientNumberInput
+                  )
                     .then(() => {
                       setNotice("Se actualizó el número de cliente");
                       update();
