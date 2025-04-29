@@ -16,3 +16,5 @@ token.json
 python/dev_firebase_private_key.json
 
 app/production.env
+
+app/package-lock.json
