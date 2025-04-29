@@ -11,6 +11,7 @@ import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
+import "datatables.net-responsive-dt";
 import { data } from "react-router-dom";
 
 DataTable.use(DT);
@@ -249,12 +250,23 @@ const List = () => {
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
 
   const columns = [
-    { data: "serial_number" },
-    { data: "phone_number" },
-    { data: "client_name" },
-    { data: "client_number" },
+    {
+      data: "serial_number",
+      responsivePriority: 3,
+      render: (serial_number, type) => {
+        if (type == "filter") {
+          return "#" + serial_number;
+        } else {
+          return serial_number;
+        }
+      },
+    },
+    { data: "phone_number", responsivePriority: 4 },
+    { data: "client_name", responsivePriority: 2 },
+    { data: "client_number", responsivePriority: 2 },
     {
       data: "enabled_and_is_active",
+      responsivePriority: 1,
       render: (enabled_and_is_active, type) => {
         const enabled = enabled_and_is_active["enabled"];
         const is_active = enabled_and_is_active["is_active"];
@@ -283,6 +295,7 @@ const List = () => {
     },
     {
       data: "status_and_diff_days",
+      responsivePriority: 1,
       render: (status_and_diff_days, type) => {
         const status = status_and_diff_days["status"];
         const diff_days = status_and_diff_days["diff_days"];
@@ -316,7 +329,7 @@ const List = () => {
         }
       },
     },
-    { data: "date" },
+    { data: "date", responsivePriority: 1 },
   ];
 
   const dataTableLayout = {
@@ -349,6 +362,11 @@ const List = () => {
   };
 
   const dataTableOptions = {
+    responsive: {
+      details: {
+        type: "column",
+      },
+    },
     paging: false,
     layout: dataTableLayout,
     rowCallback: dataTableRowCallback,
@@ -394,9 +412,9 @@ const List = () => {
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">No. de celular</th>
+              <th scope="col"># Celular</th>
               <th scope="col">Cliente</th>
-              <th scope="col">No. de cliente</th>
+              <th scope="col"># Cliente</th>
               <th scope="col">
                 <i className="bi bi-power"></i>
               </th>
