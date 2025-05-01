@@ -37,17 +37,8 @@ def ReportRowToString(report_row):
     <tr>
         <td>{report_row.get("serial_number")}</td>
         <td>{report_row.get("phone_number")}</td>
-        <td>{report_row.get("status")}</td>
-        <td>{report_row.get("days")}</td>
-    </tr>
-    """
-
-
-def ReportRowToString(report_row):
-    return  f"""
-    <tr>
-        <td>{report_row.get("serial_number")}</td>
-        <td>{report_row.get("phone_number")}</td>
+        <td>{report_row.get("client_name")}</td>
+        <td>{report_row.get("client_number")}</td>
         <td>{report_row.get("status")}</td>
         <td>{report_row.get("days")}</td>
     </tr>
@@ -55,6 +46,8 @@ def ReportRowToString(report_row):
 
 
 def GetReportRow(database_row):
+    client_name = database_row.get("client_name")
+    client_number = database_row.get("client_number")
     serial_number = database_row.get("serial_number")
     phone_number = database_row.get("phone_number")
     last_call_status = GetLastCallStatus(phone_number)
@@ -67,7 +60,7 @@ def GetReportRow(database_row):
     elif (days_since is not None):
         days = "Hace "+str(days_since) + " días"
 
-    return {"serial_number":serial_number, "phone_number": phone_number, "status": status, "days" : days}
+    return {"serial_number":serial_number, "client_name": client_name, "client_number": client_number, "phone_number": phone_number, "status": status, "days" : days}
 
 
 def GetReport(database_list):
@@ -82,7 +75,6 @@ def GetReport(database_list):
 
     for i in database_list_range:
         is_active = database_list[i].get("is_active")
-
         if (is_active == False ):
             total_inactive_devices += 1
             inactive_rows.append(GetReportRow(database_list[i]))
@@ -91,7 +83,7 @@ def GetReport(database_list):
             last_call_status = GetLastCallStatus(active_phone).get("status")
             if (last_call_status != "completed"):
                 total_incompleted_call_devices += 1
-                active_rows.append(GetReportRow(database_list[i]))
+                active_rows.append(GetReportRow(database_list[i]))              
             else: 
                 total_active_completed_devices += 1
 
@@ -174,6 +166,8 @@ font-weight: normal}}
   <tr>
     <th>No. de serie</th>
     <th>No. de celular</th>
+    <th>Cliente</th>
+    <th>No. de cliente</th>
     <th>Estatus</th>
     <th>Último enlace</th>
   </tr>
@@ -186,6 +180,8 @@ font-weight: normal}}
   <tr>
     <th>No. de serie</th>
     <th>No. de celular</th>
+    <th>Cliente</th>
+    <th>No. de cliente</th>
     <th>Estatus</th>
     <th>Último enlace</th>
   </tr>
