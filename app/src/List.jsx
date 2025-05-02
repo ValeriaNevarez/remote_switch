@@ -3,12 +3,15 @@ import {
   ChangeDeviceActive,
   ReadDatabase,
   ChangeDeviceEnable,
+  ChangeDeviceClientName,
+  ChangeDeviceClientNumber,
 } from "./database_util";
 import React, { useState, useEffect } from "react";
 import { GetStatusList, MakeCall } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
+import "datatables.net-responsive-dt";
 import { data } from "react-router-dom";
 
 DataTable.use(DT);
@@ -16,6 +19,13 @@ DataTable.use(DT);
 const CallModal = ({ data, update }) => {
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
+  const [clientNameInput, setClientNameInput] = useState("");
+  const [clientNumberInput, setClientNumberInput] = useState("");
+
+  useEffect(() => {
+    setClientNameInput("");
+    setClientNumberInput("");
+  }, [data]);
 
   useEffect(() => {
     if (notice != "") {
@@ -50,6 +60,72 @@ const CallModal = ({ data, update }) => {
             ></button>
           </div>
           <div className="modal-body">
+            <div className="input-group mb-3">
+              <span className="input-group-text">Nombre de cliente</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={data.client_name}
+                value={clientNameInput}
+                onChange={(e) => {
+                  setClientNameInput(e.target.value);
+                }}
+              ></input>
+              <button
+                disabled={clientNameInput === ""}
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => {
+                  ChangeDeviceClientName(data.serial_number, clientNameInput)
+                    .then(() => {
+                      setNotice("Se actualizó el nombre del cliente");
+                      update();
+                    })
+                    .catch((e) => {
+                      setNotice(
+                        "Error al actualizar el nombre del cliente: " + e
+                      );
+                    });
+                }}
+              >
+                <i className="bi bi-check-lg"></i>
+              </button>
+            </div>
+            <div className="input-group mb-3">
+              <span className="input-group-text">No. de cliente</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder={data.client_number}
+                value={clientNumberInput}
+                onChange={(e) => {
+                  setClientNumberInput(e.target.value);
+                }}
+              ></input>
+              <button
+                disabled={clientNumberInput === ""}
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => {
+                  ChangeDeviceClientNumber(
+                    data.serial_number,
+                    clientNumberInput
+                  )
+                    .then(() => {
+                      setNotice("Se actualizó el número de cliente");
+                      update();
+                    })
+                    .catch((e) => {
+                      setNotice(
+                        "Error al actualizar el número de cliente: " + e
+                      );
+                    });
+                }}
+              >
+                <i className="bi bi-check-lg"></i>
+              </button>
+            </div>
+
             <b>Número de serie: </b>
             {data.serial_number}
             <br />
@@ -174,10 +250,23 @@ const List = () => {
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
 
   const columns = [
-    { data: "serial_number" },
-    { data: "phone_number" },
+    {
+      data: "serial_number",
+      responsivePriority: 3,
+      render: (serial_number, type) => {
+        if (type == "filter") {
+          return "#" + serial_number;
+        } else {
+          return serial_number;
+        }
+      },
+    },
+    { data: "phone_number", responsivePriority: 4 },
+    { data: "client_name", responsivePriority: 2 },
+    { data: "client_number", responsivePriority: 2 },
     {
       data: "enabled_and_is_active",
+      responsivePriority: 1,
       render: (enabled_and_is_active, type) => {
         const enabled = enabled_and_is_active["enabled"];
         const is_active = enabled_and_is_active["is_active"];
@@ -206,6 +295,7 @@ const List = () => {
     },
     {
       data: "status_and_diff_days",
+      responsivePriority: 1,
       render: (status_and_diff_days, type) => {
         const status = status_and_diff_days["status"];
         const diff_days = status_and_diff_days["diff_days"];
@@ -239,7 +329,7 @@ const List = () => {
         }
       },
     },
-    { data: "date" },
+    { data: "date", responsivePriority: 1 },
   ];
 
   const dataTableLayout = {
@@ -253,17 +343,10 @@ const List = () => {
   };
 
   const dataTableRowCallback = (row, data) => {
-    const status = data["status_and_diff_days"]["status"]
-    if (
-      status == "in-progress" ||
-      status == "ringing" ||
-      status == "queued"
-    ) {
+    const status = data["status_and_diff_days"]["status"];
+    if (status == "in-progress" || status == "ringing" || status == "queued") {
       row.className = "table-info";
-    } else if (
-      data.is_active == "Activo" &&
-      status != "completed"
-    ) {
+    } else if (data.is_active == "Activo" && status != "completed") {
       row.className = "table-warning";
     }
     if (data.diffDays > 30) {
@@ -279,6 +362,11 @@ const List = () => {
   };
 
   const dataTableOptions = {
+    responsive: {
+      details: {
+        type: "column",
+      },
+    },
     paging: false,
     layout: dataTableLayout,
     rowCallback: dataTableRowCallback,
@@ -324,7 +412,9 @@ const List = () => {
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">No. de celular</th>
+              <th scope="col"># Celular</th>
+              <th scope="col">Cliente</th>
+              <th scope="col"># Cliente</th>
               <th scope="col">
                 <i className="bi bi-power"></i>
               </th>
@@ -333,7 +423,9 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
-        <a href="user_manual.pdf" target="_blank">Manual de usuario</a>
+        <a href="user_manual.pdf" target="_blank">
+          Manual de usuario
+        </a>
       </div>
     </>
   );
@@ -355,6 +447,8 @@ const GetList = async () => {
     statusList[phoneNumber]["serial_number"] = serialNumber;
     const enable = e["enabled"];
     statusList[phoneNumber]["enabled"] = enable;
+    statusList[phoneNumber]["client_name"] = e["client_name"];
+    statusList[phoneNumber]["client_number"] = e["client_number"];
   }
 
   return statusList;
@@ -402,6 +496,8 @@ const ListToDataArray = (list) => {
     return {
       serial_number: value["serial_number"],
       phone_number: phoneNumber,
+      client_name: value["client_name"],
+      client_number: value["client_number"],
       is_active: value["is_active"] ? "Activo" : "Inactivo",
       status:
         status == null

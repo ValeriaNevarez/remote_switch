@@ -25,6 +25,30 @@ const ChangeEnable = async (deviceId, isEnabled) => {
   }
 };
 
+const ChangeClientName = async (deviceId, clientName) => {
+  try {
+    const db = database;
+    await update(ref(db, "devices/" + deviceId), {
+      client_name: clientName,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const ChangeClientNumber = async (deviceId, clientNumber) => {
+  try {
+    const db = database;
+    await update(ref(db, "devices/" + deviceId), {
+      client_number: clientNumber,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 const ChangeDeviceActive = async (serial, newIsActive) => {
   try {
     const id = await GetIdForSerialNumber(serial);
@@ -35,7 +59,27 @@ const ChangeDeviceActive = async (serial, newIsActive) => {
   }
 };
 
-const ChangeDeviceEnable = async (serial, newIsEnabled ) => {
+const ChangeDeviceClientName = async (serial, newClientName) => {
+  try {
+    const id = await GetIdForSerialNumber(serial);
+    await ChangeClientName(id, newClientName);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const ChangeDeviceClientNumber = async (serial, newClientNumber) => {
+  try {
+    const id = await GetIdForSerialNumber(serial);
+    await ChangeClientNumber(id, newClientNumber);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const ChangeDeviceEnable = async (serial, newIsEnabled) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeEnable(id, newIsEnabled);
@@ -43,7 +87,7 @@ const ChangeDeviceEnable = async (serial, newIsEnabled ) => {
     console.log(error);
     throw error;
   }
-}
+};
 
 // Modificar para que regrese los contenidos de la base de datos.
 const ReadDatabase = async () => {
@@ -72,15 +116,18 @@ const GetIdForSerialNumber = async (serial_number) => {
         return i;
       }
     }
-    throw 'Numero de serie no existe';
+    throw "Numero de serie no existe";
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
 
-// const getDeviceData = (serial_number) => {
-//   return "su phone number y su active";
-// }
-
-export { ChangeDeviceActive, ReadDatabase, GetIdForSerialNumber, ChangeDeviceEnable };
+export {
+  ChangeDeviceActive,
+  ReadDatabase,
+  GetIdForSerialNumber,
+  ChangeDeviceEnable,
+  ChangeDeviceClientName,
+  ChangeDeviceClientNumber,
+};
