@@ -349,7 +349,7 @@ const List = () => {
     } else if (data.is_active == "Activo" && status != "completed") {
       row.className = "table-warning";
     }
-    if (data.diffDays > 30) {
+    if (data.diffDays > 40) {
       row.className = "table-danger";
     }
 

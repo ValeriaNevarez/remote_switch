@@ -3,7 +3,7 @@ import time
 from database_util import GetListArray
 from datetime import datetime,timezone
 
-DAYS_BETWEEN_CALLS = 20
+DAYS_BETWEEN_CALLS = 30
 
 database_list = GetListArray()
 
