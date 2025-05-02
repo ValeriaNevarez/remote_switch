@@ -2,11 +2,12 @@ from twilio.rest import Client
 from secret import account_sid,auth_token
 from twilio.twiml.voice_response import VoiceResponse
 
-
-
 client = Client(account_sid, auth_token)
 
-#Función que manda mensaje a un número de celular.
+# Prototype devices have inverted polarity.
+INVERTED_PHONE_NUMBERS = ['+528713293364','+528713971819','+528713971823', '+528713865040', '+528713971807', '+528713460690']
+
+
 def Send_message(to,text):
   message = client.messages.create(
     from_='+18667487103',
@@ -15,18 +16,18 @@ def Send_message(to,text):
   )
   return message.sid
 
-#Función que acepta un número de teléfono y lo llama. Sostiene la llamada por 70 segundos y retorna el sid de la llamada.
+
 def Outbound_call(phone_number : str, enabled: bool) -> str:
   response = VoiceResponse()
   response.pause(length=10)
 
   if(enabled == True):
-    if(phone_number == "+528713865040"):
+    if(phone_number in INVERTED_PHONE_NUMBERS):
       response.play('', digits='w1')
     else:
       response.play('', digits='w5')
   else:
-    if(phone_number == "+528713865040"):
+    if(phone_number in INVERTED_PHONE_NUMBERS):
       response.play('', digits='w5')
     else:
       response.play('', digits='w1')
@@ -42,19 +43,19 @@ def Outbound_call(phone_number : str, enabled: bool) -> str:
   )
   return call.sid
 
-#Función que acepta un sid de parámetro, y retorna el status de la llamada (busy, completed, not answer, etc)
+
 def Call_status(sid):
   call = client.calls(sid).fetch()
   print(call.status)
 
 
-#Función en twilio_util que acepta un número de teléfono y retorna un array de todos los Sid de llamada que se le han hecho
 def Sid_call_logs(phone_number):
   call = client.calls.list(to= phone_number)
   sid_array = []
   for record in call:
     sid_array.append(record.sid)
   return sid_array 
+
 
 def Call_list():
   call_list = client.calls.list()
@@ -70,8 +71,6 @@ def Call_list():
 
 
 def GetLastCallStatus(phone_number):
-  # return {"status": "completed", "date": datetime.now(timezone.utc)}
-
   call_list = client.calls.list(limit= 1,to = phone_number)
   if(call_list == []):
     return None
@@ -101,4 +100,3 @@ def GetLastCompletedCallDate(phone_number):
       return date
     
   return None
-
