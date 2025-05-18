@@ -32,7 +32,9 @@ const Login = () => {
       <div className="container">
         <div className="row justify-content-center">
           <form className="col-md-4 mt-3 pt-3 pb-3">
-            {"" !== notice && (
+            {notice == "" ? (
+              ""
+            ) : (
               <div className="alert alert-warning" role="alert">
                 {notice}
               </div>

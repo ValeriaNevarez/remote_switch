@@ -385,11 +385,10 @@ const List = () => {
 
   useEffect(() => {
     if (selectedSerialNumber !== null) {
-      setModalData(
-        dataArray.find((data) => {
-          return selectedSerialNumber == data.serial_number;
-        })
-      );
+      const new_modal_data = dataArray.find((data) => {
+        return selectedSerialNumber == data.serial_number;
+      });
+      setModalData(new_modal_data);
     }
   }, [dataArray]);
 
