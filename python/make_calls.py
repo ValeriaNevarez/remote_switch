@@ -55,16 +55,18 @@ def CallNumbersThatNeedIt():
         if(is_active == True):
             active_phone = database_list[i].get("phone_number")
             last_call_status = GetLastCallStatus(active_phone)
+            if last_call_status == None:
+                print("sin status")
+                ChangeMaster(active_phone)
+                time.sleep(60)  # Wait for the device to process the SMS.
+                MakeACall(active_phone, enabled)
+                continue
+
             status_active_phone = last_call_status.get("status")
             date_active_phone = last_call_status.get("date")
             days_since_call = GetDaysSince(date_active_phone)
             enabled = database_list[i].get("enabled")
-            if(status_active_phone == None):
-                print("estatus igual a None", active_phone)
-                ChangeMaster(active_phone)
-                time.sleep(60)  # Wait for the device to process the SMS.
-                MakeACall(active_phone,enabled)
-            elif(status_active_phone != "completed"):
+            if(status_active_phone != "completed"):
                 print("estatus differente a completed",active_phone, status_active_phone)
                 MakeACall(active_phone,enabled)
             elif(days_since_call > DAYS_BETWEEN_CALLS):
