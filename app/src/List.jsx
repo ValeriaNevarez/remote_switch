@@ -7,7 +7,11 @@ import {
   ChangeDeviceClientNumber,
 } from "./database_util";
 import React, { useState, useEffect } from "react";
-import { GetStatusList, MakeCall } from "./twilio_util";
+import {
+  GetStatusList,
+  MakeCall,
+  SendMessageToChangeMaster,
+} from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
@@ -162,7 +166,7 @@ const CallModal = ({ data, update }) => {
                     setNotice("Error al realizar la llamada:" + error);
                   });
               }}
-              className="btn btn-dark"
+              className="btn btn-dark me-3 mb-3"
               disabled={!callButtonEnabled}
             >
               Llamar
@@ -184,8 +188,8 @@ const CallModal = ({ data, update }) => {
               }}
               className={
                 data.is_active == "Activo"
-                  ? "btn btn-secondary ms-3"
-                  : "btn btn-primary ms-3"
+                  ? "btn btn-secondary me-3 mb-3"
+                  : "btn btn-primary me-3 mb-3"
               }
             >
               {data.is_active == "Activo" ? "Desactivar" : "Activar"}
@@ -224,12 +228,27 @@ const CallModal = ({ data, update }) => {
               }}
               className={
                 data.enable == "On"
-                  ? "btn btn-secondary ms-3"
-                  : "btn btn-success ms-3"
+                  ? "btn btn-secondary me-3 mb-3"
+                  : "btn btn-success me-3 mb-3"
               }
               disabled={!callButtonEnabled}
             >
               {data.enable == "On" ? "Apagar" : "Encender"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                SendMessageToChangeMaster(data.phone_number)
+                  .then(() => {
+                    setNotice("Se envió el SMS");
+                  })
+                  .catch((e) => {
+                    setNotice("Error al enviar el SMS:" + error);
+                  });
+              }}
+              className="btn btn-secondary me-3 mb-3"
+            >
+              Enviar SMS
             </button>
 
             {"" !== notice && (
