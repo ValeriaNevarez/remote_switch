@@ -1,5 +1,5 @@
 import { database } from "./firebase";
-import { ref, set, child, get, getDatabase, update } from "firebase/database";
+import { ref, set, child, get, getDatabase, update, push } from "firebase/database";
 
 const ChangeActive = async (deviceId, isActive) => {
   try {
@@ -123,6 +123,24 @@ const GetIdForSerialNumber = async (serial_number) => {
   }
 };
 
+const AddDevice = async (serialNumber, phoneNumber) => {
+  try {
+    const db = database;
+    const newDeviceRef = push(ref(db, "devices"));
+    await set(newDeviceRef, {
+      serial_number: serialNumber,
+      phone_number: phoneNumber,
+      client_name: "",
+      client_number: "",
+      is_active: true,
+      enabled: false,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 export {
   ChangeDeviceActive,
   ReadDatabase,
@@ -130,4 +148,5 @@ export {
   ChangeDeviceEnable,
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
+  AddDevice,
 };

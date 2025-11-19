@@ -5,6 +5,7 @@ import {
   ChangeDeviceEnable,
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
+  AddDevice,
 } from "./database_util";
 import React, { useState, useEffect } from "react";
 import {
@@ -19,6 +20,141 @@ import "datatables.net-responsive-dt";
 import { data } from "react-router-dom";
 
 DataTable.use(DT);
+
+const AddClientModal = ({ onAdd }) => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    if (notice != "") {
+      setTimeout(() => {
+        setNotice("");
+      }, 3000);
+    }
+  }, [notice]);
+
+  useEffect(() => {
+    const modalElement = document.getElementById("addClientModal");
+    if (modalElement) {
+      const handleShow = () => {
+        setPhoneNumber("");
+        setSerialNumber("");
+        setNotice("");
+      };
+      modalElement.addEventListener("shown.bs.modal", handleShow);
+      return () => {
+        modalElement.removeEventListener("shown.bs.modal", handleShow);
+      };
+    }
+  }, []);
+
+  const handleAdd = () => {
+    if (phoneNumber === "" || serialNumber === "") {
+      setNotice("Por favor, complete todos los campos");
+      return;
+    }
+    AddDevice(serialNumber, phoneNumber)
+      .then(() => {
+        setNotice("Cliente agregado exitosamente");
+        setPhoneNumber("");
+        setSerialNumber("");
+        onAdd();
+        const modal = Modal.getInstance("#addClientModal");
+        if (modal) {
+          modal.hide();
+        }
+      })
+      .catch((e) => {
+        setNotice("Error al agregar cliente: " + e);
+      });
+  };
+
+  const handleCancel = () => {
+    setPhoneNumber("");
+    setSerialNumber("");
+    setNotice("");
+    const modal = Modal.getInstance("#addClientModal");
+    if (modal) {
+      modal.hide();
+    }
+  };
+
+  return (
+    <div
+      className="modal fade"
+      id="addClientModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="true"
+      tabIndex="-1"
+      aria-labelledby="addClientModalLabel"
+      aria-hidden="true"
+    >
+      <div className="modal-dialog">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h1 className="modal-title fs-5" id="addClientModalLabel">
+              Add client
+            </h1>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div className="modal-body">
+            <div className="input-group mb-3">
+              <span className="input-group-text">Phone number</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter phone number"
+                value={phoneNumber}
+                onChange={(e) => {
+                  setPhoneNumber(e.target.value);
+                }}
+              ></input>
+            </div>
+            <div className="input-group mb-3">
+              <span className="input-group-text">Serial number</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter serial number"
+                value={serialNumber}
+                onChange={(e) => {
+                  setSerialNumber(e.target.value);
+                }}
+              ></input>
+            </div>
+            {"" !== notice && (
+              <div className="alert alert-warning mt-3" role="alert">
+                {notice}
+              </div>
+            )}
+          </div>
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAdd}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CallModal = ({ data, update }) => {
   const [notice, setNotice] = useState("");
@@ -419,6 +555,11 @@ const List = () => {
           update();
         }}
       ></CallModal>
+      <AddClientModal
+        onAdd={() => {
+          update();
+        }}
+      ></AddClientModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
@@ -441,9 +582,20 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
-        <a href="user_manual.pdf" target="_blank">
-          Manual de usuario
-        </a>
+        <button
+          className="btn btn-primary mt-3"
+          onClick={() => {
+            const modal = new Modal("#addClientModal");
+            modal.show();
+          }}
+        >
+          Agregar cliente
+        </button>
+        <div className="mt-3">
+          <a href="user_manual.pdf" target="_blank">
+            Manual de usuario
+          </a>
+        </div>
       </div>
     </>
   );
