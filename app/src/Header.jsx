@@ -5,7 +5,7 @@ import React from "react";
 
 const Header = ({ currentPage }) => {
   const navigate = useNavigate();
-  const { logOut } = useContext(AuthContext);
+  const { logOut, user } = useContext(AuthContext);
 
   const logoutUser = async (e) => {
     e.preventDefault();
@@ -20,6 +20,11 @@ const Header = ({ currentPage }) => {
         
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
           </ul>
+          <div className="d-flex align-items-center me-3">
+            <span className="text-light me-3">
+              {user?.email || "Usuario"}
+            </span>
+          </div>
           <button
             className="btn btn-primary d-flex"
             type="submit"
