@@ -106,7 +106,7 @@ const AddClientModal = ({ onAdd }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h1 className="modal-title fs-5" id="addClientModalLabel">
-              Add client
+              Alta de cliente
             </h1>
             <button
               type="button"
