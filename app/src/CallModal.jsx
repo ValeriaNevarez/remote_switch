@@ -4,12 +4,14 @@ import {
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
 } from "./database_util";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { MakeCall, SendMessageToChangeMaster } from "./twilio_util";
+import { AuthContext } from "./AuthProvider";
 import PropTypes from "prop-types";
 import "datatables.net-responsive-dt";
 
 const CallModal = ({ data, update }) => {
+  const { user } = useContext(AuthContext);
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
   const [clientNameInput, setClientNameInput] = useState("");
@@ -238,6 +240,14 @@ const CallModal = ({ data, update }) => {
             >
               Enviar SMS
             </button>
+            {user?.email === "switch.remoto@gmail.com" && (
+              <button
+                type="button"
+                className="btn btn-danger me-3 mb-3"
+              >
+                Borrar
+              </button>
+            )}
 
             {"" !== notice && (
               <div className="alert alert-warning mt-3" role="alert">
