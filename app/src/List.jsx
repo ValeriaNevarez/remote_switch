@@ -26,6 +26,11 @@ const AddClientModal = ({ onAdd }) => {
   const [serialNumber, setSerialNumber] = useState("");
   const [notice, setNotice] = useState("");
 
+  const validateNumericInput = (value) => {
+    // Only allow numbers and the "+" character
+    return value.replace(/[^0-9+]/g, "");
+  };
+
   useEffect(() => {
     if (notice != "") {
       setTimeout(() => {
@@ -50,11 +55,15 @@ const AddClientModal = ({ onAdd }) => {
   }, []);
 
   const handleAdd = () => {
-    if (phoneNumber === "" || serialNumber === "") {
+    const trimmedPhoneNumber = phoneNumber.trim();
+    const trimmedSerialNumber = serialNumber.trim();
+    
+    if (trimmedPhoneNumber === "" || trimmedSerialNumber === "") {
       setNotice("Por favor, complete todos los campos");
       return;
     }
-    AddDevice(serialNumber, phoneNumber)
+    
+    AddDevice(trimmedSerialNumber, trimmedPhoneNumber)
       .then(() => {
         setNotice("Cliente agregado exitosamente");
         setPhoneNumber("");
@@ -105,26 +114,26 @@ const AddClientModal = ({ onAdd }) => {
           </div>
           <div className="modal-body">
             <div className="input-group mb-3">
-              <span className="input-group-text">Phone number</span>
+              <span className="input-group-text">Celular: </span>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Enter phone number"
                 value={phoneNumber}
                 onChange={(e) => {
-                  setPhoneNumber(e.target.value);
+                  const validatedValue = validateNumericInput(e.target.value);
+                  setPhoneNumber(validatedValue);
                 }}
               ></input>
             </div>
             <div className="input-group mb-3">
-              <span className="input-group-text">Serial number</span>
+              <span className="input-group-text">Número de serie: </span>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Enter serial number"
                 value={serialNumber}
                 onChange={(e) => {
-                  setSerialNumber(e.target.value);
+                  const validatedValue = validateNumericInput(e.target.value);
+                  setSerialNumber(validatedValue);
                 }}
               ></input>
             </div>
@@ -146,6 +155,7 @@ const AddClientModal = ({ onAdd }) => {
               type="button"
               className="btn btn-primary"
               onClick={handleAdd}
+              disabled={phoneNumber.trim() === "" || serialNumber.trim() === ""}
             >
               Add
             </button>
