@@ -1,5 +1,5 @@
 import { database } from "./firebase";
-import { ref, set, child, get, getDatabase, update, push } from "firebase/database";
+import { ref, set, child, get, getDatabase, update, push, remove } from "firebase/database";
 
 const ChangeActive = async (deviceId, isActive) => {
   try {
@@ -141,6 +141,31 @@ const AddDevice = async (serialNumber, phoneNumber) => {
   }
 };
 
+const DeleteDevice = async (serial_number) => {
+  try {
+    const db = await ReadDatabase();
+    let deviceKey = null;
+    
+    // Find the device key by serial number
+    for (const key in db) {
+      if (db[key] && db[key]["serial_number"] == serial_number) {
+        deviceKey = key;
+        break;
+      }
+    }
+    
+    if (deviceKey === null) {
+      throw "Numero de serie no existe";
+    }
+    
+    // Remove the device from Firebase
+    await remove(ref(database, "devices/" + deviceKey));
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 export {
   ChangeDeviceActive,
   ReadDatabase,
@@ -149,4 +174,5 @@ export {
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
   AddDevice,
+  DeleteDevice,
 };

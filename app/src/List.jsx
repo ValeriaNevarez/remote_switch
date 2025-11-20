@@ -15,7 +15,7 @@ DataTable.use(DT);
 
 const List = () => {
   const { user } = useContext(AuthContext);
-  const [modalData, setModalData] = useState({});
+  const [modalData, setModalData] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
@@ -160,9 +160,15 @@ const List = () => {
       const new_modal_data = dataArray.find((data) => {
         return selectedSerialNumber == data.serial_number;
       });
-      setModalData(new_modal_data);
+      if (new_modal_data) {
+        setModalData(new_modal_data);
+      } else {
+        // Device was deleted or not found, clear the state
+        setSelectedSerialNumber(null);
+        setModalData(null);
+      }
     }
-  }, [dataArray]);
+  }, [dataArray, selectedSerialNumber]);
 
   return (
     <>
@@ -170,6 +176,10 @@ const List = () => {
         data={modalData}
         update={() => {
           update();
+        }}
+        onClose={() => {
+          setSelectedSerialNumber(null);
+          setModalData(null);
         }}
       ></CallModal>
       {isAuthorized && (

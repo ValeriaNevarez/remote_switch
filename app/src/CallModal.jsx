@@ -3,14 +3,16 @@ import {
   ChangeDeviceEnable,
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
+  DeleteDevice,
 } from "./database_util";
 import { useState, useEffect, useContext } from "react";
 import { MakeCall, SendMessageToChangeMaster } from "./twilio_util";
 import { AuthContext } from "./AuthProvider";
+import { Modal } from "bootstrap";
 import PropTypes from "prop-types";
 import "datatables.net-responsive-dt";
 
-const CallModal = ({ data, update }) => {
+const CallModal = ({ data, update, onClose }) => {
   const { user } = useContext(AuthContext);
   const [notice, setNotice] = useState("");
   const [callButtonEnabled, setCallButtonEnabled] = useState(true);
@@ -30,7 +32,20 @@ const CallModal = ({ data, update }) => {
     }
   }, [notice]);
 
-  if (!data) return <></>;
+  useEffect(() => {
+    const modalElement = document.getElementById("modal");
+    if (modalElement && onClose) {
+      const handleHidden = () => {
+        onClose();
+      };
+      modalElement.addEventListener("hidden.bs.modal", handleHidden);
+
+      return () => {
+        modalElement.removeEventListener("hidden.bs.modal", handleHidden);
+      };
+    }
+  }, [onClose]);
+
   return (
     <div
       className="modal fade"
@@ -55,6 +70,10 @@ const CallModal = ({ data, update }) => {
             ></button>
           </div>
           <div className="modal-body">
+            {!data ? (
+              <div>Borrando...</div>
+            ) : (
+              <>
             <div className="input-group mb-3">
               <span className="input-group-text">Nombre de cliente</span>
               <input
@@ -244,6 +263,28 @@ const CallModal = ({ data, update }) => {
               <button
                 type="button"
                 className="btn btn-danger me-3 mb-3"
+                onClick={() => {
+                  if (window.confirm("¿Está seguro de que desea borrar este dispositivo?")) {
+                    DeleteDevice(data.serial_number)
+                      .then(() => {
+                        setNotice("Se eliminó el dispositivo correctamente");
+                        update();
+                        if (onClose) {
+                          onClose();
+                        }
+                        setTimeout(() => {
+                          const modalElement = document.getElementById("modal");
+                          const modal = Modal.getInstance(modalElement);
+                          if (modal) {
+                            modal.hide();
+                          }
+                        }, 1500);
+                      })
+                      .catch((e) => {
+                        setNotice("Error al eliminar el dispositivo: " + e);
+                      });
+                  }
+                }}
               >
                 Borrar
               </button>
@@ -253,6 +294,8 @@ const CallModal = ({ data, update }) => {
               <div className="alert alert-warning mt-3" role="alert">
                 {notice}
               </div>
+            )}
+              </>
             )}
           </div>
         </div>
@@ -264,6 +307,7 @@ const CallModal = ({ data, update }) => {
 CallModal.propTypes = {
     data: PropTypes.object,
     update: PropTypes.func.isRequired,
+    onClose: PropTypes.func,
 };
 
 export default CallModal;
