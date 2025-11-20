@@ -133,7 +133,7 @@ const AddDevice = async (serialNumber, phoneNumber) => {
       client_name: "",
       client_number: "",
       is_active: true,
-      enabled: false,
+      enabled: true,
     });
   } catch (error) {
     console.log(error);
