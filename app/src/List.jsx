@@ -19,7 +19,7 @@ const List = () => {
   const [dataArray, setDataArray] = useState([]);
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
-  const isAuthorized = user?.email === "switch.remoto@gmail.com";
+  const isAuthorized = user?.email === "admin@admin.com";
 
   const columns = [
     {

@@ -259,7 +259,7 @@ const CallModal = ({ data, update, onClose }) => {
             >
               Enviar SMS
             </button>
-            {user?.email === "switch.remoto@gmail.com" && (
+            {user?.email === "admin@admin.com" && (
               <button
                 type="button"
                 className="btn btn-danger me-3 mb-3"
