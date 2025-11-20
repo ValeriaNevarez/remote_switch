@@ -7,7 +7,8 @@ import {
   ChangeDeviceClientNumber,
   AddDevice,
 } from "./database_util";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "./AuthProvider";
 import {
   GetStatusList,
   MakeCall,
@@ -65,14 +66,16 @@ const AddClientModal = ({ onAdd }) => {
     
     AddDevice(trimmedSerialNumber, trimmedPhoneNumber)
       .then(() => {
-        setNotice("Cliente agregado exitosamente");
+        setNotice("Se agregó correctamente a la base de datos.");
         setPhoneNumber("");
         setSerialNumber("");
         onAdd();
-        const modal = Modal.getInstance("#addClientModal");
-        if (modal) {
-          modal.hide();
-        }
+        setTimeout(() => {
+          const modal = Modal.getInstance("#addClientModal");
+          if (modal) {
+            modal.hide();
+          }
+        }, 3000);
       })
       .catch((e) => {
         setNotice("Error al agregar cliente: " + e);
@@ -410,9 +413,11 @@ const CallModal = ({ data, update }) => {
 };
 
 const List = () => {
+  const { user } = useContext(AuthContext);
   const [modalData, setModalData] = useState({});
   const [dataArray, setDataArray] = useState([]);
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
+  const isAuthorized = user?.email === "switch.remoto@gmail.com";
 
   const columns = [
     {
@@ -565,11 +570,13 @@ const List = () => {
           update();
         }}
       ></CallModal>
-      <AddClientModal
-        onAdd={() => {
-          update();
-        }}
-      ></AddClientModal>
+      {isAuthorized && (
+        <AddClientModal
+          onAdd={() => {
+            update();
+          }}
+        ></AddClientModal>
+      )}
       <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
@@ -592,15 +599,17 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
-        <button
-          className="btn btn-primary mt-3"
-          onClick={() => {
-            const modal = new Modal("#addClientModal");
-            modal.show();
-          }}
-        >
-          Agregar cliente
-        </button>
+        {isAuthorized && (
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => {
+              const modal = new Modal("#addClientModal");
+              modal.show();
+            }}
+          >
+            Agregar cliente
+          </button>
+        )}
         <div className="mt-3">
           <a href="user_manual.pdf" target="_blank">
             Manual de usuario
