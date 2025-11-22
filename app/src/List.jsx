@@ -182,15 +182,13 @@ const List = () => {
           setModalData(null);
         }}
       ></CallModal>
-      {isAuthorized && (
-        <AddClientModal
-          onAdd={() => {
-            update();
-          }}
-          isOpen={isAddClientModalOpen}
-          handleClose={() => setIsAddClientModalOpen(false)}
-        ></AddClientModal>
-      )}
+      <AddClientModal
+        onAdd={() => {
+          update();
+        }}
+        isOpen={isAddClientModalOpen}
+        handleClose={() => setIsAddClientModalOpen(false)}
+      ></AddClientModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
