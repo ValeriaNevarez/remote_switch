@@ -5,10 +5,16 @@ import "datatables.net-responsive-dt";
 
 const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [serialNumber, setSerialNumber] = useState("");
+  const [serialNumber, setSerialNumber] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
 
-  const validateNumericInput = (value) => {
+  const validateNumericInput = (value : string): number | null => {
+    // Only allow numbers
+    const numericString = value.replace(/[^0-9]/g, "");
+    return numericString === "" ? null : Number(numericString);
+  };
+
+  const validatePhoneNumberInput = (value) => {
     // Only allow numbers and the "+" character
     return value.replace(/[^0-9+]/g, "");
   };
@@ -24,25 +30,24 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
   useEffect(() => {
     if (isOpen) {
       setPhoneNumber("");
-      setSerialNumber("");
+      setSerialNumber(null);
       setNotice("");
     }
   }, [isOpen]);
 
   const handleAdd = () => {
     const trimmedPhoneNumber = phoneNumber.trim();
-    const trimmedSerialNumber = serialNumber.trim();
 
-    if (trimmedPhoneNumber === "" || trimmedSerialNumber === "") {
+    if (trimmedPhoneNumber === "" || serialNumber == null) {
       setNotice("Por favor, complete todos los campos");
       return;
     }
 
-    AddDevice(trimmedSerialNumber, trimmedPhoneNumber)
+    AddDevice(serialNumber, trimmedPhoneNumber)
       .then(() => {
         setNotice("Se agregó correctamente a la base de datos.");
         setPhoneNumber("");
-        setSerialNumber("");
+        setSerialNumber(null);
         onAdd();
         handleClose();
       })
@@ -51,7 +56,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
       });
   };
 
-  if (!isOpen) return "";
+  if (!isOpen) return null;
 
   return (
     <>
@@ -86,7 +91,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
                 className="form-control"
                 value={phoneNumber}
                 onChange={(e) => {
-                  const validatedValue = validateNumericInput(e.target.value);
+                  const validatedValue = validatePhoneNumberInput(e.target.value);
                   setPhoneNumber(validatedValue);
                 }}
               ></input>
@@ -96,7 +101,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
               <input
                 type="text"
                 className="form-control"
-                value={serialNumber}
+                value={serialNumber !== null ? serialNumber.toString() : ""}
                 onChange={(e) => {
                   const validatedValue = validateNumericInput(e.target.value);
                   setSerialNumber(validatedValue);
@@ -121,7 +126,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
               type="button"
               className="btn btn-primary"
               onClick={handleAdd}
-              disabled={phoneNumber.trim() === "" || serialNumber.trim() === ""}
+              disabled={phoneNumber.trim() === "" || serialNumber == null}
             >
               Add
             </button>

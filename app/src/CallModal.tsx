@@ -90,7 +90,7 @@ const CallModal = ({ data, update, onClose }) => {
                 className="btn btn-outline-secondary"
                 type="button"
                 onClick={() => {
-                  ChangeDeviceClientName(data.serial_number, clientNameInput)
+                  ChangeDeviceClientName(Number(data.serial_number), clientNameInput)
                     .then(() => {
                       setNotice("Se actualizó el nombre del cliente");
                       update();
@@ -122,7 +122,7 @@ const CallModal = ({ data, update, onClose }) => {
                 type="button"
                 onClick={() => {
                   ChangeDeviceClientNumber(
-                    data.serial_number,
+                    Number(data.serial_number),
                     clientNumberInput
                   )
                     .then(() => {
@@ -185,7 +185,7 @@ const CallModal = ({ data, update, onClose }) => {
               type="button"
               onClick={() => {
                 ChangeDeviceActive(
-                  data.serial_number,
+                  Number(data.serial_number),
                   data.is_active == "Activo" ? false : true
                 )
                   .then(() => {
@@ -208,7 +208,7 @@ const CallModal = ({ data, update, onClose }) => {
               type="button"
               onClick={() => {
                 const newEnable = data.enable == "On" ? false : true;
-                ChangeDeviceEnable(data.serial_number, newEnable)
+                ChangeDeviceEnable(Number(data.serial_number), newEnable)
                   .then(() => {
                     setNotice("Se actualizó el estado");
                     update();
@@ -265,7 +265,7 @@ const CallModal = ({ data, update, onClose }) => {
                 className="btn btn-danger me-3 mb-3"
                 onClick={() => {
                   if (window.confirm("¿Está seguro de que desea borrar este dispositivo?")) {
-                    DeleteDevice(data.serial_number)
+                    DeleteDevice(Number(data.serial_number))
                       .then(() => {
                         setNotice("Se eliminó el dispositivo correctamente");
                         update();

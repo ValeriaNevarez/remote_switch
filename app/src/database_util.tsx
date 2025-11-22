@@ -49,7 +49,7 @@ const ChangeClientNumber = async (deviceId, clientNumber) => {
   }
 };
 
-const ChangeDeviceActive = async (serial, newIsActive) => {
+const ChangeDeviceActive = async (serial: number, newIsActive) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeActive(id, newIsActive);
@@ -59,7 +59,7 @@ const ChangeDeviceActive = async (serial, newIsActive) => {
   }
 };
 
-const ChangeDeviceClientName = async (serial, newClientName) => {
+const ChangeDeviceClientName = async (serial: number, newClientName) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeClientName(id, newClientName);
@@ -69,7 +69,7 @@ const ChangeDeviceClientName = async (serial, newClientName) => {
   }
 };
 
-const ChangeDeviceClientNumber = async (serial, newClientNumber) => {
+const ChangeDeviceClientNumber = async (serial: number, newClientNumber) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeClientNumber(id, newClientNumber);
@@ -79,7 +79,7 @@ const ChangeDeviceClientNumber = async (serial, newClientNumber) => {
   }
 };
 
-const ChangeDeviceEnable = async (serial, newIsEnabled) => {
+const ChangeDeviceEnable = async (serial: number, newIsEnabled) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeEnable(id, newIsEnabled);
@@ -108,11 +108,11 @@ const ReadDatabase = async () => {
   }
 };
 
-const GetIdForSerialNumber = async (serial_number) => {
+const GetIdForSerialNumber = async (serial_number: number) => {
   try {
     const db = await ReadDatabase();
     for (let i = 0; i < db.length; i++) {
-      if (db[i]["serial_number"] == serial_number) {
+      if (Number(db[i]["serial_number"]) == serial_number) {
         return i;
       }
     }
@@ -123,10 +123,30 @@ const GetIdForSerialNumber = async (serial_number) => {
   }
 };
 
-const AddDevice = async (serialNumber, phoneNumber) => {
+const AddDevice = async (serialNumber: number, phoneNumber: string) => {
   try {
     const db = database;
-    const newDeviceRef = push(ref(db, "devices"));
+    
+    // Get the current devices to find the highest numeric key
+    const devicesRef = ref(db, "devices");
+    const snapshot = await get(devicesRef);
+    
+    let nextKey = 0;
+    if (snapshot.exists()) {
+      const devices = snapshot.val();
+      // Find the maximum numeric key
+      const keys = Object.keys(devices);
+      const numericKeys = keys
+        .map(key => parseInt(key))
+        .filter(key => !isNaN(key));
+      
+      if (numericKeys.length > 0) {
+        nextKey = Math.max(...numericKeys) + 1;
+      }
+    }
+    
+    // Use the incremental number as the key
+    const newDeviceRef = ref(db, `devices/${nextKey}`);
     await set(newDeviceRef, {
       serial_number: serialNumber,
       phone_number: phoneNumber,
@@ -144,7 +164,7 @@ const AddDevice = async (serialNumber, phoneNumber) => {
 const DeleteDevice = async (serial_number) => {
   try {
     const db = await ReadDatabase();
-    let deviceKey = null;
+    let deviceKey: number | null = null;
     
     // Find the device key by serial number
     for (const key in db) {
@@ -176,3 +196,4 @@ export {
   AddDevice,
   DeleteDevice,
 };
+
