@@ -8,7 +8,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
   const [serialNumber, setSerialNumber] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
 
-  const validateNumericInput = (value : string): number | null => {
+  const validateNumericInput = (value: string): number | null => {
     // Only allow numbers
     const numericString = value.replace(/[^0-9]/g, "");
     return numericString === "" ? null : Number(numericString);
@@ -16,18 +16,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
 
   const validatePhoneNumberInput = (value) => {
     // Only allow numbers and the "+" character
-    const cleaned = value.replace(/[^0-9+]/g, "");
-    // Ensure +52 prefix is always present
-    if (!cleaned.startsWith("+52")) {
-      // If user tries to delete the prefix, restore it
-      if (cleaned.startsWith("+")) {
-        // User might have typed just +, ensure it becomes +52
-        return "+52" + cleaned.substring(1).replace(/[^0-9]/g, "");
-      }
-      // If no + at all, add +52 prefix
-      return "+52" + cleaned.replace(/[^0-9]/g, "");
-    }
-    return cleaned;
+    return value.replace(/[^0-9+]/g, "");
   };
 
   useEffect(() => {
@@ -71,10 +60,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
 
   return (
     <>
-      <div
-        className="modal-backdrop fade show"
-        onClick={handleClose}
-      ></div>
+      <div className="modal-backdrop fade show" onClick={handleClose}></div>
       <div
         className="modal fade show"
         style={{ display: "block" }}
@@ -84,9 +70,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5">
-                Alta de cliente
-              </h1>
+              <h1 className="modal-title fs-5">Alta de cliente</h1>
               <button
                 type="button"
                 className="btn-close"
@@ -94,58 +78,59 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
                 aria-label="Close"
               ></button>
             </div>
-          <div className="modal-body">
-            <div className="input-group mb-3">
-              <span className="input-group-text">Celular: </span>
-              <span className="input-group-text">+52</span>
-              <input
-                type="text"
-                className="form-control"
-                value={phoneNumber.startsWith("+52") ? phoneNumber.substring(3) : phoneNumber}
-                onChange={(e) => {
-                  const userInput = e.target.value.replace(/[^0-9]/g, "");
-                  setPhoneNumber("+52" + userInput);
-                }}
-              ></input>
-            </div>
-            <div className="input-group mb-3">
-              <span className="input-group-text">Número de serie: </span>
-              <input
-                type="text"
-                className="form-control"
-                value={serialNumber !== null ? serialNumber.toString() : ""}
-                onChange={(e) => {
-                  const validatedValue = validateNumericInput(e.target.value);
-                  setSerialNumber(validatedValue);
-                }}
-              ></input>
-            </div>
-            {"" !== notice && (
-              <div className="alert alert-warning mt-3" role="alert">
-                {notice}
+            <div className="modal-body">
+              <div className="input-group mb-3">
+                <span className="input-group-text">Celular: </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={phoneNumber}
+                  onChange={(e) => {
+                    const validatedValue = validatePhoneNumberInput(
+                      e.target.value
+                    );
+                    setPhoneNumber(validatedValue);
+                  }}
+                ></input>
               </div>
-            )}
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleAdd}
-              disabled={phoneNumber.trim() === "" || serialNumber == null}
-            >
-              Add
-            </button>
+              <div className="input-group mb-3">
+                <span className="input-group-text">Número de serie: </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={serialNumber !== null ? serialNumber.toString() : ""}
+                  onChange={(e) => {
+                    const validatedValue = validateNumericInput(e.target.value);
+                    setSerialNumber(validatedValue);
+                  }}
+                ></input>
+              </div>
+              {"" !== notice && (
+                <div className="alert alert-warning mt-3" role="alert">
+                  {notice}
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleClose}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleAdd}
+                disabled={phoneNumber.trim() === "" || serialNumber == null}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 };
