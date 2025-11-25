@@ -1,272 +1,25 @@
 import Header from "./Header";
-import {
-  ChangeDeviceActive,
-  ReadDatabase,
-  ChangeDeviceEnable,
-  ChangeDeviceClientName,
-  ChangeDeviceClientNumber,
-} from "./database_util";
-import React, { useState, useEffect } from "react";
-import {
-  GetStatusList,
-  MakeCall,
-  SendMessageToChangeMaster,
-} from "./twilio_util";
+import { ReadDatabase } from "./database_util";
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "./AuthProvider";
+import { GetStatusList } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
 import "datatables.net-responsive-dt";
-import { data } from "react-router-dom";
+import AddClientModal from "./AddClientModal";
+import CallModal from "./CallModal";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 DataTable.use(DT);
 
-const CallModal = ({ data, update }) => {
-  const [notice, setNotice] = useState("");
-  const [callButtonEnabled, setCallButtonEnabled] = useState(true);
-  const [clientNameInput, setClientNameInput] = useState("");
-  const [clientNumberInput, setClientNumberInput] = useState("");
-
-  useEffect(() => {
-    setClientNameInput("");
-    setClientNumberInput("");
-  }, [data]);
-
-  useEffect(() => {
-    if (notice != "") {
-      setTimeout(() => {
-        setNotice("");
-      }, 3000);
-    }
-  }, [notice]);
-
-  if (!data) return <></>;
-  return (
-    <div
-      className="modal fade"
-      id="modal"
-      data-bs-backdrop="static"
-      data-bs-keyboard="true"
-      tabIndex="-1"
-      aria-labelledby="staticBackdropLabel"
-      aria-hidden="true"
-    >
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h1 className="modal-title fs-5" id="staticBackdropLabel">
-              Panel de control
-            </h1>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div className="modal-body">
-            <div className="input-group mb-3">
-              <span className="input-group-text">Nombre de cliente</span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder={data.client_name}
-                value={clientNameInput}
-                onChange={(e) => {
-                  setClientNameInput(e.target.value);
-                }}
-              ></input>
-              <button
-                disabled={clientNameInput === ""}
-                className="btn btn-outline-secondary"
-                type="button"
-                onClick={() => {
-                  ChangeDeviceClientName(data.serial_number, clientNameInput)
-                    .then(() => {
-                      setNotice("Se actualizó el nombre del cliente");
-                      update();
-                    })
-                    .catch((e) => {
-                      setNotice(
-                        "Error al actualizar el nombre del cliente: " + e
-                      );
-                    });
-                }}
-              >
-                <i className="bi bi-check-lg"></i>
-              </button>
-            </div>
-            <div className="input-group mb-3">
-              <span className="input-group-text">No. de cliente</span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder={data.client_number}
-                value={clientNumberInput}
-                onChange={(e) => {
-                  setClientNumberInput(e.target.value);
-                }}
-              ></input>
-              <button
-                disabled={clientNumberInput === ""}
-                className="btn btn-outline-secondary"
-                type="button"
-                onClick={() => {
-                  ChangeDeviceClientNumber(
-                    data.serial_number,
-                    clientNumberInput
-                  )
-                    .then(() => {
-                      setNotice("Se actualizó el número de cliente");
-                      update();
-                    })
-                    .catch((e) => {
-                      setNotice(
-                        "Error al actualizar el número de cliente: " + e
-                      );
-                    });
-                }}
-              >
-                <i className="bi bi-check-lg"></i>
-              </button>
-            </div>
-
-            <b>Número de serie: </b>
-            {data.serial_number}
-            <br />
-            <b>Celular: </b>
-            {data.phone_number}
-            <br />
-            <b>Estado actual: </b>
-            {data.is_active}
-            <br />
-            <b>Último estatus: </b>
-            {data.status}
-            <br />
-            <b>On/Off: </b>
-            {data.enable}
-            <br />
-            <br />
-            <button
-              type="button"
-              onClick={() => {
-                setCallButtonEnabled(false);
-                MakeCall(data.phone_number, data.enable == "On")
-                  .then(() => {
-                    setNotice("Se realizó la llamada");
-                    update();
-                    setTimeout(() => {
-                      update();
-                    }, 10000);
-                    setTimeout(() => {
-                      update();
-                      setCallButtonEnabled(true);
-                    }, 90000);
-                  })
-                  .catch((e) => {
-                    setNotice("Error al realizar la llamada:" + error);
-                  });
-              }}
-              className="btn btn-dark me-3 mb-3"
-              disabled={!callButtonEnabled}
-            >
-              Llamar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                ChangeDeviceActive(
-                  data.serial_number,
-                  data.is_active == "Activo" ? false : true
-                )
-                  .then(() => {
-                    setNotice("Se actualizó el estado");
-                    update();
-                  })
-                  .catch((e) => {
-                    setNotice("Error al actualizar el estado: " + e);
-                  });
-              }}
-              className={
-                data.is_active == "Activo"
-                  ? "btn btn-secondary me-3 mb-3"
-                  : "btn btn-primary me-3 mb-3"
-              }
-            >
-              {data.is_active == "Activo" ? "Desactivar" : "Activar"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const currentEnable = data.enable;
-                const newEnable = data.enable == "On" ? false : true;
-                ChangeDeviceEnable(data.serial_number, newEnable)
-                  .then(() => {
-                    setNotice("Se actualizó el estado");
-                    update();
-                    setCallButtonEnabled(false);
-                    MakeCall(data.phone_number, newEnable)
-                      .then(() => {
-                        setNotice(
-                          "Se realizó la llamada para cambiar el estado."
-                        );
-                        update();
-                        setTimeout(() => {
-                          update();
-                        }, 10000);
-                        setTimeout(() => {
-                          update();
-                          setCallButtonEnabled(true);
-                        }, 90000);
-                      })
-                      .catch((e) => {
-                        setNotice("Error al realizar la llamada:" + error);
-                      });
-                  })
-                  .catch((e) => {
-                    setNotice("Error al actualizar el estado: " + e);
-                  });
-              }}
-              className={
-                data.enable == "On"
-                  ? "btn btn-secondary me-3 mb-3"
-                  : "btn btn-success me-3 mb-3"
-              }
-              disabled={!callButtonEnabled}
-            >
-              {data.enable == "On" ? "Apagar" : "Encender"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                SendMessageToChangeMaster(data.phone_number)
-                  .then(() => {
-                    setNotice("Se envió el SMS");
-                  })
-                  .catch((e) => {
-                    setNotice("Error al enviar el SMS:" + error);
-                  });
-              }}
-              className="btn btn-secondary me-3 mb-3"
-            >
-              Enviar SMS
-            </button>
-
-            {"" !== notice && (
-              <div className="alert alert-warning mt-3" role="alert">
-                {notice}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const List = () => {
-  const [modalData, setModalData] = useState({});
+  const { user } = useContext(AuthContext);
+  const [modalData, setModalData] = useState(null);
   const [dataArray, setDataArray] = useState([]);
   const [selectedSerialNumber, setSelectedSerialNumber] = useState(null);
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const isAuthorized = user?.email === "admin@admin.com";
 
   const columns = [
     {
@@ -407,9 +160,15 @@ const List = () => {
       const new_modal_data = dataArray.find((data) => {
         return selectedSerialNumber == data.serial_number;
       });
-      setModalData(new_modal_data);
+      if (new_modal_data) {
+        setModalData(new_modal_data);
+      } else {
+        // Device was deleted or not found, clear the state
+        setSelectedSerialNumber(null);
+        setModalData(null);
+      }
     }
-  }, [dataArray]);
+  }, [dataArray, selectedSerialNumber]);
 
   return (
     <>
@@ -418,7 +177,18 @@ const List = () => {
         update={() => {
           update();
         }}
+        onClose={() => {
+          setSelectedSerialNumber(null);
+          setModalData(null);
+        }}
       ></CallModal>
+      <AddClientModal
+        onAdd={() => {
+          update();
+        }}
+        isOpen={isAddClientModalOpen}
+        handleClose={() => setIsAddClientModalOpen(false)}
+      ></AddClientModal>
       <Header currentPage={"lista"}> </Header>
       <div className="container">
         <DataTable
@@ -441,9 +211,21 @@ const List = () => {
             </tr>
           </thead>
         </DataTable>
-        <a href="user_manual.pdf" target="_blank">
-          Manual de usuario
-        </a>
+        {isAuthorized && (
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => {
+              setIsAddClientModalOpen(true);
+            }}
+          >
+            Agregar cliente
+          </button>
+        )}
+        <div className="mt-3">
+          <a href="user_manual.pdf" target="_blank">
+            Manual de usuario
+          </a>
+        </div>
       </div>
     </>
   );

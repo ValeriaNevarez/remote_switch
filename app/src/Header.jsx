@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./AuthProvider";
-import React from "react";
 
-const Header = ({ currentPage }) => {
+const Header = () => {
   const navigate = useNavigate();
   const { logOut, user } = useContext(AuthContext);
 
