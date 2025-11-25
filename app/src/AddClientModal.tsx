@@ -16,7 +16,18 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
 
   const validatePhoneNumberInput = (value) => {
     // Only allow numbers and the "+" character
-    return value.replace(/[^0-9+]/g, "");
+    const cleaned = value.replace(/[^0-9+]/g, "");
+    // Ensure +52 prefix is always present
+    if (!cleaned.startsWith("+52")) {
+      // If user tries to delete the prefix, restore it
+      if (cleaned.startsWith("+")) {
+        // User might have typed just +, ensure it becomes +52
+        return "+52" + cleaned.substring(1).replace(/[^0-9]/g, "");
+      }
+      // If no + at all, add +52 prefix
+      return "+52" + cleaned.replace(/[^0-9]/g, "");
+    }
+    return cleaned;
   };
 
   useEffect(() => {
@@ -29,7 +40,7 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setPhoneNumber("");
+      setPhoneNumber("+52");
       setSerialNumber(null);
       setNotice("");
     }
@@ -86,13 +97,14 @@ const AddClientModal = ({ onAdd, isOpen, handleClose }) => {
           <div className="modal-body">
             <div className="input-group mb-3">
               <span className="input-group-text">Celular: </span>
+              <span className="input-group-text">+52</span>
               <input
                 type="text"
                 className="form-control"
-                value={phoneNumber}
+                value={phoneNumber.startsWith("+52") ? phoneNumber.substring(3) : phoneNumber}
                 onChange={(e) => {
-                  const validatedValue = validatePhoneNumberInput(e.target.value);
-                  setPhoneNumber(validatedValue);
+                  const userInput = e.target.value.replace(/[^0-9]/g, "");
+                  setPhoneNumber("+52" + userInput);
                 }}
               ></input>
             </div>
