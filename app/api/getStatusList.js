@@ -5,8 +5,13 @@ import twilio from "twilio";
 
 const GetCallList = async () => {
   const client = twilio(account_sid, auth_token);
+  const startTimeAfter = new Date();
+  // Restrict call list to 120 days since we consider numbers 
+  // to be dead after 120 days without any call.
+  startTimeAfter.setDate(startTimeAfter.getDate() - 120);
   return await client.calls.list({
     pageSize: 1000,
+    startTimeAfter: startTimeAfter,
   });
 };
 
