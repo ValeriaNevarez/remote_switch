@@ -275,7 +275,7 @@ const GetDaysSince = (date_str) => {
 const FormatDate = (date_str) => {
   const diffDays = GetDaysSince(date_str);
   if (diffDays == null) {
-    return "-";
+    return "120+ días";
   }
 
   let days = "";
