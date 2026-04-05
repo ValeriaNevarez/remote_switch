@@ -8,7 +8,7 @@ import time
 from database_util import GetListArray
 from datetime import datetime,timezone
 
-DAYS_BETWEEN_CALLS = 30
+DAYS_BETWEEN_CALLS = 20
 
 
 def GetDaysSince(date: datetime) -> int | None:
