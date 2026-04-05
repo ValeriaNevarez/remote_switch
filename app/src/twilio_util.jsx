@@ -1,3 +1,5 @@
+import repoConfig from "../../config.json";
+
 const SendMessage = async (to, text) => {
   try {
     const res = await fetch("/api/sendMessage", {
@@ -17,7 +19,7 @@ const SendMessage = async (to, text) => {
 
 const SendMessageToChangeMaster = async (to) => {
   try {
-    const message_to_change_master = "*123456*#+18667487103#";
+    const message_to_change_master = `*123456*#${repoConfig.twilio_master_phone_number}#`;
     await SendMessage(to, message_to_change_master);
   } catch (error) {
     console.log(error);

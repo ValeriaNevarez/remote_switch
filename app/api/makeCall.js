@@ -1,6 +1,7 @@
 const account_sid = process.env.TWILIO_ACCOUNT_SID;
 const auth_token = process.env.TWILIO_AUTH_TOKEN;
 
+import { twilioMasterPhoneNumber } from "../lib/repoConfig.js";
 import twilio from "twilio";
 
 export default async (req, res) => {
@@ -42,7 +43,7 @@ export default async (req, res) => {
 
   client.calls
     .create({
-      from: "+18667487103",
+      from: twilioMasterPhoneNumber,
       to: req.body.to,
       twiml: response,
       timeLimit: 70,

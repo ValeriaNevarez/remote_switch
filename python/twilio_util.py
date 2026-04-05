@@ -2,6 +2,7 @@ from twilio.rest import Client
 from twilio.twiml.voice_response import VoiceResponse
 
 from env import load_string_from_env
+from repo_config import load_config
 
 
 client = Client(
@@ -12,10 +13,12 @@ client = Client(
 # Prototype devices have inverted polarity.
 INVERTED_PHONE_NUMBERS = ['+528713293364','+528713971819','+528713971823', '+528713865040', '+528713971807', '+528713460690']
 
+TWILIO_MASTER_PHONE_NUMBER = load_config()["twilio_master_phone_number"]
+
 
 def Send_message(to,text):
   message = client.messages.create(
-    from_='+18667487103',
+    from_=TWILIO_MASTER_PHONE_NUMBER,
     body= text,
     to= to 
   )
@@ -41,7 +44,7 @@ def Outbound_call(phone_number : str, enabled: bool) -> str:
   print(response)
 
   call = client.calls.create(
-    from_= '+18667487103' ,
+    from_=TWILIO_MASTER_PHONE_NUMBER,
     to= phone_number,
     twiml=response,
     time_limit= 70

@@ -1,4 +1,9 @@
-from twilio_util import Send_message,Outbound_call,GetLastCallStatus
+from twilio_util import (
+    Send_message,
+    Outbound_call,
+    GetLastCallStatus,
+    TWILIO_MASTER_PHONE_NUMBER,
+)
 import time 
 from database_util import GetListArray
 from datetime import datetime,timezone
@@ -24,7 +29,7 @@ def MakeACall(phone_number,enabled):
 
 def ChangeMaster(phone_number):
     print("sending message", phone_number)
-    message_to_change_master = '*123456*#+18667487103#'
+    message_to_change_master = f"*123456*#{TWILIO_MASTER_PHONE_NUMBER}#"
     Send_message(phone_number, message_to_change_master)
 
 
