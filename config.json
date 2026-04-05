@@ -1,3 +1,6 @@
 {
-  "twilio_master_phone_number": "+18667487103"
+  "twilio_master_phone_number": "+18667487103",
+  "from_email": "springwater.switchremoto@gmail.com",
+  "to_email": "santiagomendoza@gmail.com",
+  "cc_emails": "info@springwater.com.mx, pepemanboy@gmail.com"
 }

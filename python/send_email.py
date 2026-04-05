@@ -17,12 +17,12 @@ from datetime import date,datetime,timezone
 from twilio_util import GetLastCallStatus, GetLastCompletedCallDate
 from database_util import GetListArray
 from env import load_json_from_base64_env
+from repo_config import load_config
 
-FROM_EMAIL = "springwater.switchremoto@gmail.com"
-TO_EMAIL = "pepemanboy@gmail.com"
-CC_EMAILS = ""
-# TO_EMAIL = "santiagomendoza@gmail.com"
-# CC_EMAILS = "info@springwater.com.mx, pepemanboy@gmail.com"
+_cfg = load_config()
+FROM_EMAIL = _cfg["from_email"]
+TO_EMAIL = _cfg["to_email"]
+CC_EMAILS = _cfg["cc_emails"]
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
