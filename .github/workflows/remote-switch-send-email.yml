@@ -1,0 +1,37 @@
+name: Remote switch — send email
+
+on:
+  schedule:
+    # Fridays @ 11:00 UTC (5AM CST)
+    - cron: "0 11 * * 5"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: python
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: python/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run send_email
+        env:
+          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          GMAIL_OAUTH_CLIENT_B64: ${{ secrets.GMAIL_OAUTH_CLIENT_B64 }}
+          GMAIL_TOKEN_B64: ${{ secrets.GMAIL_TOKEN_B64 }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        run: python send_email.py

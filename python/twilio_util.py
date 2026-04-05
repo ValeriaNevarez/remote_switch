@@ -1,8 +1,13 @@
 from twilio.rest import Client
-from secret import account_sid,auth_token
 from twilio.twiml.voice_response import VoiceResponse
 
-client = Client(account_sid, auth_token)
+from env import load_string_from_env
+
+
+client = Client(
+    load_string_from_env("TWILIO_ACCOUNT_SID"),
+    load_string_from_env("TWILIO_AUTH_TOKEN"),
+)
 
 # Prototype devices have inverted polarity.
 INVERTED_PHONE_NUMBERS = ['+528713293364','+528713971819','+528713971823', '+528713865040', '+528713971807', '+528713460690']

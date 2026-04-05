@@ -5,7 +5,6 @@
 #
 
 import base64
-import os.path
 import os
 
 from google.auth.transport.requests import Request
@@ -17,8 +16,13 @@ from email.message import EmailMessage
 from datetime import date,datetime,timezone
 from twilio_util import GetLastCallStatus, GetLastCompletedCallDate
 from database_util import GetListArray
+from env import load_json_from_base64_env
 
-USER_EMAIL = "santiagomendoza@gmail.com"
+FROM_EMAIL = "springwater.switchremoto@gmail.com"
+TO_EMAIL = "pepemanboy@gmail.com"
+CC_EMAILS = ""
+# TO_EMAIL = "santiagomendoza@gmail.com"
+# CC_EMAILS = "info@springwater.com.mx, pepemanboy@gmail.com"
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
@@ -198,28 +202,23 @@ font-weight: normal}}
 
 def SendEmail(body: str, to: str):
 
-  dirname = os.path.dirname(__file__)
-  token_filename = os.path.join(dirname, 'token.json')
-  secrets_filename = os.path.join(dirname, 'springwater_oauth.json')
+  client_cfg = load_json_from_base64_env("GMAIL_OAUTH_CLIENT_B64")
+  token_info = load_json_from_base64_env("GMAIL_TOKEN_B64")
 
+  creds = Credentials.from_authorized_user_info(token_info, SCOPES)
 
-  creds = None
-  # The file token.json stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
-  if os.path.exists(token_filename):
-    creds = Credentials.from_authorized_user_file(token_filename, SCOPES)
-  # If there are no (valid) credentials available, let the user log in.
+  used_interactive_flow = False
   if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
       creds.refresh(Request())
     else:
-      flow = InstalledAppFlow.from_client_secrets_file(
-          secrets_filename, SCOPES
-      )
+      flow = InstalledAppFlow.from_client_config(client_cfg, SCOPES)
       creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-    with open(token_filename, "w") as token:
+      used_interactive_flow = True
+
+  if used_interactive_flow:
+    token_path = os.path.join(os.path.dirname(__file__), "token.json")
+    with open(token_path, "w", encoding="utf-8") as token:
       token.write(creds.to_json())
 
   try:
@@ -228,9 +227,9 @@ def SendEmail(body: str, to: str):
     message = EmailMessage()
 
     message["To"] = to
-    message["From"] = "springwater.switchremoto@gmail.com"
+    message["From"] = FROM_EMAIL
     message["Subject"] = "Reporte semanal switch remoto"
-    message["Cc"] = "info@springwater.com.mx, pepemanboy@gmail.com"
+    message["Cc"] = CC_EMAILS
     message.set_content(body, subtype='html')
 
     # encoded message
@@ -249,5 +248,6 @@ def SendEmail(body: str, to: str):
     print(f"An error occurred: {error}")
 
 
-database_list = GetListArray()
-SendEmail(GetReport(database_list),USER_EMAIL)
+if __name__ == "__main__":
+    database_list = GetListArray()
+    SendEmail(GetReport(database_list), TO_EMAIL)
