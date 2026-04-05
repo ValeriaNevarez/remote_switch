@@ -1,0 +1,9 @@
+# Install: pip install -r requirements.txt
+# Run from repo root or from this folder:
+#   python send_email.py
+#   python make_calls.py
+google-api-python-client>=2.111.0
+google-auth-httplib2>=0.2.0
+google-auth-oauthlib>=1.2.0
+firebase-admin>=6.5.0
+twilio>=9.0.0

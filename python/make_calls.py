@@ -5,8 +5,6 @@ from datetime import datetime,timezone
 
 DAYS_BETWEEN_CALLS = 30
 
-database_list = GetListArray()
-
 
 def GetDaysSince(date: datetime) -> int | None:
     if(date == None):
@@ -30,48 +28,50 @@ def ChangeMaster(phone_number):
     Send_message(phone_number, message_to_change_master)
 
 
-def CallAllNumbers():
-    database_list_range = range(0,len(database_list))
+def CallAllNumbers(database_list):
+    database_list_range = range(0, len(database_list))
     for i in database_list_range:
         phone_number = database_list[i].get("phone_number")
         enabled = database_list[i].get("enabled")
-        MakeACall(phone_number,enabled)
+        MakeACall(phone_number, enabled)
 
 
-def CallAllActiveNumbers():
-    database_list_range = range(0,len(database_list))
+def CallAllActiveNumbers(database_list):
+    database_list_range = range(0, len(database_list))
     for i in database_list_range:
         is_active = database_list[i].get("is_active")
-        if(is_active == True):
+        if is_active is True:
             active_phone = database_list[i].get("phone_number")
             enabled = database_list[i].get("enabled")
-            MakeACall(active_phone,enabled)
+            MakeACall(active_phone, enabled)
 
 
-def CallNumbersThatNeedIt():
-    database_list_range = range(0,len(database_list))
+def CallNumbersThatNeedIt(database_list):
+    database_list_range = range(0, len(database_list))
     for i in database_list_range:
         is_active = database_list[i].get("is_active")
-        if(is_active == True):
-            active_phone = database_list[i].get("phone_number")
-            last_call_status = GetLastCallStatus(active_phone)
-            if last_call_status == None:
-                print("sin status")
-                ChangeMaster(active_phone)
-                time.sleep(60)  # Wait for the device to process the SMS.
-                MakeACall(active_phone, enabled)
-                continue
+        if is_active is not True:
+            continue
+        active_phone = database_list[i].get("phone_number")
+        enabled = database_list[i].get("enabled")
+        last_call_status = GetLastCallStatus(active_phone)
+        if last_call_status is None:
+            print("sin status")
+            ChangeMaster(active_phone)
+            time.sleep(60)  # Wait for the device to process the SMS.
+            MakeACall(active_phone, enabled)
+            continue
 
-            status_active_phone = last_call_status.get("status")
-            date_active_phone = last_call_status.get("date")
-            days_since_call = GetDaysSince(date_active_phone)
-            enabled = database_list[i].get("enabled")
-            if(status_active_phone != "completed"):
-                print("estatus differente a completed",active_phone, status_active_phone)
-                MakeACall(active_phone,enabled)
-            elif(days_since_call > DAYS_BETWEEN_CALLS):
-                print("dias sin llamada completada excedidos", active_phone)
-                MakeACall(active_phone,enabled)
+        status_active_phone = last_call_status.get("status")
+        date_active_phone = last_call_status.get("date")
+        days_since_call = GetDaysSince(date_active_phone)
+        if status_active_phone != "completed":
+            print("estatus differente a completed", active_phone, status_active_phone)
+            MakeACall(active_phone, enabled)
+        elif days_since_call is not None and days_since_call > DAYS_BETWEEN_CALLS:
+            print("dias sin llamada completada excedidos", active_phone)
+            MakeACall(active_phone, enabled)
 
 
-CallNumbersThatNeedIt()
+if __name__ == "__main__":
+    CallNumbersThatNeedIt(GetListArray())
