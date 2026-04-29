@@ -1,6 +1,7 @@
 import {
   ChangeDeviceActive,
   ChangeDeviceEnable,
+  ChangeDeviceManualOverride,
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
   DeleteDevice,
@@ -146,21 +147,36 @@ const CallModal = ({ data, update, onClose }) => {
             <b>Celular: </b>
             {data.phone_number}
             <br />
+            <br />
             <b>Estado actual: </b>
             {data.is_active}
             <br />
             <b>Último estatus: </b>
             {data.status}
             <br />
-            <b>On/Off: </b>
-            {data.enable}
             <br />
+            <b>Estatus de pago: </b>
+            {data.is_payment_current ? "al corriente" : "retrasado"}
+            <br />
+            <b>Control: </b>
+            {data.is_manual_override ? "manual" : "automático"}
+            <br />
+            {data.is_manual_override && (
+              <>
+                <b>Manual On/Off: </b>
+                {data.enable}
+                <br />
+              </>
+            )}
             <br />
             <button
               type="button"
               onClick={() => {
+                const effectiveEnabled = data.is_manual_override
+                  ? data.enable == "On"
+                  : data.is_payment_current;
                 setCallButtonEnabled(false);
-                MakeCall(data.phone_number, data.enable == "On")
+                MakeCall(data.phone_number, effectiveEnabled)
                   .then(() => {
                     setNotice("Se realizó la llamada");
                     update();
@@ -176,7 +192,7 @@ const CallModal = ({ data, update, onClose }) => {
                     setNotice("Error al realizar la llamada:" + e);
                   });
               }}
-              className="btn btn-dark me-3 mb-3"
+              className="btn btn-secondary me-3 mb-3"
               disabled={!callButtonEnabled}
             >
               Llamar
@@ -196,53 +212,68 @@ const CallModal = ({ data, update, onClose }) => {
                     setNotice("Error al actualizar el estado: " + e);
                   });
               }}
-              className={
-                data.is_active == "Activo"
-                  ? "btn btn-secondary me-3 mb-3"
-                  : "btn btn-primary me-3 mb-3"
-              }
+              className="btn btn-secondary me-3 mb-3"
             >
               {data.is_active == "Activo" ? "Desactivar" : "Activar"}
             </button>
+            {data.is_manual_override && (
+              <button
+                type="button"
+                onClick={() => {
+                  const newEnable = data.enable == "On" ? false : true;
+                  ChangeDeviceEnable(Number(data.serial_number), newEnable)
+                    .then(() => {
+                      setNotice("Se actualizó el estado");
+                      update();
+                      setCallButtonEnabled(false);
+                      MakeCall(data.phone_number, newEnable)
+                        .then(() => {
+                          setNotice(
+                            "Se realizó la llamada para cambiar el estado."
+                          );
+                          update();
+                          setTimeout(() => {
+                            update();
+                          }, 10000);
+                          setTimeout(() => {
+                            update();
+                            setCallButtonEnabled(true);
+                          }, 90000);
+                        })
+                        .catch((e) => {
+                          setNotice("Error al realizar la llamada:" + e);
+                        });
+                    })
+                    .catch((e) => {
+                      setNotice("Error al actualizar el estado: " + e);
+                    });
+                }}
+                className="btn btn-secondary me-3 mb-3"
+                disabled={!callButtonEnabled}
+              >
+                {data.enable == "On" ? "Apagar" : "Encender"}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => {
-                const newEnable = data.enable == "On" ? false : true;
-                ChangeDeviceEnable(Number(data.serial_number), newEnable)
+                ChangeDeviceManualOverride(
+                  Number(data.serial_number),
+                  !data.is_manual_override
+                )
                   .then(() => {
-                    setNotice("Se actualizó el estado");
+                    setNotice("Se actualizó el control");
                     update();
-                    setCallButtonEnabled(false);
-                    MakeCall(data.phone_number, newEnable)
-                      .then(() => {
-                        setNotice(
-                          "Se realizó la llamada para cambiar el estado."
-                        );
-                        update();
-                        setTimeout(() => {
-                          update();
-                        }, 10000);
-                        setTimeout(() => {
-                          update();
-                          setCallButtonEnabled(true);
-                        }, 90000);
-                      })
-                      .catch((e) => {
-                        setNotice("Error al realizar la llamada:" + e);
-                      });
                   })
                   .catch((e) => {
-                    setNotice("Error al actualizar el estado: " + e);
+                    setNotice("Error al actualizar el control: " + e);
                   });
               }}
-              className={
-                data.enable == "On"
-                  ? "btn btn-secondary me-3 mb-3"
-                  : "btn btn-success me-3 mb-3"
-              }
-              disabled={!callButtonEnabled}
+              className="btn btn-secondary me-3 mb-3"
             >
-              {data.enable == "On" ? "Apagar" : "Encender"}
+              {data.is_manual_override
+                ? "Cambiar a automático"
+                : "Cambiar a manual"}
             </button>
             <button
               type="button"
