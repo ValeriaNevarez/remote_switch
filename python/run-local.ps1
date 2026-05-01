@@ -9,7 +9,7 @@
   Dot-sourcing runs $env:KEY = '...' assignments. Missing or wrong secrets show up as Python errors.
 
 .PARAMETER Task
-  MakeCalls | SendEmail | Both
+  MakeCalls | SendEmail | SyncWithToku | Both
 
 .PARAMETER SkipPip
   Skip pip install (faster reruns)
@@ -22,12 +22,15 @@
 
 .EXAMPLE
   .\run-local.ps1 -Task SendEmail -EnvFile C:\Work\remote_switch\python\secrets\env.ps1 -SkipPip
+
+.EXAMPLE
+  .\run-local.ps1 -Task SyncWithToku -EnvFile secrets\env.ps1
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("MakeCalls", "SendEmail", "Both")]
+    [ValidateSet("MakeCalls", "SendEmail", "SyncWithToku", "Both")]
     [string] $Task,
 
     [switch] $SkipPip,
@@ -53,6 +56,7 @@ if (-not $SkipPip) {
 
 $runMakeCalls = $Task -eq "MakeCalls" -or $Task -eq "Both"
 $runSendEmail = $Task -eq "SendEmail" -or $Task -eq "Both"
+$runSyncWithToku = $Task -eq "SyncWithToku" -or $Task -eq "Both"
 
 if ($runMakeCalls) {
     Write-Host "python make_calls.py"
@@ -60,8 +64,13 @@ if ($runMakeCalls) {
 }
 
 if ($runSendEmail) {
-    Write-Host "python send_email.py"
-    python send_email.py
+    Write-Host "python send_weekly_report.py"
+    python send_weekly_report.py
+}
+
+if ($runSyncWithToku) {
+    Write-Host "python sync_with_toku.py"
+    python sync_with_toku.py
 }
 
 Write-Host "Done."

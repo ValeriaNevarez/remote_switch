@@ -6,6 +6,7 @@
 - `gmail_token.json` — Gmail authorized-user token (`token.json` style)
 - `twilio_account_sid.txt` — one line, Account SID only (inputs to `build_env.py`)
 - `twilio_auth_token.txt` — one line, auth token only
+- `toku_api_token.txt` — one line, auth token only
 
 Not committed.
 

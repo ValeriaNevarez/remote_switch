@@ -6,76 +6,115 @@ from __future__ import annotations
 import argparse
 import base64
 import re
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-_DEFAULT_KEY_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_VALID_KEY_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
-DEFAULT_FIREBASE = SCRIPT_DIR / "firebase_private_key.json"
-DEFAULT_FIREBASE_DB_URL = SCRIPT_DIR / "firebase_db_url.txt"
-DEFAULT_GMAIL_OAUTH = SCRIPT_DIR / "gmail_oauth_client.json"
-DEFAULT_GMAIL_TOKEN = SCRIPT_DIR / "gmail_token.json"
-DEFAULT_TWILIO_SID = SCRIPT_DIR / "twilio_account_sid.txt"
-DEFAULT_TWILIO_TOKEN = SCRIPT_DIR / "twilio_auth_token.txt"
+
+def _read_text(path: Path) -> str:
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        raise SystemExit(f"File is empty: {path}")
+    return text
+
+
+def _read_b64(path: Path) -> str:
+    return base64.b64encode(path.read_bytes()).decode("ascii")
+
+
+@dataclass(frozen=True)
+class Secret:
+    """Describes one secret: how the user passes it, and how it becomes an env var."""
+
+    env_var: str
+    cli_flag: str
+    default_filename: str
+    label: str
+    encode: Callable[[Path], str]
+
+    @property
+    def default_path(self) -> Path:
+        return SCRIPT_DIR / self.default_filename
+
+
+SECRETS: tuple[Secret, ...] = (
+    Secret(
+        env_var="FIREBASE_SERVICE_ACCOUNT_B64",
+        cli_flag="--firebase",
+        default_filename="firebase_private_key.json",
+        label="Firebase JSON",
+        encode=_read_b64,
+    ),
+    Secret(
+        env_var="FIREBASE_DATABASE_URL",
+        cli_flag="--firebase-db-url",
+        default_filename="firebase_db_url.txt",
+        label="Firebase database URL",
+        encode=_read_text,
+    ),
+    Secret(
+        env_var="GMAIL_OAUTH_CLIENT_B64",
+        cli_flag="--gmail-oauth",
+        default_filename="gmail_oauth_client.json",
+        label="Gmail OAuth JSON",
+        encode=_read_b64,
+    ),
+    Secret(
+        env_var="GMAIL_TOKEN_B64",
+        cli_flag="--gmail-token",
+        default_filename="gmail_token.json",
+        label="Gmail token JSON",
+        encode=_read_b64,
+    ),
+    Secret(
+        env_var="TWILIO_ACCOUNT_SID",
+        cli_flag="--twilio-sid-file",
+        default_filename="twilio_account_sid.txt",
+        label="Twilio Account SID file",
+        encode=_read_text,
+    ),
+    Secret(
+        env_var="TWILIO_AUTH_TOKEN",
+        cli_flag="--twilio-token-file",
+        default_filename="twilio_auth_token.txt",
+        label="Twilio auth token file",
+        encode=_read_text,
+    ),
+    Secret(
+        env_var="TOKU_API_TOKEN",
+        cli_flag="--toku-api-token-file",
+        default_filename="toku_api_token.txt",
+        label="Toku API token file",
+        encode=_read_text,
+    ),
+)
+
 DEFAULT_OUTPUT = SCRIPT_DIR / "env.ps1"
 
 
 def _ps_env_line(key: str, value: str) -> str:
-    if not _DEFAULT_KEY_RE.match(key):
+    if not _VALID_KEY_RE.match(key):
         raise ValueError(f"Invalid environment variable name for PowerShell: {key!r}")
-    # Single-quoted PowerShell string: escape ' as ''
+    # Single-quoted PowerShell string: escape ' as ''.
     escaped = value.replace("'", "''")
-    return f"$env:{key} = '{escaped}'\n"
+    return f"$env:{key} = '{escaped}'"
 
 
-def _read_secret_txt(path: Path) -> str:
-    text = path.read_text(encoding="utf-8").strip()
-    if not text:
-        raise ValueError(f"File is empty: {path}")
-    return text
-
-
-def main() -> None:
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Build env.ps1: $env:KEY assignments for dot-sourcing in run-local.ps1."
     )
-    parser.add_argument(
-        "--firebase",
-        type=Path,
-        default=DEFAULT_FIREBASE,
-        help=f"Firebase service account JSON (default: {DEFAULT_FIREBASE.name})",
-    )
-    parser.add_argument(
-        "--firebase-db-url",
-        type=Path,
-        default=DEFAULT_FIREBASE_DB_URL,
-        help=f"Firebase database URL (default: {DEFAULT_FIREBASE_DB_URL.name})",
-    )
-    parser.add_argument(
-        "--gmail-oauth",
-        type=Path,
-        default=DEFAULT_GMAIL_OAUTH,
-        help=f"Gmail OAuth client JSON (default: {DEFAULT_GMAIL_OAUTH.name})",
-    )
-    parser.add_argument(
-        "--gmail-token",
-        type=Path,
-        default=DEFAULT_GMAIL_TOKEN,
-        help=f"Gmail token JSON (default: {DEFAULT_GMAIL_TOKEN.name})",
-    )
-    parser.add_argument(
-        "--twilio-sid-file",
-        type=Path,
-        default=DEFAULT_TWILIO_SID,
-        help=f"One-line file with Account SID (default: {DEFAULT_TWILIO_SID.name})",
-    )
-    parser.add_argument(
-        "--twilio-token-file",
-        type=Path,
-        default=DEFAULT_TWILIO_TOKEN,
-        help=f"One-line file with auth token (default: {DEFAULT_TWILIO_TOKEN.name})",
-    )
+    for secret in SECRETS:
+        parser.add_argument(
+            secret.cli_flag,
+            type=Path,
+            default=secret.default_path,
+            help=f"{secret.label} (default: {secret.default_filename})",
+        )
     parser.add_argument(
         "-o",
         "--output",
@@ -83,55 +122,35 @@ def main() -> None:
         default=DEFAULT_OUTPUT,
         help=f"Output path (default: {DEFAULT_OUTPUT.name})",
     )
-    args = parser.parse_args()
+    return parser
 
-    fb = args.firebase.resolve()
-    fb_db_url_path = args.firebase_db_url.resolve()
-    go = args.gmail_oauth.resolve()
-    gt = args.gmail_token.resolve()
-    sid_path = args.twilio_sid_file.resolve()
-    token_path = args.twilio_token_file.resolve()
 
-    for label, p in (
-        ("Firebase JSON", fb),
-        ("Firebase database URL", fb_db_url_path),
-        ("Gmail OAuth JSON", go),
-        ("Gmail token JSON", gt),
-        ("Twilio Account SID file", sid_path),
-        ("Twilio auth token file", token_path),
-    ):
-        if not p.is_file():
-            raise SystemExit(f"{label} not found: {p}")
+def _path_for(args: argparse.Namespace, secret: Secret) -> Path:
+    # argparse stores --foo-bar as args.foo_bar.
+    attr = secret.cli_flag.lstrip("-").replace("-", "_")
+    return getattr(args, attr).resolve()
 
-    try:
-        account_sid = _read_secret_txt(sid_path)
-        auth_token = _read_secret_txt(token_path)
-        fb_db_url = _read_secret_txt(fb_db_url_path)
-    except ValueError as e:
-        raise SystemExit(str(e)) from e
 
-    fb_b64 = base64.b64encode(fb.read_bytes()).decode("ascii")
-    client_b64 = base64.b64encode(go.read_bytes()).decode("ascii")
-    token_b64 = base64.b64encode(gt.read_bytes()).decode("ascii")
+def main() -> None:
+    args = _build_arg_parser().parse_args()
 
-    lines = ""[
+    paths = {secret.env_var: _path_for(args, secret) for secret in SECRETS}
+    for secret in SECRETS:
+        path = paths[secret.env_var]
+        if not path.is_file():
+            raise SystemExit(f"{secret.label} not found: {path}")
+
+    lines = [
         "# Generated by secrets/build_env.py - dot-source from python/: . ./secrets/env.ps1",
         "# Do not commit.",
         "",
     ]
-    for key, val in (
-        ("FIREBASE_SERVICE_ACCOUNT_B64", fb_b64),
-        ("FIREBASE_DATABASE_URL", fb_db_url),
-        ("GMAIL_OAUTH_CLIENT_B64", client_b64),
-        ("GMAIL_TOKEN_B64", token_b64),
-        ("TWILIO_ACCOUNT_SID", account_sid),
-        ("TWILIO_AUTH_TOKEN", auth_token),
-    ):
-        lines.append(_ps_env_line(key, val).rstrip("\n"))
+    for secret in SECRETS:
+        value = secret.encode(paths[secret.env_var])
+        lines.append(_ps_env_line(secret.env_var, value))
 
-    body = "\n".join(lines) + "\n"
     out = args.output.resolve()
-    out.write_text(body, encoding="utf-8", newline="\n")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {out}")
 
 

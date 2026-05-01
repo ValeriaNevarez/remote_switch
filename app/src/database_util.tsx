@@ -25,6 +25,18 @@ const ChangeEnable = async (deviceId, isEnabled) => {
   }
 };
 
+const ChangeManualOverride = async (deviceId, isManualOverride) => {
+  try {
+    const db = database;
+    await update(ref(db, "devices/" + deviceId), {
+      is_manual_override: isManualOverride,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 const ChangeClientName = async (deviceId, clientName) => {
   try {
     const db = database;
@@ -83,6 +95,19 @@ const ChangeDeviceEnable = async (serial: number, newIsEnabled) => {
   try {
     const id = await GetIdForSerialNumber(serial);
     await ChangeEnable(id, newIsEnabled);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const ChangeDeviceManualOverride = async (
+  serial: number,
+  newIsManualOverride
+) => {
+  try {
+    const id = await GetIdForSerialNumber(serial);
+    await ChangeManualOverride(id, newIsManualOverride);
   } catch (error) {
     console.log(error);
     throw error;
@@ -154,6 +179,8 @@ const AddDevice = async (serialNumber: number, phoneNumber: string) => {
       client_number: "",
       is_active: true,
       enabled: true,
+      is_manual_override: true,
+      is_payment_current: true,
     });
   } catch (error) {
     console.log(error);
@@ -191,6 +218,7 @@ export {
   ReadDatabase,
   GetIdForSerialNumber,
   ChangeDeviceEnable,
+  ChangeDeviceManualOverride,
   ChangeDeviceClientName,
   ChangeDeviceClientNumber,
   AddDevice,

@@ -1,6 +1,8 @@
 
 __pycache__/
 
+.venv/
+
 app/.env
 
 .vercel
@@ -8,3 +10,6 @@ app/.env
 app/production.env
 
 app/package-lock.json
+.env*.local
+
+backup/

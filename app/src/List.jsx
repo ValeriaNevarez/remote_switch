@@ -249,6 +249,8 @@ const GetList = async () => {
     statusList[phoneNumber]["enabled"] = enable;
     statusList[phoneNumber]["client_name"] = e["client_name"];
     statusList[phoneNumber]["client_number"] = e["client_number"];
+    statusList[phoneNumber]["is_manual_override"] = e["is_manual_override"];
+    statusList[phoneNumber]["is_payment_current"] = e["is_payment_current"];
   }
 
   return statusList;
@@ -306,9 +308,14 @@ const ListToDataArray = (list) => {
       date: FormatDate(value["date"]),
       diffDays: GetDaysSince(value["date"]),
       enable: value["enabled"] ? "On" : "Off",
+      is_manual_override: value["is_manual_override"],
+      is_payment_current: value["is_payment_current"],
       status_icon: status,
       enabled_and_is_active: {
-        enabled: value["enabled"],
+        // Effective on/off: respect manual override, otherwise follow Toku payment status.
+        enabled: value["is_manual_override"]
+          ? value["enabled"]
+          : value["is_payment_current"],
         is_active: value["is_active"],
       },
       status_and_diff_days: {
