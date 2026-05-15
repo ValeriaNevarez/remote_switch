@@ -14,12 +14,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import repo_config
 
 
-def _valid_config() -> dict[str, str]:
+def _valid_config() -> dict[str, str | int]:
     return {
         "twilio_master_phone_number": "+5215555555555",
         "from_email": "from@example.com",
-        "to_email": "to@example.com",
-        "cc_emails": "cc@example.com",
+        "weekly_report_to_email": "weekly@example.com",
+        "weekly_report_cc_emails": "weekly-cc@example.com",
+        "toku_sync_to_email": "toku@example.com",
+        "toku_sync_cc_emails": "toku-cc@example.com",
+        "toku_sync_grace_period_days": 10,
     }
 
 
@@ -33,7 +36,9 @@ class TestLoadConfig(unittest.TestCase):
             config_path.write_text(json.dumps(_valid_config()), encoding="utf-8")
             with patch.object(repo_config, "_CONFIG_PATH", config_path):
                 config = repo_config.load_config()
-                self.assertEqual(config["to_email"], "to@example.com")
+                self.assertEqual(config["weekly_report_to_email"], "weekly@example.com")
+                self.assertEqual(config["toku_sync_to_email"], "toku@example.com")
+                self.assertEqual(config["toku_sync_grace_period_days"], 10)
 
     def test_raises_when_required_keys_are_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

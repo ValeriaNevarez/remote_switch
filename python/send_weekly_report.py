@@ -218,14 +218,14 @@ h4 {{font-family: Helvetica, Arial, sans-serif; font-weight: normal}}
 def send_email(body: str) -> None:
     cfg = load_config()
     message = GmailMessage(
-        to=cfg["to_email"],
+        to=cfg["weekly_report_to_email"],
         from_email=cfg["from_email"],
-        cc=cfg["cc_emails"],
+        cc=cfg["weekly_report_cc_emails"],
         subject=REPORT_SUBJECT,
         html_body=body,
     )
     result = GmailClient().send_html_email(message)
-    _log("email_sent", message_id=result.message_id, to=cfg["to_email"])
+    _log("email_sent", message_id=result.message_id, to=cfg["weekly_report_to_email"])
 
 
 def main() -> None:
