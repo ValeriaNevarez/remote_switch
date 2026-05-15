@@ -168,18 +168,22 @@ def main() -> None:
     configure_logging()
     devices = get_devices()
     customers = get_all_customers()
-    invoices = get_invoices()
+    invoice_from_date = date.today() - timedelta(days=60)
+    invoices = get_invoices(due_date_from=invoice_from_date)
     customer_by_number = {
         customer.customer_number: customer for customer in customers
     }
     invoices_by_customer = _group_invoices_by_customer(invoices)
-    cutoff_date = date.today() - timedelta(days=10)
 
     cfg = load_config()
+    cutoff_date = date.today() - timedelta(days=cfg["toku_sync_grace_period_days"])
     syncer = TokuSyncer(
         switch_ops=get_switch_caller(),
         notify_state_change=_make_gmail_notifier(
-            GmailClient(), cfg["from_email"], cfg["to_email"], cfg["cc_emails"]
+            GmailClient(),
+            cfg["from_email"],
+            cfg["toku_sync_to_email"],
+            cfg["toku_sync_cc_emails"],
         ),
         update_payment_current=update_device_payment_current,
     )

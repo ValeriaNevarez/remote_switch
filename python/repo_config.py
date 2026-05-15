@@ -14,8 +14,11 @@ _CONFIG_PATH = _REPO_ROOT / "config.json"
 class Config(TypedDict):
     twilio_master_phone_number: str
     from_email: str
-    to_email: str
-    cc_emails: str
+    weekly_report_to_email: str
+    weekly_report_cc_emails: str
+    toku_sync_to_email: str
+    toku_sync_cc_emails: str
+    toku_sync_grace_period_days: int
 
 
 _REQUIRED_KEYS: tuple[str, ...] = tuple(Config.__annotations__)
