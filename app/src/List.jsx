@@ -71,13 +71,19 @@ const List = () => {
       render: (status_and_diff_days, type) => {
         const status = status_and_diff_days["status"];
         const diff_days = status_and_diff_days["diff_days"];
+        const days_since_status = status_and_diff_days["days_since_status"];
 
-        if (type !== "display") {
+        if (type === "sort") {
+          const is_completed = status === "completed";
+          const days = days_since_status ?? 99999;
+          return (is_completed ? 0 : 1) * 1_000_000 + days;
+        }
+
+        if (type === "filter") {
           if (status == "completed") {
-            return "aacompleted";
-          } else {
-            return "bb" + status;
+            return "completed " + diff_days;
           }
+          return (status ?? "") + " " + diff_days;
         }
 
         if (status == "completed") {
@@ -321,6 +327,7 @@ const ListToDataArray = (list) => {
       status_and_diff_days: {
         status: status,
         diff_days: FormatDate(value["status_date"]),
+        days_since_status: GetDaysSince(value["status_date"]),
       },
     };
   });
