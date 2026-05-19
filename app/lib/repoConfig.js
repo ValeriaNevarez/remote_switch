@@ -8,3 +8,4 @@ const config = JSON.parse(
 );
 
 export const twilioMasterPhoneNumber = config.twilio_master_phone_number;
+export const invertedPhoneNumbers = new Set(config.inverted_phone_numbers);

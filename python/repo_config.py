@@ -20,9 +20,22 @@ class Config(TypedDict):
     toku_sync_cc_emails: str
     toku_sync_grace_period_days: int
     toku_sync_max_call_retries: int
+    inverted_phone_numbers: list[str]
 
 
 _REQUIRED_KEYS: tuple[str, ...] = tuple(Config.__annotations__)
+
+
+def _validate_inverted_phone_numbers(data: dict[str, object]) -> None:
+    numbers = data.get("inverted_phone_numbers")
+    if not isinstance(numbers, list):
+        raise RuntimeError(
+            f"Config {_CONFIG_PATH} key inverted_phone_numbers must be a JSON array"
+        )
+    if not all(isinstance(number, str) for number in numbers):
+        raise RuntimeError(
+            f"Config {_CONFIG_PATH} key inverted_phone_numbers must contain only strings"
+        )
 
 
 @lru_cache(maxsize=1)
@@ -36,4 +49,5 @@ def load_config() -> Config:
     missing = [key for key in _REQUIRED_KEYS if key not in data]
     if missing:
         raise RuntimeError(f"Config {_CONFIG_PATH} is missing required keys: {missing}")
+    _validate_inverted_phone_numbers(data)
     return cast(Config, data)

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import time
+from functools import lru_cache
 from typing import Callable
 
 from log_config import log_event
@@ -17,19 +18,6 @@ from twilio.twiml.voice_response import VoiceResponse
 from repo_config import load_config
 from twilio_api import LastCallStatus, TwilioClient
 from twilio_api import get_client as get_twilio_client
-
-# Prototype devices have inverted polarity: sending the "enable" signal
-# disables them, and vice versa.
-INVERTED_PHONE_NUMBERS: frozenset[str] = frozenset(
-    {
-        "+528713293364",
-        "+528713971819",
-        "+528713971823",
-        "+528713865040",
-        "+528713971807",
-        "+528713460690",
-    }
-)
 
 INITIAL_PAUSE_SECONDS = 10
 BETWEEN_DIGIT_PLAYS_PAUSE_SECONDS = 10
@@ -51,9 +39,15 @@ def _log(event: str, **fields: object) -> None:
     log_event(_LOGGER, prefix=_LOG_PREFIX, event=event, **fields)
 
 
+@lru_cache(maxsize=1)
+def _inverted_phone_numbers() -> frozenset[str]:
+    """Phones with inverted polarity (see ``inverted_phone_numbers`` in config.json)."""
+    return frozenset(load_config()["inverted_phone_numbers"])
+
+
 def _resolve_dtmf_digits(phone_number: str, enabled: bool) -> str:
     """Pick the DTMF digits that put ``phone_number`` into the desired state."""
-    is_inverted = phone_number in INVERTED_PHONE_NUMBERS
+    is_inverted = phone_number in _inverted_phone_numbers()
     want_enable = enabled if not is_inverted else not enabled
     return DTMF_ENABLE_SIGNAL if want_enable else DTMF_DISABLE_SIGNAL
 

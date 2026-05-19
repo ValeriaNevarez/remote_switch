@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import repo_config
 
 
-def _valid_config() -> dict[str, str | int]:
+def _valid_config() -> dict[str, object]:
     return {
         "twilio_master_phone_number": "+5215555555555",
         "from_email": "from@example.com",
@@ -24,6 +24,7 @@ def _valid_config() -> dict[str, str | int]:
         "toku_sync_cc_emails": "toku-cc@example.com",
         "toku_sync_grace_period_days": 10,
         "toku_sync_max_call_retries": 2,
+        "inverted_phone_numbers": ["+528713293364"],
     }
 
 
@@ -40,6 +41,16 @@ class TestLoadConfig(unittest.TestCase):
                 self.assertEqual(config["weekly_report_to_email"], "weekly@example.com")
                 self.assertEqual(config["toku_sync_to_email"], "toku@example.com")
                 self.assertEqual(config["toku_sync_grace_period_days"], 10)
+
+    def test_raises_when_inverted_phone_numbers_is_not_a_string_array(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = Path(tmp) / "config.json"
+            invalid = _valid_config()
+            invalid["inverted_phone_numbers"] = ["+1", 2]
+            config_path.write_text(json.dumps(invalid), encoding="utf-8")
+            with patch.object(repo_config, "_CONFIG_PATH", config_path):
+                with self.assertRaises(RuntimeError):
+                    repo_config.load_config()
 
     def test_raises_when_required_keys_are_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
