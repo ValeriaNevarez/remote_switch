@@ -141,10 +141,9 @@ class TokuSyncer:
             _, call_succeeded = self._switch_ops.call_switch_with_retries(
                 device.phone_number, toku_current, max_retries=self._max_call_retries
             )
+            self._update_enabled(device.key, toku_current)
             self._notify(device, toku_current, call_succeeded)
-            if call_succeeded:
-                self._update_enabled(device.key, toku_current)
-            else:
+            if not call_succeeded:
                 _log(
                     device,
                     action="call_failed",

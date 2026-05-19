@@ -116,7 +116,7 @@ class TestTokuSyncer(unittest.TestCase):
         self.assertEqual(self.enabled_writer.writes, [("dev-1", True)])
         self.assertEqual(self.writer.writes, [("dev-1", True)])
 
-    def test_failed_call_notifies_but_skips_enabled_update(self) -> None:
+    def test_failed_call_still_updates_enabled(self) -> None:
         device = make_device(
             phone_number="+1", is_manual_override=False, is_payment_current=True
         )
@@ -124,7 +124,7 @@ class TestTokuSyncer(unittest.TestCase):
         self._sync(device, self._invoices(paid=False))
 
         self.assertEqual(self.notifier.notifications, [("dev-1", False, False)])
-        self.assertEqual(self.enabled_writer.writes, [])
+        self.assertEqual(self.enabled_writer.writes, [("dev-1", False)])
         self.assertEqual(self.writer.writes, [("dev-1", False)])
 
     # --- "skip entirely" branches (no Toku data) ------------------------
