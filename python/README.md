@@ -45,6 +45,19 @@ PowerShell helper:
 
 - `python/run-local.ps1` wraps local setup and script execution.
 
+## Production scheduling (`sync_with_toku`)
+
+GitHub Actions `schedule` cron is **not** used for Toku sync. Built-in schedules are unreliable (delays, skipped runs, load at :00/:30), so production timing is handled externally.
+
+**cron-job.org** POSTs every **15 minutes** to the GitHub API to trigger [`.github/workflows/remote-switch-sync-with-toku.yml`](../.github/workflows/remote-switch-sync-with-toku.yml) via `workflow_dispatch` on branch `main`. The workflow still runs on GitHub-hosted runners with repo secrets unchanged.
+
+- **Workflow file:** `remote-switch-sync-with-toku.yml` — only `workflow_dispatch` (no `schedule` block).
+- **Manual run:** GitHub → Actions → *Remote switch — sync with Toku* → *Run workflow*.
+- **cron-job.org:** URL `https://api.github.com/repos/ValeriaNevarez/remote_switch/actions/workflows/remote-switch-sync-with-toku.yml/dispatches`, body `{"ref":"main"}`, headers `Accept: application/vnd.github+json`, `Authorization: Bearer <PAT>`, `X-GitHub-Api-Version: 2022-11-28`. PAT needs **Actions: Read and write** on this repo (fine-grained token).
+- **Other jobs** (`make_calls`, `send_weekly_report`) still use GitHub `schedule` in their workflow files.
+
+If cron-job.org stops firing, check its execution log first, then whether the PAT expired or was revoked.
+
 ## Tests
 
 From repo root:

@@ -1,9 +1,7 @@
 name: Remote switch — sync with Toku
 
 on:
-  schedule:
-    # Every 5 minutes, offset from :00/:30 to reduce GitHub schedule delays.
-    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
+  # Scheduled via cron-job.org (workflow_dispatch). See python/README.md.
   workflow_dispatch:
 
 concurrency:
