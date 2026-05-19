@@ -19,6 +19,7 @@ class Config(TypedDict):
     toku_sync_to_email: str
     toku_sync_cc_emails: str
     toku_sync_grace_period_days: int
+    toku_sync_max_call_retries: int
 
 
 _REQUIRED_KEYS: tuple[str, ...] = tuple(Config.__annotations__)

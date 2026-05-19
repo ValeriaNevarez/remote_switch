@@ -33,10 +33,20 @@ class FakeSwitchOps:
     def __init__(self) -> None:
         self.calls: list[tuple[str, bool]] = []
         self.master_changes: list[str] = []
+        self._call_succeeded: dict[str, bool] = {}
 
     def call_switch(self, phone_number: str, enabled: bool) -> str:
         self.calls.append((phone_number, enabled))
         return f"sid-call-{len(self.calls)}"
+
+    def call_switch_with_retries(
+        self, phone_number: str, enabled: bool, *, max_retries: int
+    ) -> tuple[str, bool]:
+        sid = self.call_switch(phone_number, enabled)
+        return sid, self._call_succeeded.get(phone_number, True)
+
+    def set_call_succeeded(self, phone_number: str, succeeded: bool) -> None:
+        self._call_succeeded[phone_number] = succeeded
 
     def change_master(self, phone_number: str) -> str:
         self.master_changes.append(phone_number)
@@ -57,10 +67,12 @@ class RecordingNotifier:
     """Callable conforming to :data:`sync_with_toku.NotifyStateChange`."""
 
     def __init__(self) -> None:
-        self.notifications: list[tuple[str, bool]] = []
+        self.notifications: list[tuple[str, bool, bool]] = []
 
-    def __call__(self, device: DatabaseDevice, enabled: bool) -> None:
-        self.notifications.append((device.key, enabled))
+    def __call__(
+        self, device: DatabaseDevice, enabled: bool, call_succeeded: bool
+    ) -> None:
+        self.notifications.append((device.key, enabled, call_succeeded))
 
 
 class RecordingDeviceWriter:
@@ -71,6 +83,16 @@ class RecordingDeviceWriter:
 
     def __call__(self, key: str, is_payment_current: bool) -> None:
         self.writes.append((key, is_payment_current))
+
+
+class RecordingEnabledWriter:
+    """Callable conforming to :data:`sync_with_toku.UpdateDeviceEnabled`."""
+
+    def __init__(self) -> None:
+        self.writes: list[tuple[str, bool]] = []
+
+    def __call__(self, key: str, enabled: bool) -> None:
+        self.writes.append((key, enabled))
 
 
 def make_device(**overrides: object) -> DatabaseDevice:

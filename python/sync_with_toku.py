@@ -18,6 +18,7 @@ from typing import Callable, Protocol
 from firebase_api import (
     DatabaseDevice,
     get_devices,
+    update_device_enabled,
     update_device_payment_current,
 )
 from gmail_api import GmailClient, GmailMessage
@@ -34,8 +35,9 @@ from toku_api import (
 
 # Type aliases for the dependencies we inject. Notify/save are single-method
 # behaviors, so plain callables read better than a Protocol per role.
-NotifyStateChange = Callable[[DatabaseDevice, bool], None]
+NotifyStateChange = Callable[[DatabaseDevice, bool, bool], None]
 UpdatePaymentCurrent = Callable[[str, bool], None]
+UpdateDeviceEnabled = Callable[[str, bool], None]
 _LOG_PREFIX = "sync"
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +45,9 @@ _LOGGER = logging.getLogger(__name__)
 class _SwitchOps(Protocol):
     """Just enough of :class:`switch_caller.SwitchCaller` for the syncer."""
 
-    def call_switch(self, phone_number: str, enabled: bool) -> str: ...
+    def call_switch_with_retries(
+        self, phone_number: str, enabled: bool, *, max_retries: int
+    ) -> tuple[str, bool]: ...
 
 
 def _group_invoices_by_customer(
@@ -97,10 +101,15 @@ class TokuSyncer:
         switch_ops: _SwitchOps,
         notify_state_change: NotifyStateChange,
         update_payment_current: UpdatePaymentCurrent,
+        update_enabled: UpdateDeviceEnabled,
+        *,
+        max_call_retries: int,
     ):
         self._switch_ops = switch_ops
         self._notify = notify_state_change
         self._save = update_payment_current
+        self._update_enabled = update_enabled
+        self._max_call_retries = max_call_retries
 
     def sync_device(
         self,
@@ -129,8 +138,18 @@ class TokuSyncer:
                 toku_current=toku_current,
                 db_current=device.is_payment_current,
             )
-            self._switch_ops.call_switch(device.phone_number, toku_current)
-            self._notify(device, toku_current)
+            _, call_succeeded = self._switch_ops.call_switch_with_retries(
+                device.phone_number, toku_current, max_retries=self._max_call_retries
+            )
+            self._notify(device, toku_current, call_succeeded)
+            if call_succeeded:
+                self._update_enabled(device.key, toku_current)
+            else:
+                _log(
+                    device,
+                    action="call_failed",
+                    toku_current=toku_current,
+                )
         else:
             _log(device, action="noop", toku_current=toku_current)
 
@@ -142,14 +161,24 @@ def _make_gmail_notifier(
 ) -> NotifyStateChange:
     """Production wiring of :data:`NotifyStateChange` backed by Gmail."""
 
-    def notify(device: DatabaseDevice, enabled: bool) -> None:
+    def notify(device: DatabaseDevice, enabled: bool, call_succeeded: bool) -> None:
         action = "habilitado" if enabled else "deshabilitado"
         client_name = device.client_name or "(sin nombre)"
         client_number = device.client_number or "-"
-        phone = device.phone_number or "-"
+        if call_succeeded:
+            call_outcome = (
+                "<b>Llamadas:</b> exitosas (al menos un intento quedó como "
+                "completado en Twilio)."
+            )
+        else:
+            call_outcome = (
+                "<b>Llamadas:</b> fallidas (ningún intento quedó como completado "
+                "en Twilio; verificar el switch manualmente)."
+            )
         body = f"""
         <p>El switch del cliente <b>{client_name}</b> (No. cliente: {client_number})
         fue <b>{action}</b> automáticamente por estado de pagos en Toku.</p>
+        <p>{call_outcome}</p>
         """
         gmail.send_html_email(
             GmailMessage(
@@ -186,6 +215,8 @@ def main() -> None:
             cfg["toku_sync_cc_emails"],
         ),
         update_payment_current=update_device_payment_current,
+        update_enabled=update_device_enabled,
+        max_call_retries=cfg["toku_sync_max_call_retries"],
     )
 
     for device in devices:
