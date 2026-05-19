@@ -15,7 +15,7 @@ from log_config import log_event
 from twilio.twiml.voice_response import VoiceResponse
 
 from repo_config import load_config
-from twilio_api import TwilioClient
+from twilio_api import LastCallStatus, TwilioClient
 from twilio_api import get_client as get_twilio_client
 
 # Prototype devices have inverted polarity: sending the "enable" signal
@@ -32,7 +32,8 @@ INVERTED_PHONE_NUMBERS: frozenset[str] = frozenset(
 )
 
 INITIAL_PAUSE_SECONDS = 10
-POST_SIGNAL_PAUSE_SECONDS = 60
+BETWEEN_DIGIT_PLAYS_PAUSE_SECONDS = 10
+DIGIT_PLAY_COUNT = 6
 OUTBOUND_CALL_TIME_LIMIT_SECONDS = 70
 POST_CALL_SLEEP_SECONDS = 80
 POST_MASTER_CHANGE_SLEEP_SECONDS = 60
@@ -59,9 +60,11 @@ def _resolve_dtmf_digits(phone_number: str, enabled: bool) -> str:
 
 def _build_outbound_twiml(phone_number: str, enabled: bool) -> VoiceResponse:
     response = VoiceResponse()
+    digits = _resolve_dtmf_digits(phone_number, enabled)
     response.pause(length=INITIAL_PAUSE_SECONDS)
-    response.play("", digits=_resolve_dtmf_digits(phone_number, enabled))
-    response.pause(length=POST_SIGNAL_PAUSE_SECONDS)
+    for _ in range(DIGIT_PLAY_COUNT):
+        response.play("", digits=digits)
+        response.pause(length=BETWEEN_DIGIT_PLAYS_PAUSE_SECONDS)
     return response
 
 
@@ -103,6 +106,52 @@ class SwitchCaller:
         )
         self._sleep(POST_CALL_SLEEP_SECONDS)
         return sid
+
+    def call_switch_with_retries(
+        self,
+        phone_number: str,
+        enabled: bool,
+        *,
+        max_retries: int,
+    ) -> tuple[str, bool]:
+        """Call the switch, retrying when the last call did not complete.
+
+        Makes up to ``max_retries + 1`` attempts (one initial call plus
+        ``max_retries`` retries). Returns ``(final_sid, succeeded)`` where
+        ``succeeded`` is True when the last attempt's status is ``completed``.
+        """
+        last_sid = ""
+        last_call: LastCallStatus | None = None
+        for attempt in range(max_retries + 1):
+            last_sid = self.call_switch(phone_number, enabled)
+            last_call = self._twilio.get_last_call_status(phone_number)
+            if last_call is not None and last_call.status == "completed":
+                _log(
+                    "call_completed",
+                    phone=phone_number,
+                    enabled=enabled,
+                    sid=last_sid,
+                    attempt=attempt + 1,
+                )
+                return last_sid, True
+            if attempt < max_retries:
+                _log(
+                    "call_retry",
+                    phone=phone_number,
+                    enabled=enabled,
+                    sid=last_sid,
+                    attempt=attempt + 1,
+                    last_status=last_call.status if last_call else None,
+                )
+        _log(
+            "call_exhausted_retries",
+            phone=phone_number,
+            enabled=enabled,
+            sid=last_sid,
+            max_retries=max_retries,
+            last_status=last_call.status if last_call else None,
+        )
+        return last_sid, False
 
     def change_master(self, phone_number: str) -> str:
         """Send the SMS that points the switch's master phone number to ours."""

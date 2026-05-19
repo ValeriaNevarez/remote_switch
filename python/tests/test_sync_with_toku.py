@@ -15,6 +15,7 @@ from toku_api import TokuCustomer, TokuInvoice
 from tests.fakes import (
     FakeSwitchOps,
     RecordingDeviceWriter,
+    RecordingEnabledWriter,
     RecordingNotifier,
     make_device,
 )
@@ -43,10 +44,13 @@ class TestTokuSyncer(unittest.TestCase):
         self.switch_ops = FakeSwitchOps()
         self.notifier = RecordingNotifier()
         self.writer = RecordingDeviceWriter()
+        self.enabled_writer = RecordingEnabledWriter()
         self.syncer = TokuSyncer(
             switch_ops=self.switch_ops,
             notify_state_change=self.notifier,
             update_payment_current=self.writer,
+            update_enabled=self.enabled_writer,
+            max_call_retries=2,
         )
         self.customer_by_number = {"100": TokuCustomer("cust-1", "100")}
         self.today = date(2026, 4, 27)
@@ -76,6 +80,7 @@ class TestTokuSyncer(unittest.TestCase):
 
         self.assertEqual(self.switch_ops.calls, [])
         self.assertEqual(self.notifier.notifications, [])
+        self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [("dev-1", False)])
 
     def test_db_and_toku_already_agree_no_action_just_save(self) -> None:
@@ -84,6 +89,7 @@ class TestTokuSyncer(unittest.TestCase):
 
         self.assertEqual(self.switch_ops.calls, [])
         self.assertEqual(self.notifier.notifications, [])
+        self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [("dev-1", True)])
 
     # --- "act" branches -------------------------------------------------
@@ -95,7 +101,8 @@ class TestTokuSyncer(unittest.TestCase):
         self._sync(device, self._invoices(paid=False))
 
         self.assertEqual(self.switch_ops.calls, [("+1", False)])
-        self.assertEqual(self.notifier.notifications, [("dev-1", False)])
+        self.assertEqual(self.notifier.notifications, [("dev-1", False, True)])
+        self.assertEqual(self.enabled_writer.writes, [("dev-1", False)])
         self.assertEqual(self.writer.writes, [("dev-1", False)])
 
     def test_db_says_overdue_but_toku_says_current_enables(self) -> None:
@@ -105,8 +112,20 @@ class TestTokuSyncer(unittest.TestCase):
         self._sync(device, self._invoices(paid=True))
 
         self.assertEqual(self.switch_ops.calls, [("+1", True)])
-        self.assertEqual(self.notifier.notifications, [("dev-1", True)])
+        self.assertEqual(self.notifier.notifications, [("dev-1", True, True)])
+        self.assertEqual(self.enabled_writer.writes, [("dev-1", True)])
         self.assertEqual(self.writer.writes, [("dev-1", True)])
+
+    def test_failed_call_still_updates_enabled(self) -> None:
+        device = make_device(
+            phone_number="+1", is_manual_override=False, is_payment_current=True
+        )
+        self.switch_ops.set_call_succeeded("+1", False)
+        self._sync(device, self._invoices(paid=False))
+
+        self.assertEqual(self.notifier.notifications, [("dev-1", False, False)])
+        self.assertEqual(self.enabled_writer.writes, [("dev-1", False)])
+        self.assertEqual(self.writer.writes, [("dev-1", False)])
 
     # --- "skip entirely" branches (no Toku data) ------------------------
 
@@ -116,6 +135,7 @@ class TestTokuSyncer(unittest.TestCase):
 
         self.assertEqual(self.switch_ops.calls, [])
         self.assertEqual(self.notifier.notifications, [])
+        self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [])
 
     def test_blank_client_number_skipped_no_save(self) -> None:
@@ -124,20 +144,23 @@ class TestTokuSyncer(unittest.TestCase):
 
         self.assertEqual(self.switch_ops.calls, [])
         self.assertEqual(self.notifier.notifications, [])
+        self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [])
 
     # --- ordering: notify only fires after the call -----------------------
 
     def test_call_failure_prevents_notify_and_save(self) -> None:
-        """If switch_ops.call_switch raises, we don't email or persist."""
+        """If switch_ops.call_switch_with_retries raises, we don't email or persist."""
         class ExplodingSwitchOps:
-            def call_switch(self, phone_number, enabled):
+            def call_switch_with_retries(self, phone_number, enabled, *, max_retries):
                 raise RuntimeError("twilio down")
 
         syncer = TokuSyncer(
             switch_ops=ExplodingSwitchOps(),
             notify_state_change=self.notifier,
             update_payment_current=self.writer,
+            update_enabled=self.enabled_writer,
+            max_call_retries=2,
         )
         device = make_device(is_payment_current=True)
 
@@ -150,6 +173,7 @@ class TestTokuSyncer(unittest.TestCase):
             )
 
         self.assertEqual(self.notifier.notifications, [])
+        self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [])
 
 

@@ -23,6 +23,7 @@ def _valid_config() -> dict[str, str | int]:
         "toku_sync_to_email": "toku@example.com",
         "toku_sync_cc_emails": "toku-cc@example.com",
         "toku_sync_grace_period_days": 10,
+        "toku_sync_max_call_retries": 2,
     }
 
 

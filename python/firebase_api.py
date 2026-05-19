@@ -99,3 +99,8 @@ def get_devices() -> list[DatabaseDevice]:
 def update_device_payment_current(key: str, is_payment_current: bool) -> None:
     """Persist the latest ``is_payment_current`` value for one device."""
     get_client().update_device(key, {"is_payment_current": is_payment_current})
+
+
+def update_device_enabled(key: str, enabled: bool) -> None:
+    """Persist the latest ``enabled`` value for one device."""
+    get_client().update_device(key, {"enabled": enabled})
