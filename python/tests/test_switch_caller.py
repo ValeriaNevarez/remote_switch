@@ -77,7 +77,7 @@ class TestCallSwitchWithRetries(unittest.TestCase):
         self.assertTrue(succeeded)
         self.assertEqual(sid, "SID-1")
         self.assertEqual(len(self.twilio.created_calls), 1)
-        self.assertEqual(self.sleep.durations, [80])
+        self.assertEqual(self.sleep.durations, [85])
 
     def test_retries_until_completed(self) -> None:
         self.twilio.set_status_sequence("+1", ["busy", "failed", "completed"])
@@ -89,7 +89,7 @@ class TestCallSwitchWithRetries(unittest.TestCase):
         self.assertTrue(succeeded)
         self.assertEqual(sid, "SID-3")
         self.assertEqual(len(self.twilio.created_calls), 3)
-        self.assertEqual(self.sleep.durations, [80, 80, 80])
+        self.assertEqual(self.sleep.durations, [85, 10, 85, 10, 85])
 
     def test_exhausts_retries_when_never_completed(self) -> None:
         self.twilio.set_status_sequence("+1", ["busy", "busy", "busy"])
@@ -101,6 +101,7 @@ class TestCallSwitchWithRetries(unittest.TestCase):
         self.assertFalse(succeeded)
         self.assertEqual(sid, "SID-3")
         self.assertEqual(len(self.twilio.created_calls), 3)
+        self.assertEqual(self.sleep.durations, [85, 10, 85, 10, 85])
 
     def test_retries_when_no_call_record_yet(self) -> None:
         self.twilio.set_status_sequence("+1", [None, None, "completed"])
@@ -112,6 +113,7 @@ class TestCallSwitchWithRetries(unittest.TestCase):
         self.assertTrue(succeeded)
         self.assertEqual(sid, "SID-3")
         self.assertEqual(len(self.twilio.created_calls), 3)
+        self.assertEqual(self.sleep.durations, [85, 10, 85, 10, 85])
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import twilio from "twilio";
 
 const INITIAL_PAUSE_SECONDS = 10;
 const BETWEEN_DIGIT_PLAYS_PAUSE_SECONDS = 10;
-const DIGIT_PLAY_COUNT = 6;
+const DIGIT_PLAY_COUNT = 5;
 const OUTBOUND_CALL_TIME_LIMIT_SECONDS = 70;
 
 export default async (req, res) => {
