@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from sync_with_toku import TokuSyncer, _group_invoices_by_customer
+from sync_with_toku import TokuSyncer, _device_needs_sync_action, _group_invoices_by_customer
 from toku_api import TokuCustomer, TokuInvoice
 
 from tests.fakes import (
@@ -116,6 +116,35 @@ class TestTokuSyncer(unittest.TestCase):
         self.assertEqual(self.enabled_writer.writes, [("dev-1", True)])
         self.assertEqual(self.writer.writes, [("dev-1", True)])
 
+    def test_active_automatic_enabled_mismatch_calls_even_when_toku_matches_payment(
+        self,
+    ) -> None:
+        device = make_device(
+            phone_number="+1",
+            is_active=True,
+            is_manual_override=False,
+            enabled=True,
+            is_payment_current=False,
+        )
+        self._sync(device, self._invoices(paid=False))
+
+        self.assertEqual(self.switch_ops.calls, [("+1", False)])
+        self.assertEqual(self.enabled_writer.writes, [("dev-1", False)])
+        self.assertEqual(self.writer.writes, [("dev-1", False)])
+
+    def test_inactive_enabled_mismatch_does_not_call(self) -> None:
+        device = make_device(
+            is_active=False,
+            is_manual_override=False,
+            enabled=True,
+            is_payment_current=False,
+        )
+        self._sync(device, self._invoices(paid=True))
+
+        self.assertEqual(self.switch_ops.calls, [])
+        self.assertEqual(self.enabled_writer.writes, [])
+        self.assertEqual(self.writer.writes, [("dev-1", True)])
+
     def test_failed_call_still_updates_enabled(self) -> None:
         device = make_device(
             phone_number="+1", is_manual_override=False, is_payment_current=True
@@ -175,6 +204,20 @@ class TestTokuSyncer(unittest.TestCase):
         self.assertEqual(self.notifier.notifications, [])
         self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [])
+
+
+class TestDeviceNeedsSyncAction(unittest.TestCase):
+    def test_manual_override_never_needs_action(self) -> None:
+        device = make_device(is_manual_override=True, enabled=True, is_payment_current=False)
+        self.assertFalse(_device_needs_sync_action(device, toku_current=False))
+
+    def test_inactive_never_needs_action(self) -> None:
+        device = make_device(is_active=False, enabled=True, is_payment_current=False)
+        self.assertFalse(_device_needs_sync_action(device, toku_current=True))
+
+    def test_active_needs_action_when_enabled_differs_from_payment_current(self) -> None:
+        device = make_device(is_active=True, enabled=True, is_payment_current=False)
+        self.assertTrue(_device_needs_sync_action(device, toku_current=False))
 
 
 if __name__ == "__main__":

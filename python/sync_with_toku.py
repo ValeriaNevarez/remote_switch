@@ -2,9 +2,10 @@
 
 For every device:
   * compute the client's payment-current state from Toku invoices,
-  * if the operator hasn't pinned the device manually and our stored value
-    disagrees with Toku, place a Twilio call to enable/disable the switch
-    and email an operator notification,
+  * if the operator hasn't pinned the device manually and action is needed,
+    place a Twilio call to enable/disable the switch and email an operator
+    notification (active automatic devices when payment status differs from
+    Toku or ``enabled`` differs from ``is_payment_current``),
   * always persist the latest Toku-derived value back to Firebase.
 """
 
@@ -77,6 +78,16 @@ def _toku_payment_current_for(
     return are_invoices_current(invoices, as_of_date)
 
 
+def _device_needs_sync_action(device: DatabaseDevice, toku_current: bool) -> bool:
+    """Whether an active automatic device should be called during Toku sync."""
+    if not device.is_active or device.is_manual_override:
+        return False
+    return (
+        device.is_payment_current != toku_current
+        or device.enabled != device.is_payment_current
+    )
+
+
 def _log(device: DatabaseDevice, *, event: str = "toku_sync", **fields: object) -> None:
     """Single-line, structured log for one device's sync outcome."""
     log_event(
@@ -126,11 +137,7 @@ class TokuSyncer:
             _log(device, action="skip", reason="no_toku_data")
             return
 
-        needs_action = (
-            device.is_active
-            and not device.is_manual_override
-            and device.is_payment_current != toku_current
-        )
+        needs_action = _device_needs_sync_action(device, toku_current)
         if needs_action:
             _log(
                 device,

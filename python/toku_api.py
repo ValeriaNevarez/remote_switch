@@ -216,6 +216,13 @@ def get_invoices(
 
 
 def are_invoices_current(invoices: list[TokuInvoice], as_of_date: date) -> bool:
+    """Return whether the customer's invoices are in good standing as of ``as_of_date``.
+
+    False when there are no invoices, when none are paid, or when any unpaid
+    invoice is past due.
+    """
+    if not invoices or not any(invoice.is_paid for invoice in invoices):
+        return False
     return all(invoice.is_paid or invoice.due_date >= as_of_date for invoice in invoices)
 
 

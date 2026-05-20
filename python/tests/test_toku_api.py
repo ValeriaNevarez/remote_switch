@@ -64,6 +64,16 @@ class TestAreInvoicesCurrent(unittest.TestCase):
         ]
         self.assertTrue(are_invoices_current(invoices, as_of_date=date(2026, 4, 1)))
 
+    def test_returns_false_when_none_are_paid(self) -> None:
+        invoices = [
+            TokuInvoice("a", "cust-1", date(2026, 5, 1), False),
+            TokuInvoice("b", "cust-1", date(2026, 6, 1), False),
+        ]
+        self.assertFalse(are_invoices_current(invoices, as_of_date=date(2026, 4, 1)))
+
+    def test_returns_false_when_invoice_list_is_empty(self) -> None:
+        self.assertFalse(are_invoices_current([], as_of_date=date(2026, 4, 1)))
+
 
 if __name__ == "__main__":
     unittest.main()
