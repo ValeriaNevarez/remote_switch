@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de usuario — Switch remoto</title>
+  <meta name="description" content="Guía completa para operar Switch remoto: inicio de sesión, tabla de dispositivos, panel de control, pagos Toku y procesos automáticos.">
+  <link rel="stylesheet" href="manual.css">
+</head>
+<body>
+  <header class="manual-header">
+    <h1>Manual de usuario</h1>
+    <p class="manual-subtitle">Switch remoto</p>
+    <div class="manual-header-actions">
+      <a class="manual-btn manual-btn-outline" href="https://springwater.switchremoto.com/">Ir a la aplicación</a>
+    </div>
+  </header>
+
+  <div class="manual-layout">
+    <nav class="manual-nav" aria-label="Tabla de contenido">
+      <p class="manual-nav-title">Contenido</p>
+      <ul>
+        <li><a href="#intro">1. ¿Qué es Switch remoto?</a></li>
+        <li><a href="#acceso">2. Acceso e inicio de sesión</a></li>
+        <li><a href="#pantalla">3. Pantalla principal</a>
+          <ul class="nav-sub">
+            <li><a href="#buscador">Buscador</a></li>
+            <li><a href="#columnas">Columnas</a></li>
+            <li><a href="#colores">Colores de fila</a></li>
+          </ul>
+        </li>
+        <li><a href="#panel">4. Panel de control</a></li>
+        <li><a href="#control">5. Automático vs manual</a></li>
+        <li><a href="#toku">6. Pagos (Toku)</a></li>
+        <li><a href="#admin">7. Administración</a></li>
+        <li><a href="#actualizacion">8. Actualizar la tabla</a></li>
+        <li><a href="#automatico">9. Procesos automáticos</a></li>
+        <li><a href="#problemas">10. Problemas frecuentes</a></li>
+        <li><a href="#glosario">11. Glosario</a></li>
+      </ul>
+    </nav>
+
+    <main class="manual-content">
+      <details class="manual-toc-mobile">
+        <summary>Ver tabla de contenido</summary>
+        <ul>
+          <li><a href="#intro">¿Qué es Switch remoto?</a></li>
+          <li><a href="#acceso">Acceso e inicio de sesión</a></li>
+          <li><a href="#pantalla">Pantalla principal</a></li>
+          <li><a href="#panel">Panel de control</a></li>
+          <li><a href="#control">Automático vs manual</a></li>
+          <li><a href="#toku">Pagos (Toku)</a></li>
+          <li><a href="#admin">Administración</a></li>
+          <li><a href="#actualizacion">Actualizar la tabla</a></li>
+          <li><a href="#automatico">Procesos automáticos</a></li>
+          <li><a href="#problemas">Problemas frecuentes</a></li>
+          <li><a href="#glosario">Glosario</a></li>
+        </ul>
+      </details>
+
+      <section id="intro">
+        <h2>1. ¿Qué es Switch remoto?</h2>
+        <p class="manual-lead">
+          <strong>Switch remoto</strong> es una aplicación web que permite encender y apagar máquinas de agua
+          (u otros equipos con chip celular) mediante <strong>llamadas telefónicas automáticas</strong> y,
+          cuando hace falta, <strong>mensajes SMS</strong>. No necesita que alguien esté físicamente en el equipo:
+          el sistema marca al chip del dispositivo y envía las señales correctas para cambiar su estado.
+        </p>
+        <p>Con esta herramienta usted puede:</p>
+        <ul>
+          <li>Ver el estado de todos los dispositivos en una sola tabla.</li>
+          <li>Llamar manualmente a un dispositivo para encenderlo o apagarlo.</li>
+          <li>Activar o desactivar dispositivos (los inactivos no reciben llamadas automáticas).</li>
+          <li>Vincular cada dispositivo con un cliente y su número de cliente en Toku.</li>
+          <li>Dejar que el sistema encienda o apague según el <strong>estado de pagos</strong> en Toku (modo automático).</li>
+          <li>Fijar un estado manual cuando necesite anular temporalmente los pagos (modo manual).</li>
+        </ul>
+        <div class="manual-callout manual-callout-tip">
+          <strong class="manual-callout-title">Para quién es este manual</strong>
+          Está escrito para operadores que usan la página web día a día. No necesita conocimientos de programación.
+          Siga los pasos en orden la primera vez; después puede usar la tabla de contenido para consultar un tema puntual.
+        </div>
+      </section>
+
+      <section id="acceso">
+        <h2>2. Acceso e inicio de sesión</h2>
+
+        <h3>Dirección de la aplicación</h3>
+        <p>Abra el navegador (Chrome, Edge o Firefox recomendados) y vaya a:</p>
+        <p><a href="https://springwater.switchremoto.com/">https://springwater.switchremoto.com/</a></p>
+
+        <h3>Iniciar sesión</h3>
+        <ol class="manual-steps">
+          <li>Escriba su <strong>correo electrónico</strong> en el primer campo.</li>
+          <li>Escriba su <strong>contraseña</strong> en el segundo campo.</li>
+          <li>Pulse el botón <strong>Ingresar</strong>.</li>
+        </ol>
+        <p>Si las credenciales son incorrectas, verá el mensaje <em>Usuario o contraseña incorrectos.</em> Verifique mayúsculas y que no tenga espacios al inicio o al final.</p>
+
+        <div class="manual-callout manual-callout-warning">
+          <strong class="manual-callout-title">¿No tiene usuario o contraseña?</strong>
+          Solicítelos al administrador del sistema. Este manual no cubre la creación de cuentas en Firebase.
+        </div>
+
+        <h3>Cerrar sesión</h3>
+        <p>En la barra superior negra, a la derecha, pulse <strong>Cerrar sesión</strong>. Siempre cierre sesión si usa una computadora compartida.</p>
+      </section>
+
+      <section id="pantalla">
+        <h2>3. Pantalla principal (lista de dispositivos)</h2>
+        <p>
+          Después de iniciar sesión verá la <strong>tabla de dispositivos</strong>. Cada fila es un chip celular
+          instalado en un equipo. Arriba aparece la barra <em>Switch Remoto</em> con su correo y el botón para cerrar sesión.
+        </p>
+
+        <h3 id="buscador">Buscador</h3>
+        <p>Arriba a la izquierda de la tabla hay un campo <strong>Buscar:</strong>. Escriba texto y la tabla mostrará solo las filas que coincidan. Puede buscar por:</p>
+
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr>
+                <th>Quiero encontrar…</th>
+                <th>Qué escribir</th>
+                <th>Ejemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Número de celular del chip</td>
+                <td>El número tal como aparece (con +52, etc.)</td>
+                <td><code>+528713293364</code></td>
+              </tr>
+              <tr>
+                <td>Dispositivos encendidos</td>
+                <td>La palabra <code>on</code></td>
+                <td><code>on</code></td>
+              </tr>
+              <tr>
+                <td>Dispositivos apagados</td>
+                <td>La palabra <code>off</code></td>
+                <td><code>off</code></td>
+              </tr>
+              <tr>
+                <td>Número de serie</td>
+                <td>El símbolo <code>#</code> seguido del número de serie</td>
+                <td><code>#42</code></td>
+              </tr>
+              <tr>
+                <td>Nombre o número de cliente</td>
+                <td>Parte del nombre o del número de cliente</td>
+                <td><code>García</code> o <code>1234</code></td>
+              </tr>
+              <tr>
+                <td>Dispositivos inactivos</td>
+                <td>La palabra <code>inactivo</code></td>
+                <td><code>inactivo</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="manual-callout manual-callout-tip">
+          <strong class="manual-callout-title">Consejo</strong>
+          Para el número de serie siempre use <code>#</code> antes del número. Sin el <code>#</code>, el buscador puede no filtrar como espera.
+        </div>
+
+        <h3 id="columnas">Columnas de la tabla</h3>
+        <p>La tabla tiene <strong>siete columnas</strong>. De izquierda a derecha:</p>
+
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr>
+                <th>Columna</th>
+                <th>Qué significa</th>
+                <th>Qué debe saber</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>#</strong> (número de serie)</td>
+                <td>Identificador único del dispositivo cuando se dio de alta en el sistema.</td>
+                <td>No lo cambie desde la tabla; se asigna al agregar el cliente.</td>
+              </tr>
+              <tr>
+                <td><strong># Celular</strong></td>
+                <td>Número del chip SIM en el equipo.</td>
+                <td>Es el número al que el sistema llama para encender o apagar.</td>
+              </tr>
+              <tr>
+                <td><strong>Cliente</strong></td>
+                <td>Nombre descriptivo del cliente (editable en el panel de control).</td>
+                <td>Use nombres claros para reconocer equipos en reportes y correos.</td>
+              </tr>
+              <tr>
+                <td><strong># Cliente</strong></td>
+                <td>Número de cliente en Toku (sistema de cobranza).</td>
+                <td>Debe coincidir con Toku para que el modo automático funcione. Si está vacío, Toku no puede evaluar pagos.</td>
+              </tr>
+              <tr>
+                <td><strong>Icono de encendido</strong> (<span class="icon-dot icon-dot-on"></span> / <span class="icon-dot icon-dot-off"></span> / <span class="icon-dot icon-dot-inactive"></span>)</td>
+                <td>Estado <em>efectivo</em> del equipo: encendido, apagado o inactivo.</td>
+                <td>Ver sección «Automático vs manual»: en automático refleja pagos; en manual refleja lo que usted fijó.</td>
+              </tr>
+              <tr>
+                <td><strong>Estatus</strong></td>
+                <td>Resultado de la <strong>última llamada</strong> a ese número.</td>
+                <td>Muestra un icono y cuántos días lleva ese estatus.</td>
+              </tr>
+              <tr>
+                <td><strong>Último enlace</strong></td>
+                <td>Días desde la última llamada <strong>completada con éxito</strong> (al menos 60 segundos de duración).</td>
+                <td>Si nunca hubo un enlace exitoso, muestra <code>120+ días</code>. Sirve para detectar chips que hace mucho no «enlazan» bien.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Iconos de encendido (columna del botón de power)</h4>
+        <div class="manual-legend">
+          <span class="manual-legend-item"><span class="icon-dot icon-dot-on"></span> <strong>Verde relleno</strong> — Encendido (activo y máquina on)</span>
+          <span class="manual-legend-item"><span class="icon-dot icon-dot-off"></span> <strong>Rojo relleno</strong> — Apagado (activo y máquina off)</span>
+          <span class="manual-legend-item"><span class="icon-dot icon-dot-inactive"></span> <strong>Círculo vacío</strong> — Inactivo (el sistema no llama automáticamente)</span>
+        </div>
+        <ul>
+          <li><strong>Encendido:</strong> el dispositivo está marcado como activo y la máquina debe estar encendida según el control actual (automático o manual).</li>
+          <li><strong>Apagado:</strong> activo pero la máquina debe estar apagada.</li>
+          <li><strong>Inactivo:</strong> el dispositivo no se usa; no entra en las rutinas automáticas de llamada ni de sincronización con Toku para cambiar estado.</li>
+        </ul>
+
+        <h4>Iconos de estatus (última llamada)</h4>
+        <div class="manual-legend">
+          <span class="manual-legend-item"><span class="icon-status-ok"></span> <strong>Palomita verde + días</strong> — Última llamada <code>completed</code> (exitosa)</span>
+          <span class="manual-legend-item"><span class="icon-status-call"></span> <strong>Teléfono azul</strong> — Llamada en curso (<code>ringing</code>, <code>in-progress</code>, <code>queued</code>)</span>
+          <span class="manual-legend-item"><span class="icon-status-fail"></span> <strong>X roja + días</strong> — Última llamada no completada</span>
+        </div>
+        <p>Si la llamada no fue exitosa, el estatus en Twilio puede ser, entre otros:</p>
+        <ul>
+          <li><strong>busy</strong> — línea ocupada</li>
+          <li><strong>no-answer</strong> — no contestó</li>
+          <li><strong>failed</strong> — error de la red o de Twilio</li>
+          <li><strong>canceled</strong> — llamada cancelada</li>
+          <li><strong>incompleted</strong> — llamada contestada pero corta; el dispositivo atendió, pero no sostuvo la llamada al menos 60 segundos, así que no cuenta como <code>completed</code></li>
+        </ul>
+
+        <h3 id="colores">Colores de fondo en las filas</h3>
+        <p>Los colores son <strong>alertas visuales</strong>. No bloquean el uso de la fila: puede hacer clic igual. Si aplican varias condiciones, prevalece el rojo, luego el azul y después el amarillo.</p>
+        <ul>
+          <li><span class="row-sample row-blue">Fondo azul claro</span> — Hay una llamada <strong>en este momento</strong> a ese dispositivo (<code>ringing</code>, <code>in-progress</code> o <code>queued</code>). Espere a que termine; el botón <em>Llamar</em> del panel quedará deshabilitado unos minutos.</li>
+          <li><span class="row-sample row-yellow">Fondo amarillo</span> — Dispositivo <strong>activo</strong> cuya última llamada <strong>no</strong> fue <code>completed</code>. Una vez al día (aprox. 5:00, hora del centro de México) el servidor intenta marcar de nuevo. Si la fila permanece amarilla varios días, revise señal del chip o use <em>Llamar</em> en el panel.</li>
+          <li><span class="row-sample row-red">Fondo rojo</span> — Sin un enlace exitoso hace <strong>más de 40 días</strong> (activo o inactivo). Prioridad alta: verificar chip, antena o equipo.</li>
+        </ul>
+
+        <div class="manual-callout manual-callout-note">
+          <strong class="manual-callout-title">Abrir el panel de control</strong>
+          Haga un clic en cualquier parte de la fila del dispositivo. Se abrirá una ventana (modal) con el detalle y los botones de acción.
+        </div>
+
+        <p>La tabla muestra todos los dispositivos en una sola vista (sin paginación). En pantallas pequeñas, algunas columnas se ocultan y puede expandir la fila para ver el detalle.</p>
+        <p>Al final de la página, el enlace <strong>Manual de usuario</strong> abre esta guía (también disponible en <code>/manual</code> dentro de la aplicación). Los usuarios administradores verán además el botón <strong>Agregar cliente</strong>.</p>
+      </section>
+
+      <section id="panel">
+        <h2>4. Panel de control</h2>
+        <p>
+          El panel se abre al hacer clic en una fila. Muestra datos del dispositivo y botones para actuar sobre él.
+          <strong>Solo puede haber una llamada manual activa a la vez</strong> por dispositivo: después de pulsar <em>Llamar</em>,
+          ese botón se deshabilita hasta ~90 segundos.
+        </p>
+
+        <h3>Información que muestra</h3>
+        <ul>
+          <li><strong>Nombre de cliente</strong> y <strong>No. de cliente</strong> — editables (ver abajo).</li>
+          <li><strong>Número de serie</strong> y <strong>Celular</strong> — solo lectura aquí.</li>
+          <li><strong>Estado actual</strong> — Activo o Inactivo en el sistema.</li>
+          <li><strong>Último estatus</strong> — texto del último intento de llamada.</li>
+          <li><strong>Estatus de pago</strong> — <em>al corriente</em> o <em>retrasado</em> según Toku (última sincronización).</li>
+          <li><strong>Control</strong> — <em>automático</em> o <em>manual</em>.</li>
+          <li>Si está en manual: <strong>Manual On/Off</strong> — encendido o apagado que usted fijó.</li>
+        </ul>
+
+        <h3>Acciones paso a paso</h3>
+
+        <h4>Editar nombre o número de cliente</h4>
+        <ol class="manual-steps">
+          <li>Escriba el valor nuevo en el campo (el texto tenue es el valor actual guardado).</li>
+          <li>Pulse el botón con el icono de palomita (<strong>✓</strong>) a la derecha del campo.</li>
+          <li>Espere el mensaje amarillo de confirmación en la parte inferior del panel (desaparece solo tras unos segundos).</li>
+        </ol>
+        <p>El botón ✓ permanece deshabilitado hasta que escriba algo. Para el número de cliente use el mismo identificador que en Toku (campo <em>number</em> del cliente).</p>
+
+        <h4>Llamar (encender o apagar según el estado que corresponde)</h4>
+        <ol class="manual-steps">
+          <li>Revise en el panel si el control es automático o manual y cuál es el estado deseado.</li>
+          <li>Pulse <strong>Llamar</strong>.</li>
+          <li>No cierre el panel ni vuelva a pulsar <strong>Llamar</strong> hasta que pasen ~90 segundos o vea el mensaje de confirmación.</li>
+          <li>Observe la fila en la tabla: debería ponerse <span class="row-sample row-blue">azul</span> mientras la llamada está en curso.</li>
+        </ol>
+        <p>La llamada intenta dejar el equipo en el estado que corresponde: en automático, según pagos; en manual, según On/Off manual.</p>
+
+        <h4>Activar o Desactivar dispositivo</h4>
+        <ol class="manual-steps">
+          <li>Pulse <strong>Desactivar</strong> si el equipo ya no debe recibir llamadas automáticas (baja temporal, retiro, etc.).</li>
+          <li>Pulse <strong>Activar</strong> para volver a incluirlo en las rutinas automáticas.</li>
+        </ol>
+        <p>Un dispositivo <strong>inactivo</strong> no se llama en los procesos programados ni se ajusta por Toku.</p>
+
+        <h4>Encender o Apagar (solo en modo manual)</h4>
+        <p>Si el control es <strong>manual</strong>, verá el botón <strong>Encender</strong> o <strong>Apagar</strong>:</p>
+        <ol class="manual-steps">
+          <li>Pulse <strong>Encender</strong> o <strong>Apagar</strong>.</li>
+          <li>El sistema guarda el nuevo estado y <strong>llama automáticamente</strong> al dispositivo para aplicarlo.</li>
+          <li>Espere la confirmación; el botón de llamada quedará deshabilitado durante el proceso.</li>
+        </ol>
+
+        <h4>Cambiar entre automático y manual</h4>
+        <ol class="manual-steps">
+          <li>Pulse <strong>Cambiar a manual</strong> cuando necesite fijar usted el encendido/apagado sin importar Toku (cortesía, prueba, mantenimiento).</li>
+          <li>Pulse <strong>Cambiar a automático</strong> para que el equipo vuelva a seguir el <strong>estatus de pago</strong> de Toku.</li>
+        </ol>
+        <div class="manual-callout manual-callout-warning">
+          <strong class="manual-callout-title">Importante</strong>
+          En modo manual, Toku <strong>no</strong> realizará llamadas ni enviará correos por cambios de pago, pero el campo <em>Estatus de pago</em> del panel <strong>sí se actualiza</strong> en cada sincronización. El icono verde/rojo de la tabla sigue lo que usted fijó con Encender/Apagar. Debe actuar desde el panel o volver a automático para que los pagos muevan el equipo.
+        </div>
+
+        <h4>Enviar SMS</h4>
+        <p>El botón <strong>Enviar SMS</strong> manda un mensaje de texto al chip con el protocolo para cambiar el número maestro de Twilio. Úselo solo si el administrador se lo indicó (configuración avanzada del chip).</p>
+
+        <h4>Borrar dispositivo (solo administrador)</h4>
+        <p>Si su usuario es administrador, verá <strong>Borrar</strong>. Elimina el registro de la base de datos. Confirme en el cuadro de diálogo; esta acción no se puede deshacer desde la web.</p>
+      </section>
+
+      <section id="control">
+        <h2>5. Control automático vs manual</h2>
+        <p>Cada dispositivo tiene dos formas de decidir si la máquina debe estar encendida o apagada:</p>
+
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr>
+                <th>Modo</th>
+                <th>¿Quién decide encendido/apagado?</th>
+                <th>¿Cuándo usarlo?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Automático</strong></td>
+                <td>El sistema según <strong>pagos en Toku</strong> (<em>al corriente</em> = encendido, <em>retrasado</em> = apagado).</td>
+                <td>Operación normal de renta o suscripción con cobranza en Toku.</td>
+              </tr>
+              <tr>
+                <td><strong>Manual</strong></td>
+                <td>Usted, con <strong>Encender</strong> / <strong>Apagar</strong> en el panel.</td>
+                <td>Cliente con arreglo especial, pruebas, o mientras corrige datos en Toku.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>En la tabla principal, el icono verde/rojo muestra el estado <strong>efectivo</strong>:</p>
+        <ul>
+          <li>Automático → coincide con <em>al corriente</em> / <em>retrasado</em>.</li>
+          <li>Manual → coincide con On/Off que usted guardó (no con el estatus de pago).</li>
+        </ul>
+        <div class="manual-callout manual-callout-note">
+          <strong class="manual-callout-title">Dispositivos recién dados de alta</strong>
+          El alta desde <strong>Agregar cliente</strong> deja el control en <strong>manual</strong> y el equipo encendido. Complete nombre y número de cliente, pruebe la llamada y cambie a <strong>automático</strong> cuando Toku deba gobernar el switch.
+        </div>
+      </section>
+
+      <section id="toku">
+        <h2>6. Pagos con Toku (modo automático)</h2>
+        <p>
+          Toku es el sistema de facturación. Switch remoto consulta Toku de forma periódica y actualiza
+          <strong>estatus de pago</strong> de cada dispositivo que tenga <strong>número de cliente</strong> registrado y esté <strong>activo</strong> en modo <strong>automático</strong>.
+        </p>
+
+        <h3>¿Cuándo está «al corriente»?</h3>
+        <p>El servidor consulta facturas de Toku del último año y aplica un <strong>periodo de gracia</strong> (por defecto 10 días después del vencimiento; configurable en el servidor). En términos simples, el cliente está <em>al corriente</em> si:</p>
+        <ul>
+          <li>No hay facturas de ese cliente en Toku dentro de esa ventana, <strong>o</strong></li>
+          <li>Existe al menos una factura marcada como pagada <strong>y</strong> toda factura no pagada tiene vencimiento dentro del periodo de gracia (no está vencida «de más»).</li>
+        </ul>
+        <p>Se considera <strong>retrasado</strong> si hay facturas pero ninguna está pagada, o si alguna factura impaga está vencida fuera del periodo de gracia.</p>
+
+        <h3>¿Qué hace la sincronización automática?</h3>
+        <p>Aproximadamente cada <strong>15 minutos</strong> un proceso en el servidor:</p>
+        <ol>
+          <li>Lee clientes y facturas en Toku.</li>
+          <li>Para cada dispositivo con <em># Cliente</em> que coincida con un cliente en Toku, calcula si está al corriente y guarda ese valor (<em>estatus de pago</em>), incluso en modo manual (sin llamar).</li>
+          <li>Si el dispositivo está <strong>activo</strong>, en <strong>automático</strong> y hace falta alinear el switch — porque cambió el pago <strong>o</strong> porque el estado guardado del equipo no coincide con el pago — <strong>llama</strong> al chip (hasta 3 reintentos si la llamada no queda <code>completed</code>) y envía un <strong>correo</strong> con asunto <code>[Switch remoto] Nombre: habilitado/deshabilitado</code>.</li>
+          <li>Si el número de cliente está vacío o no existe en Toku, ese dispositivo se omite: no se actualiza el estatus de pago ni se llama.</li>
+        </ol>
+
+        <div class="manual-callout manual-callout-tip">
+          <strong class="manual-callout-title">Sin número de cliente o cliente inexistente en Toku</strong>
+          Verifique que <em># Cliente</em> coincida exactamente con el número del cliente en Toku. Si falta o no hay coincidencia, la sincronización ignora el equipo hasta corregirlo.
+        </div>
+
+        <div class="manual-callout manual-callout-danger">
+          <strong class="manual-callout-title">Si el correo dice que la llamada falló</strong>
+          El sistema ya registró el cambio de pago y el estado deseado en la base de datos, pero el chip podría no haber respondido. Verifique el equipo en sitio o use <strong>Llamar</strong> en el panel.
+        </div>
+      </section>
+
+      <section id="admin">
+        <h2>7. Administración (usuarios con permiso)</h2>
+        <p>Algunas funciones solo aparecen para el usuario administrador (<code>admin@admin.com</code>).</p>
+
+        <h3>Agregar cliente / dispositivo nuevo</h3>
+        <ol class="manual-steps">
+          <li>En la lista principal, pulse <strong>Agregar cliente</strong> (debajo de la tabla).</li>
+          <li>Ingrese el <strong>celular</strong> del chip con formato internacional (el formulario sugiere <code>+52</code> al inicio).</li>
+          <li>Ingrese el <strong>número de serie</strong> (solo dígitos; debe ser único).</li>
+          <li>Pulse <strong>Add</strong> (o <strong>Cancel</strong> para cerrar sin guardar).</li>
+          <li>Abra el panel del nuevo dispositivo, complete nombre y número de cliente en Toku, pruebe <strong>Llamar</strong> si hace falta y pulse <strong>Cambiar a automático</strong> cuando deba regirse por pagos.</li>
+        </ol>
+        <p>El alta deja el dispositivo <strong>activo</strong>, <strong>encendido</strong> y en control <strong>manual</strong> hasta que usted cambie a automático.</p>
+
+        <h3>Borrar dispositivo</h3>
+        <p>Desde el panel de control → <strong>Borrar</strong> → confirmar. Use solo cuando el chip se retiró definitivamente del parque.</p>
+      </section>
+
+      <section id="actualizacion">
+        <h2>8. Actualizar la tabla</h2>
+        <p>
+          La lista se carga al entrar a la aplicación. Después de usar el panel (llamar, activar, cambiar control, etc.),
+          la tabla se refresca al cerrar el aviso o al terminar la acción, pero <strong>no se actualiza sola</strong> mientras la deja abierta.
+        </p>
+        <ul>
+          <li>Si acaba de agregar un dispositivo o no ve un cambio reciente, recargue la página (F5).</li>
+          <li>Los iconos de <em>Estatus</em> y el color de fila dependen del historial de llamadas en Twilio (últimos 120 días).</li>
+          <li>El <em>estatus de pago</em> del panel puede cambiar en la sincronización con Toku aunque usted no refresque; el icono de encendido en la tabla solo cambia al recargar o tras una acción que actualice la lista.</li>
+        </ul>
+      </section>
+
+      <section id="automatico">
+        <h2>9. Procesos automáticos (sin usar la web)</h2>
+        <p>Además de las acciones que usted hace en la página, el servidor ejecuta tareas programadas:</p>
+
+        <h3>Reintentos cuando la última llamada falló (una vez al día)</h3>
+        <p>
+          Una vez al día (aprox. 5:00, hora del centro de México / 11:00 UTC) el servidor revisa todos los dispositivos <strong>activos</strong>.
+          Si la última llamada <strong>no</strong> fue <code>completed</code> — por ejemplo <code>busy</code>, <code>no-answer</code>,
+          <code>incompleted</code> u otro estatus de error — <strong>vuelve a marcar ese número</strong> para intentar
+          de nuevo encender o apagar según corresponda (automático: según Toku; manual: según On/Off guardado).
+        </p>
+        <p>
+          Por eso una fila <span class="row-sample row-yellow">amarilla</span> puede seguir amarilla varios días: el sistema reintenta cada mañana;
+          si no mejora, conviene revisar el equipo en sitio o llamar manualmente desde el panel.
+        </p>
+        <p>Los dispositivos <strong>inactivos</strong> no entran en esta rutina diaria.</p>
+
+        <h3>Primer contacto con un chip nuevo</h3>
+        <p>
+          Si Twilio no tiene llamadas previas a ese número, la rutina diaria primero envía un <strong>SMS de configuración</strong>
+          (mismo protocolo que <em>Enviar SMS</em> en el panel), espera un minuto y después realiza la llamada de encendido o apagado.
+          Esto prepara el chip para recibir llamadas del sistema.
+        </p>
+
+        <h3>Llamadas de mantenimiento (cada ~20 días)</h3>
+        <p>
+          Si la última llamada <strong>sí</strong> fue <code>completed</code>, el chip no se vuelve a marcar hasta que pasen
+          aproximadamente <strong>20 días</strong> desde esa llamada exitosa. Entonces el sistema marca de nuevo para mantener
+          el enlace activo, con el estado que corresponda (pago o manual), sin importar si está encendido o apagado.
+          Esto evita que el chip deje de responder por inactividad prolongada.
+        </p>
+
+        <h3>Sincronización con Toku (~cada 15 minutos)</h3>
+        <p>Descrita en la sección 6. Ajusta equipos activos en automático según pagos, reintenta llamadas fallidas y notifica por correo.</p>
+
+        <h3>Reporte semanal (viernes)</h3>
+        <p>
+          Cada viernes (misma hora matutina que la rutina diaria) se envía un correo con asunto
+          <strong>Reporte semanal switch remoto</strong> con dos tablas:
+        </p>
+        <ul>
+          <li><strong>Activos con llamada no completada</strong> — requieren atención.</li>
+          <li><strong>Inactivos</strong> — listado informativo con su último estatus.</li>
+        </ul>
+        <p>El correo incluye totales y, por fila: número de serie, celular, cliente, número de cliente, estatus de la última llamada y hace cuántos días fue el último enlace exitoso. Los activos con última llamada <code>completed</code> no aparecen en la tabla de atención, solo en el conteo de «completados».</p>
+        <p>Los destinatarios del reporte y de los avisos de Toku los configura el administrador en el servidor (<code>config.json</code>); no se cambian desde la web.</p>
+      </section>
+
+      <section id="problemas">
+        <h2>10. Problemas frecuentes y qué hacer</h2>
+
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr>
+                <th>Síntoma</th>
+                <th>Qué hacer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>No puedo iniciar sesión</td>
+                <td>Verifique correo y contraseña. Pida reset al administrador.</td>
+              </tr>
+              <tr>
+                <td>La fila está amarilla hace días</td>
+                <td>El sistema ya reintenta <strong>una vez al día</strong> mientras el estatus no sea <code>completed</code>. Si lleva varios días igual, revise señal y que el chip esté encendido, o use <strong>Llamar</strong> en el panel. Si persiste, contacte soporte técnico del chip.</td>
+              </tr>
+              <tr>
+                <td>La fila está roja (40+ días sin enlace)</td>
+                <td>Prioridad alta: visita o revisión del equipo. Puede requerir cambio de chip o antena.</td>
+              </tr>
+              <tr>
+                <td>Pagué en Toku pero sigue apagado</td>
+                <td>Confirme que <em># Cliente</em> es correcto y control está en <strong>automático</strong>. Espere hasta 15 min o llame manualmente una vez.</td>
+              </tr>
+              <tr>
+                <td>Quiero apagar aunque el cliente pagó</td>
+                <td>Cambie a <strong>manual</strong> → <strong>Apagar</strong>. Recuerde volver a automático cuando corresponda.</td>
+              </tr>
+              <tr>
+                <td>Botón Llamar deshabilitado</td>
+                <td>Espere ~90 segundos desde la última llamada. No abra dos llamadas al mismo número.</td>
+              </tr>
+              <tr>
+                <td>Correo de Toku dice llamada fallida</td>
+                <td>Verifique equipo en sitio; use <strong>Llamar</strong> en el panel; revise fila amarilla/roja.</td>
+              </tr>
+              <tr>
+                <td>No aparece mi dispositivo nuevo</td>
+                <td>Actualice la página. Confirme que se agregó con el celular correcto. Solo admin puede usar <strong>Agregar cliente</strong>.</td>
+              </tr>
+              <tr>
+                <td>Dispositivo nuevo no responde a Toku</td>
+                <td>Tras el alta está en <strong>manual</strong> por defecto. Complete <em># Cliente</em>, pulse <strong>Cambiar a automático</strong> y espere la sincronización (~15 min).</td>
+              </tr>
+              <tr>
+                <td>Panel dice «al corriente» pero la tabla muestra apagado</td>
+                <td>En modo <strong>manual</strong> el icono sigue On/Off manual, no el pago. Cambie a automático o use Encender/Apagar según lo que necesite.</td>
+              </tr>
+              <tr>
+                <td><em># Cliente</em> correcto pero estatus de pago no cambia</td>
+                <td>Confirme que ese número existe en Toku. Si no hay coincidencia, la sincronización omite el equipo. Revise facturas y periodo de gracia.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="manual-callout manual-callout-tip">
+          <strong class="manual-callout-title">Antes de escalar a soporte</strong>
+          Anote: número de serie, celular, nombre de cliente, si está activo/inactivo, automático/manual, y qué iconos ve en la tabla. Eso agiliza la revisión.
+        </div>
+      </section>
+
+      <section id="glosario">
+        <h2>11. Glosario</h2>
+        <dl>
+          <dt><strong>Switch / dispositivo</strong></dt>
+          <dd>El chip celular en el equipo que recibe la llamada para encender o apagar.</dd>
+
+          <dt><strong>Activo / Inactivo</strong></dt>
+          <dd>Si el dispositivo participa en llamadas y sincronización automática (activo) o está dado de baja lógica (inactivo).</dd>
+
+          <dt><strong>Encendido / Apagado (On / Off)</strong></dt>
+          <dd>Estado deseado de la máquina de agua tras una llamada exitosa.</dd>
+
+          <dt><strong>Último enlace</strong></dt>
+          <dd>Última llamada que Twilio registró como <code>completed</code> con al menos 60 segundos de duración. Si nunca ocurrió, la tabla muestra <code>120+ días</code>.</dd>
+
+          <dt><strong>Periodo de gracia</strong></dt>
+          <dd>Días después del vencimiento de una factura impaga durante los cuales el cliente sigue considerándose al corriente (valor por defecto: 10; configurable en el servidor).</dd>
+
+          <dt><strong>Toku</strong></dt>
+          <dd>Sistema de facturación; define si el cliente está al corriente.</dd>
+
+          <dt><strong>Control automático</strong></dt>
+          <dd>Encendido/apagado según pagos Toku.</dd>
+
+          <dt><strong>Control manual</strong></dt>
+          <dd>Operador fija On/Off con Encender/Apagar; Toku no llama por pagos, pero el estatus de pago en el panel sí se actualiza.</dd>
+
+          <dt><strong>Twilio</strong></dt>
+          <dd>Servicio de telefonía que realiza las llamadas y SMS; los iconos de estatus vienen de ahí.</dd>
+
+          <dt><strong>SMS maestro</strong></dt>
+          <dd>Mensaje especial para reconfigurar el número al que el chip responde; solo con indicación del administrador.</dd>
+        </dl>
+      </section>
+    </main>
+  </div>
+
+  <footer class="manual-footer">
+    <p>Switch remoto — Manual de usuario. Última actualización: mayo 2026.</p>
+    <p><a href="https://springwater.switchremoto.com/">springwater.switchremoto.com</a></p>
+  </footer>
+</body>
+</html>

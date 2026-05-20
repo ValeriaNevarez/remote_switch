@@ -1,5 +1,9 @@
 """Sync job: reconcile each device's ``is_payment_current`` with Toku.
 
+Payment-current (see ``toku_api.are_invoices_current``): clients with no
+invoices in the fetch window are current; otherwise at least one paid invoice
+is required and no unpaid invoice may be past the grace cutoff.
+
 For every device:
   * compute the client's payment-current state from Toku invoices,
   * if the operator hasn't pinned the device manually and action is needed,
@@ -41,6 +45,7 @@ UpdatePaymentCurrent = Callable[[str, bool], None]
 UpdateDeviceEnabled = Callable[[str, bool], None]
 _LOG_PREFIX = "sync"
 _LOGGER = logging.getLogger(__name__)
+_INVOICE_FETCH_LOOKBACK_DAYS = 365
 
 
 class _SwitchOps(Protocol):
@@ -203,7 +208,7 @@ def main() -> None:
     configure_logging()
     devices = get_devices()
     customers = get_all_customers()
-    invoice_from_date = date.today() - timedelta(days=60)
+    invoice_from_date = date.today() - timedelta(days=_INVOICE_FETCH_LOOKBACK_DAYS)
     invoices = get_invoices(due_date_from=invoice_from_date)
     customer_by_number = {
         customer.customer_number: customer for customer in customers

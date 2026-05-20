@@ -71,8 +71,8 @@ class TestAreInvoicesCurrent(unittest.TestCase):
         ]
         self.assertFalse(are_invoices_current(invoices, as_of_date=date(2026, 4, 1)))
 
-    def test_returns_false_when_invoice_list_is_empty(self) -> None:
-        self.assertFalse(are_invoices_current([], as_of_date=date(2026, 4, 1)))
+    def test_returns_true_when_invoice_list_is_empty(self) -> None:
+        self.assertTrue(are_invoices_current([], as_of_date=date(2026, 4, 1)))
 
 
 if __name__ == "__main__":

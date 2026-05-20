@@ -228,7 +228,7 @@ const List = () => {
           </button>
         )}
         <div className="mt-3">
-          <a href="user_manual.pdf" target="_blank">
+          <a href="/manual/index.html" target="_blank" rel="noopener noreferrer">
             Manual de usuario
           </a>
         </div>
