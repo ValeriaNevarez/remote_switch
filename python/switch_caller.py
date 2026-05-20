@@ -21,9 +21,10 @@ from twilio_api import get_client as get_twilio_client
 
 INITIAL_PAUSE_SECONDS = 10
 BETWEEN_DIGIT_PLAYS_PAUSE_SECONDS = 10
-DIGIT_PLAY_COUNT = 6
+DIGIT_PLAY_COUNT = 5
 OUTBOUND_CALL_TIME_LIMIT_SECONDS = 70
-POST_CALL_SLEEP_SECONDS = 80
+POST_CALL_SLEEP_SECONDS = 85
+RETRY_BETWEEN_ATTEMPTS_SLEEP_SECONDS = 10
 POST_MASTER_CHANGE_SLEEP_SECONDS = 60
 
 DTMF_ENABLE_SIGNAL = "w5"
@@ -111,8 +112,10 @@ class SwitchCaller:
         """Call the switch, retrying when the last call did not complete.
 
         Makes up to ``max_retries + 1`` attempts (one initial call plus
-        ``max_retries`` retries). Returns ``(final_sid, succeeded)`` where
-        ``succeeded`` is True when the last attempt's status is ``completed``.
+        ``max_retries`` retries). Waits ``RETRY_BETWEEN_ATTEMPTS_SLEEP_SECONDS``
+        before each retry (after the post-call wait on the failed attempt).
+        Returns ``(final_sid, succeeded)`` where ``succeeded`` is True when the
+        last attempt's status is ``completed``.
         """
         last_sid = ""
         last_call: LastCallStatus | None = None
@@ -136,7 +139,9 @@ class SwitchCaller:
                     sid=last_sid,
                     attempt=attempt + 1,
                     last_status=last_call.status if last_call else None,
+                    between_retry_sleep_seconds=RETRY_BETWEEN_ATTEMPTS_SLEEP_SECONDS,
                 )
+                self._sleep(RETRY_BETWEEN_ATTEMPTS_SLEEP_SECONDS)
         _log(
             "call_exhausted_retries",
             phone=phone_number,

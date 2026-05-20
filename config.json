@@ -6,7 +6,7 @@
   "toku_sync_to_email": "springwater82@gmail.com",
   "toku_sync_cc_emails": "info@springwater.com.mx, pepemanboy@gmail.com",
   "toku_sync_grace_period_days": 10,
-  "toku_sync_max_call_retries": 3,
+  "toku_sync_max_call_retries": 1,
   "inverted_phone_numbers": [
     "+528713293364",
     "+528713971819",

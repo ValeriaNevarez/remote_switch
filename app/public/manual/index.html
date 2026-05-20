@@ -390,7 +390,7 @@
         <ol>
           <li>Lee clientes y facturas en Toku.</li>
           <li>Para cada dispositivo con <em># Cliente</em> que coincida con un cliente en Toku, calcula si está al corriente y guarda ese valor (<em>estatus de pago</em>), incluso en modo manual (sin llamar).</li>
-          <li>Si el dispositivo está <strong>activo</strong>, en <strong>automático</strong> y hace falta alinear el switch — porque cambió el pago <strong>o</strong> porque el estado guardado del equipo no coincide con el pago — <strong>llama</strong> al chip (hasta 3 reintentos si la llamada no queda <code>completed</code>) y envía un <strong>correo</strong> con asunto <code>[Switch remoto] Nombre: habilitado/deshabilitado</code>.</li>
+          <li>Si el dispositivo está <strong>activo</strong>, en <strong>automático</strong> y hace falta alinear el switch — porque cambió el pago <strong>o</strong> porque el estado guardado del equipo no coincide con el pago — <strong>llama</strong> al chip (hasta 1 reintento si la llamada no queda <code>completed</code>) y envía un <strong>correo</strong> con asunto <code>[Switch remoto] Nombre: habilitado/deshabilitado</code>.</li>
           <li>Si el número de cliente está vacío o no existe en Toku, ese dispositivo se omite: no se actualiza el estatus de pago ni se llama.</li>
         </ol>
 
