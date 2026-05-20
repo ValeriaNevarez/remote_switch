@@ -1,6 +1,7 @@
 {
-  "routes": [
-    { "src": "/", "dest": "/" },
-    { "src": "/login", "dest": "/" }
+  "rewrites": [
+    { "source": "/login", "destination": "/" },
+    { "source": "/manual", "destination": "/manual/index.html" },
+    { "source": "/manual/", "destination": "/manual/index.html" }
   ]
 }

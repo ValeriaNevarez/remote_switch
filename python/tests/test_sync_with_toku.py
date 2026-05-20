@@ -92,6 +92,13 @@ class TestTokuSyncer(unittest.TestCase):
         self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [("dev-1", True)])
 
+    def test_no_invoices_in_toku_marks_current(self) -> None:
+        device = make_device(is_payment_current=False)
+        self._sync(device, {})
+
+        self.assertEqual(self.switch_ops.calls, [(device.phone_number, True)])
+        self.assertEqual(self.writer.writes, [("dev-1", True)])
+
     # --- "act" branches -------------------------------------------------
 
     def test_db_says_current_but_toku_says_overdue_disables(self) -> None:
