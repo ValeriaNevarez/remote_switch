@@ -9,7 +9,10 @@
   Dot-sourcing runs $env:KEY = '...' assignments. Missing or wrong secrets show up as Python errors.
 
 .PARAMETER Task
-  MakeCalls | SendEmail | SyncWithToku | Both
+  MakeCalls | SendEmail | SyncWithToku | ExplainCustomer | Both
+
+.PARAMETER CustomerNumber
+  Required for ExplainCustomer: Toku / Firebase client number (# Cliente).
 
 .PARAMETER SkipPip
   Skip pip install (faster reruns)
@@ -26,18 +29,22 @@
 .EXAMPLE
   .\run-local.ps1 -Task SyncWithToku -EnvFile secrets\env.ps1
 
+.EXAMPLE
+  .\run-local.ps1 -Task ExplainCustomer -CustomerNumber 12345 -EnvFile secrets\env.ps1
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("MakeCalls", "SendEmail", "SyncWithToku", "Both")]
+    [ValidateSet("MakeCalls", "SendEmail", "SyncWithToku", "ExplainCustomer", "Both")]
     [string] $Task,
 
     [switch] $SkipPip,
 
     [Parameter(Mandatory = $true)]
-    [string] $EnvFile
+    [string] $EnvFile,
+
+    [string] $CustomerNumber = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -72,6 +79,14 @@ if ($runSendEmail) {
 if ($runSyncWithToku) {
     Write-Host "python sync_with_toku.py"
     python sync_with_toku.py
+}
+
+if ($Task -eq "ExplainCustomer") {
+    if (-not $CustomerNumber.Trim()) {
+        throw "ExplainCustomer requires -CustomerNumber (Toku / Firebase # Cliente)."
+    }
+    Write-Host "python explain_customer_invoices.py $CustomerNumber"
+    python explain_customer_invoices.py $CustomerNumber
 }
 
 Write-Host "Done."
