@@ -40,6 +40,9 @@ From repo root:
   - `python python/sync_with_toku.py`
 - Weekly report email:
   - `python python/send_weekly_report.py`
+- Explain one customer's Toku invoices / payment status:
+  - `python python/explain_customer_invoices.py <client_number>`
+  - or `.\run-local.ps1 -Task ExplainCustomer -CustomerNumber 12345 -EnvFile secrets\env.ps1`
 
 PowerShell helper:
 
