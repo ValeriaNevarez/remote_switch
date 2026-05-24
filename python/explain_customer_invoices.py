@@ -19,7 +19,14 @@ import sys
 from firebase_api import DatabaseDevice, get_devices
 from repo_config import load_config
 from sync_with_toku import _INVOICE_FETCH_LOOKBACK_DAYS
-from toku_api import TokuCustomer, TokuInvoice, are_invoices_current, get_all_customers, get_invoices
+from toku_api import (
+    TokuCustomer,
+    TokuInvoice,
+    are_invoices_current,
+    customer_for_invoice_lookup,
+    get_all_customers,
+    get_invoices,
+)
 
 _DIVIDER = "=" * 72
 
@@ -118,7 +125,10 @@ def explain_customer(customer_number: str) -> int:
         print(f"Clientes en Toku: {len(customers)}")
         return 1
 
-    invoices = get_invoices(customer_id=customer.customer_id, due_date_from=invoice_from)
+    invoice_customer = customer_for_invoice_lookup(customer, customer_by_number)
+    invoices = get_invoices(
+        customer_id=invoice_customer.customer_id, due_date_from=invoice_from
+    )
     toku_current = are_invoices_current(invoices, as_of_date)
     invoice_rows = _build_invoice_rows(invoices, as_of_date)
     devices = _devices_for_client(get_devices(), customer_number)
@@ -126,6 +136,18 @@ def explain_customer(customer_number: str) -> int:
     print(_DIVIDER)
     print(f"Cliente Toku: {customer_number!r}")
     print(f"  customer_id: {customer.customer_id}")
+    if customer.payer_number:
+        print(f"  quien_paga: {customer.payer_number!r}")
+    if invoice_customer.customer_number != customer.customer_number:
+        print(
+            f"  Facturas de: cliente {invoice_customer.customer_number!r} "
+            f"(quien_paga, customer_id={invoice_customer.customer_id})"
+        )
+    elif customer.payer_number:
+        print(
+            f"  quien_paga no coincide con un cliente en Toku; "
+            f"se usan las facturas de este cliente."
+        )
     print()
     print("Criterio (mismo que sync_with_toku / toku_api.are_invoices_current):")
     print(f"  Hoy: {today}")

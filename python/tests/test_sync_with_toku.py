@@ -9,7 +9,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from sync_with_toku import TokuSyncer, _device_needs_sync_action, _group_invoices_by_customer
+from sync_with_toku import (
+    TokuSyncer,
+    _device_needs_sync_action,
+    _group_invoices_by_customer,
+    _toku_payment_current_for,
+)
 from toku_api import TokuCustomer, TokuInvoice
 
 from tests.fakes import (
@@ -211,6 +216,34 @@ class TestTokuSyncer(unittest.TestCase):
         self.assertEqual(self.notifier.notifications, [])
         self.assertEqual(self.enabled_writer.writes, [])
         self.assertEqual(self.writer.writes, [])
+
+
+class TestTokuPaymentCurrentFor(unittest.TestCase):
+    def test_uses_payer_invoices_when_quien_paga_is_valid(self) -> None:
+        device = make_device(client_number="635")
+        client = TokuCustomer("cust-client", "635", payer_number="123")
+        payer = TokuCustomer("cust-payer", "123")
+        customer_by_number = {"635": client, "123": payer}
+        invoices_by_customer = {
+            "cust-client": [TokuInvoice("bad", "cust-client", date(2026, 1, 1), False)],
+            "cust-payer": [TokuInvoice("ok", "cust-payer", date(2026, 1, 1), True)],
+        }
+        result = _toku_payment_current_for(
+            device, customer_by_number, invoices_by_customer, date(2026, 4, 27)
+        )
+        self.assertTrue(result)
+
+    def test_uses_own_invoices_when_quien_paga_invalid(self) -> None:
+        device = make_device(client_number="635")
+        client = TokuCustomer("cust-client", "635", payer_number="999")
+        customer_by_number = {"635": client}
+        invoices_by_customer = {
+            "cust-client": [TokuInvoice("bad", "cust-client", date(2026, 1, 1), False)],
+        }
+        result = _toku_payment_current_for(
+            device, customer_by_number, invoices_by_customer, date(2026, 4, 27)
+        )
+        self.assertFalse(result)
 
 
 class TestDeviceNeedsSyncAction(unittest.TestCase):

@@ -2,7 +2,9 @@
 
 Payment-current (see ``toku_api.are_invoices_current``): clients with no
 invoices in the fetch window are current; otherwise at least one paid invoice
-is required and no unpaid invoice may be past the grace cutoff.
+is required and no unpaid invoice may be past the grace cutoff. When Toku
+metadata ``quien_paga`` is a valid client number, the payer's invoices are used
+instead of the device's client.
 
 For every device:
   * compute the client's payment-current state from Toku invoices,
@@ -34,6 +36,7 @@ from toku_api import (
     TokuCustomer,
     TokuInvoice,
     are_invoices_current,
+    customer_for_invoice_lookup,
     get_all_customers,
     get_invoices,
 )
@@ -79,7 +82,8 @@ def _toku_payment_current_for(
     customer = customer_by_number.get(device.client_number)
     if customer is None:
         return None
-    invoices = invoices_by_customer.get(customer.customer_id, [])
+    invoice_customer = customer_for_invoice_lookup(customer, customer_by_number)
+    invoices = invoices_by_customer.get(invoice_customer.customer_id, [])
     return are_invoices_current(invoices, as_of_date)
 
 
