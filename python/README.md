@@ -103,7 +103,7 @@ Prefix:
 Primary events:
 
 - `event=toku_sync`
-  - Common fields: `phone`, `client`, `action`
+  - Common fields: `phone`, `client`, `client_number`, `action`
   - Common actions:
     - `skip` (typically `reason=no_toku_data`)
     - `noop`

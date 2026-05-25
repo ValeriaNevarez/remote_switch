@@ -105,6 +105,7 @@ def _log(device: DatabaseDevice, *, event: str = "toku_sync", **fields: object) 
         event=event,
         phone=device.phone_number,
         client=repr(device.client_name),
+        client_number=repr(device.client_number),
         **fields,
     )
 
@@ -241,10 +242,11 @@ def main() -> None:
             )
         except Exception as e:
             _LOGGER.exception(
-                "%s: event=toku_sync phone=%s client=%r action=error error=%r",
+                "%s: event=toku_sync phone=%s client=%r client_number=%r action=error error=%r",
                 _LOG_PREFIX,
                 device.phone_number,
                 device.client_name,
+                device.client_number,
                 e,
             )
 
