@@ -40,6 +40,7 @@ def _parse_optional_bool(value: Any) -> bool | None:
 class TokuCustomer:
     customer_id: str
     customer_number: str
+    payer_number: str | None = None
 
 
 @dataclass(frozen=True)
@@ -136,9 +137,14 @@ class TokuClient:
         )
         if not customer_id or not customer_number:
             return None
+        payer_raw = metadata.get("quien_paga")
+        payer_number = str(payer_raw).strip() if payer_raw not in (None, "") else None
+        if payer_number == "":
+            payer_number = None
         return TokuCustomer(
             customer_id=str(customer_id),
             customer_number=str(customer_number),
+            payer_number=payer_number,
         )
 
     @staticmethod
@@ -213,6 +219,21 @@ def get_invoices(
         due_date_from=due_date_from,
         page_size=page_size,
     )
+
+
+def customer_for_invoice_lookup(
+    customer: TokuCustomer,
+    customer_by_number: dict[str, TokuCustomer],
+) -> TokuCustomer:
+    """Return the Toku customer whose invoices determine payment status.
+
+    When ``customer.payer_number`` (metadata ``quien_paga``) matches another
+    known client number, that payer's invoices are used; otherwise ``customer``.
+    Only one hop is performed (the payer's own ``quien_paga`` is not followed).
+    """
+    if customer.payer_number and customer.payer_number in customer_by_number:
+        return customer_by_number[customer.payer_number]
+    return customer
 
 
 def are_invoices_current(invoices: list[TokuInvoice], as_of_date: date) -> bool:
