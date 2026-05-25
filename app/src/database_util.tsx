@@ -136,9 +136,9 @@ const ReadDatabase = async () => {
 const GetIdForSerialNumber = async (serial_number: number) => {
   try {
     const db = await ReadDatabase();
-    for (let i = 0; i < db.length; i++) {
-      if (Number(db[i]["serial_number"]) == serial_number) {
-        return i;
+    for (const key in db) {
+      if (db[key] && Number(db[key]["serial_number"]) == serial_number) {
+        return key;
       }
     }
     throw "Numero de serie no existe";
