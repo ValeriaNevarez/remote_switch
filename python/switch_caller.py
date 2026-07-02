@@ -8,9 +8,11 @@ REST calls but takes the client by injection so it stays unit-testable.
 from __future__ import annotations
 
 import logging
+import os
 import time
 from functools import lru_cache
 from typing import Callable
+from urllib.parse import urlencode
 
 from log_config import log_event
 from twilio.twiml.voice_response import VoiceResponse
@@ -53,6 +55,15 @@ def _resolve_dtmf_digits(phone_number: str, enabled: bool) -> str:
     return DTMF_ENABLE_SIGNAL if want_enable else DTMF_DISABLE_SIGNAL
 
 
+def _status_callback_url(completed_state: bool) -> str | None:
+    base = os.environ.get("TWILIO_STATUS_CALLBACK_BASE_URL", "").strip().rstrip("/")
+    if not base:
+        return None
+    state = "on" if completed_state else "off"
+    query = urlencode({"completed_state": state})
+    return f"{base}/api/twilioCallStatus?{query}"
+
+
 def _build_outbound_twiml(phone_number: str, enabled: bool) -> VoiceResponse:
     response = VoiceResponse()
     digits = _resolve_dtmf_digits(phone_number, enabled)
@@ -91,6 +102,7 @@ class SwitchCaller:
             to=phone_number,
             twiml=str(response),
             time_limit_seconds=OUTBOUND_CALL_TIME_LIMIT_SECONDS,
+            status_callback_url=_status_callback_url(enabled),
         )
         _log(
             "call_queued",

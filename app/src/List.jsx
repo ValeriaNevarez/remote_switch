@@ -2,14 +2,12 @@ import Header from "./Header";
 import { ReadDatabase } from "./database_util";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthProvider";
-import { GetStatusList } from "./twilio_util";
 import DataTable from "datatables.net-react";
 import DT from "datatables.net-bs5";
 import { Modal } from "bootstrap";
 import "datatables.net-responsive-dt";
 import AddClientModal from "./AddClientModal";
 import CallModal from "./CallModal";
-import repoConfig from "../../config.json";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 DataTable.use(DT);
@@ -113,9 +111,9 @@ const List = () => {
       responsivePriority: 1,
       render: (last_link, type) => {
         const text = last_link["text"];
-        const hasMismatch = last_link["has_digit_mismatch"];
-        const pressedDigit = last_link["pressed_digit"];
-        const desiredDigit = last_link["desired_digit"];
+        const hasMismatch = last_link["has_state_mismatch"];
+        const completedState = last_link["completed_state"];
+        const desiredState = last_link["desired_state"];
 
         if (type === "sort") {
           return last_link["days_since"] ?? 99999;
@@ -125,7 +123,7 @@ const List = () => {
             text +
             " " +
             (hasMismatch ? "warning mismatch " : "") +
-            (pressedDigit ?? "")
+            (completedState ?? "")
           );
         }
         if (!hasMismatch) {
@@ -134,7 +132,7 @@ const List = () => {
         return (
           '<i class="bi bi-exclamation-triangle-fill" ' +
           'style="color: rgb(245, 158, 11);" ' +
-          `title="Última llamada marcó ${pressedDigit}; esperado ${desiredDigit}"></i> ` +
+          `title="Última llamada completada dejó el interruptor en ${completedState}; esperado ${desiredState}"></i> ` +
           text
         );
       },
@@ -155,7 +153,7 @@ const List = () => {
     const status = data["status_and_diff_days"]["status"];
     if (status == "in-progress" || status == "ringing" || status == "queued") {
       row.className = "table-info";
-    } else if (data.is_active == "Activo" && status != "completed") {
+    } else if (data.is_active == "Activo" && status != null && status != "completed") {
       row.className = "table-warning";
     }
     if (data.diffDays > 40) {
@@ -270,27 +268,25 @@ const List = () => {
 
 const GetList = async () => {
   const database = await ReadDatabase();
-  let phoneNumberArray = [];
-  for (const element in database) {
-    phoneNumberArray.push(database[element]["phone_number"]);
-  }
-  let statusList = await GetStatusList(phoneNumberArray);
+  const devices = [];
   for (const element in database) {
     const e = database[element];
-    const isActive = e["is_active"];
-    const phoneNumber = e["phone_number"];
-    const serialNumber = e["serial_number"];
-    statusList[phoneNumber]["is_active"] = isActive;
-    statusList[phoneNumber]["serial_number"] = serialNumber;
-    const enable = e["enabled"];
-    statusList[phoneNumber]["enabled"] = enable;
-    statusList[phoneNumber]["client_name"] = e["client_name"];
-    statusList[phoneNumber]["client_number"] = e["client_number"];
-    statusList[phoneNumber]["is_manual_override"] = e["is_manual_override"];
-    statusList[phoneNumber]["is_payment_current"] = e["is_payment_current"];
+    devices.push({
+      serial_number: e["serial_number"],
+      phone_number: e["phone_number"],
+      client_name: e["client_name"],
+      client_number: e["client_number"],
+      is_active: e["is_active"],
+      enabled: e["enabled"],
+      is_manual_override: e["is_manual_override"],
+      is_payment_current: e["is_payment_current"],
+      last_completed_state: e["last_completed_state"] ?? null,
+      last_call_status: e["last_call_status"] ?? null,
+      last_call_at: e["last_call_at"] ?? null,
+      last_completed_call_at: e["last_completed_call_at"] ?? null,
+    });
   }
-
-  return statusList;
+  return devices;
 };
 
 const GetDaysSince = (date_str) => {
@@ -327,36 +323,33 @@ const FormatDate = (date_str) => {
   return diffDays + days;
 };
 
-const DesiredPressedDigit = (phoneNumber, desiredEnabled) => {
-  const isInverted = repoConfig.inverted_phone_numbers.includes(phoneNumber);
-  const wantEnable = Boolean(desiredEnabled);
-  return (wantEnable && !isInverted) || (!wantEnable && isInverted) ? "5" : "1";
-};
+const formatOnOff = (enabled) => (enabled ? "on" : "off");
 
-const ListToDataArray = (list) => {
-  return Object.entries(list).map((entry) => {
-    let phoneNumber = entry[0];
-    let value = entry[1];
-    let status = value["status"];
+const ListToDataArray = (devices) => {
+  return devices.map((value) => {
+    const status = value["last_call_status"];
+    const lastCallAt = value["last_call_at"];
+    const lastCompletedCallAt = value["last_completed_call_at"];
     const effectiveEnabled = value["is_manual_override"]
       ? value["enabled"]
       : value["is_payment_current"];
-    const desiredDigit = DesiredPressedDigit(phoneNumber, effectiveEnabled);
-    const pressedDigit = value["last_completed_pressed_digit"];
-    const hasDigitMismatch =
-      value["is_active"] && pressedDigit != null && pressedDigit !== desiredDigit;
+    const lastCompletedState = value["last_completed_state"];
+    const hasStateMismatch =
+      value["is_active"] &&
+      status === "completed" &&
+      lastCompletedState != null &&
+      lastCompletedState !== effectiveEnabled;
     return {
       serial_number: value["serial_number"],
-      phone_number: phoneNumber,
+      phone_number: value["phone_number"],
       client_name: value["client_name"],
       client_number: value["client_number"],
       is_active: value["is_active"] ? "Activo" : "Inactivo",
       status:
         status == null
           ? "-"
-          : status + "  (" + FormatDate(value["status_date"]) + ") ",
-      date: FormatDate(value["date"]),
-      diffDays: GetDaysSince(value["date"]),
+          : status + "  (" + FormatDate(lastCallAt) + ") ",
+      diffDays: GetDaysSince(lastCompletedCallAt),
       enable: value["enabled"] ? "On" : "Off",
       is_manual_override: value["is_manual_override"],
       is_payment_current: value["is_payment_current"],
@@ -368,15 +361,16 @@ const ListToDataArray = (list) => {
       },
       status_and_diff_days: {
         status: status,
-        diff_days: FormatDate(value["status_date"]),
-        days_since_status: GetDaysSince(value["status_date"]),
+        diff_days: FormatDate(lastCallAt),
+        days_since_status: GetDaysSince(lastCallAt),
       },
       last_link: {
-        text: FormatDate(value["date"]),
-        days_since: GetDaysSince(value["date"]),
-        pressed_digit: pressedDigit,
-        desired_digit: desiredDigit,
-        has_digit_mismatch: hasDigitMismatch,
+        text: FormatDate(lastCompletedCallAt),
+        days_since: GetDaysSince(lastCompletedCallAt),
+        completed_state:
+          lastCompletedState == null ? null : formatOnOff(lastCompletedState),
+        desired_state: formatOnOff(effectiveEnabled),
+        has_state_mismatch: hasStateMismatch,
       },
     };
   });

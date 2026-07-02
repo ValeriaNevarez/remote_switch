@@ -18,6 +18,7 @@ Set these before running jobs (values omitted on purpose):
 
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
+- `TWILIO_STATUS_CALLBACK_BASE_URL` (public Vercel app URL, e.g. `https://your-app.vercel.app`; required for Python jobs to register Twilio call-status webhooks that write `last_call_*` fields to Firebase)
 - `TOKU_API_TOKEN`
 - `FIREBASE_DATABASE_URL`
 - `FIREBASE_SERVICE_ACCOUNT_B64`

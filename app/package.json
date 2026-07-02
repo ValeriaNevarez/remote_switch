@@ -16,6 +16,7 @@
     "datatables.net-react": "^1.0.0",
     "datatables.net-responsive-dt": "^3.0.4",
     "firebase": "^11.3.0",
+    "firebase-admin": "^13.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",

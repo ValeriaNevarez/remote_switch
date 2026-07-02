@@ -6,6 +6,7 @@
 - `gmail_token.json` — Gmail authorized-user token (`token.json` style)
 - `twilio_account_sid.txt` — one line, Account SID only (inputs to `build_env.py`)
 - `twilio_auth_token.txt` — one line, auth token only
+- `twilio_status_callback_base_url.txt` — one line, public app base URL for Twilio call status webhooks (e.g. `https://your-app.vercel.app`)
 - `toku_api_token.txt` — one line, auth token only
 
 Not committed.

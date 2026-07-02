@@ -63,13 +63,25 @@ class TwilioClient:
         to: str,
         twiml: str,
         time_limit_seconds: int = DEFAULT_OUTBOUND_TIME_LIMIT_SECONDS,
+        status_callback_url: str | None = None,
     ) -> str:
-        call = self._client.calls.create(
-            from_=self.from_number,
-            to=to,
-            twiml=twiml,
-            time_limit=time_limit_seconds,
-        )
+        kwargs: dict[str, object] = {
+            "from_": self.from_number,
+            "to": to,
+            "twiml": twiml,
+            "time_limit": time_limit_seconds,
+        }
+        if status_callback_url:
+            kwargs["status_callback"] = status_callback_url
+            kwargs["status_callback_method"] = "POST"
+            kwargs["status_callback_event"] = [
+                "completed",
+                "busy",
+                "failed",
+                "no-answer",
+                "canceled",
+            ]
+        call = self._client.calls.create(**kwargs)
         return str(call.sid)
 
     def get_last_call_status(

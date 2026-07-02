@@ -85,6 +85,13 @@ SECRETS: tuple[Secret, ...] = (
         encode=_read_text,
     ),
     Secret(
+        env_var="TWILIO_STATUS_CALLBACK_BASE_URL",
+        cli_flag="--twilio-status-callback-base-url-file",
+        default_filename="twilio_status_callback_base_url.txt",
+        label="Twilio status callback base URL file",
+        encode=_read_text,
+    ),
+    Secret(
         env_var="TOKU_API_TOKEN",
         cli_flag="--toku-api-token-file",
         default_filename="toku_api_token.txt",

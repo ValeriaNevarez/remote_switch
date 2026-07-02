@@ -29,9 +29,15 @@ class FakeTwilioClient:
         to: str,
         twiml: str,
         time_limit_seconds: int = 70,
+        status_callback_url: str | None = None,
     ) -> str:
         self.created_calls.append(
-            {"to": to, "twiml": twiml, "time_limit_seconds": time_limit_seconds}
+            {
+                "to": to,
+                "twiml": twiml,
+                "time_limit_seconds": time_limit_seconds,
+                "status_callback_url": status_callback_url,
+            }
         )
         return f"SID-{len(self.created_calls)}"
 
