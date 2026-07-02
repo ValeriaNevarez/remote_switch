@@ -108,6 +108,16 @@ const List = () => {
       },
     },
     { data: "date", responsivePriority: 1 },
+    {
+      data: "control",
+      responsivePriority: 5,
+      render: (control, type) => {
+        if (type === "filter") {
+          return control === "M" ? "manual" : "automatico";
+        }
+        return control;
+      },
+    },
   ];
 
   const dataTableLayout = {
@@ -214,6 +224,9 @@ const List = () => {
               </th>
               <th scope="col">Estatus</th>
               <th scope="col">Último enlace</th>
+              <th scope="col">
+                <i className="bi bi-sliders" title="Control"></i>
+              </th>
             </tr>
           </thead>
         </DataTable>
@@ -329,6 +342,7 @@ const ListToDataArray = (list) => {
         diff_days: FormatDate(value["status_date"]),
         days_since_status: GetDaysSince(value["status_date"]),
       },
+      control: value["is_manual_override"] ? "M" : "A",
     };
   });
 };
