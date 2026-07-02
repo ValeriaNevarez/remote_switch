@@ -23,6 +23,18 @@ class LastCallStatus:
     date: datetime | None
 
 
+@dataclass(frozen=True)
+class TwilioCallRecord:
+    """Small subset of a Twilio Call record needed by local diagnostics."""
+
+    sid: str
+    status: str
+    date: datetime | None
+    duration_seconds: int | None
+    to: str
+    from_: str
+
+
 class TwilioClient:
     def __init__(self, account_sid: str, auth_token: str, from_number: str):
         self._client = Client(account_sid, auth_token)
@@ -97,6 +109,30 @@ class TwilioClient:
             if duration is not None and duration >= min_duration_seconds:
                 return record.date_created
         return None
+
+    def get_last_call_record(self, phone_number: str) -> TwilioCallRecord | None:
+        """Return the most recent raw call record summary for ``phone_number``."""
+        records = self._client.calls.list(limit=1, to=phone_number)
+        if not records:
+            return None
+
+        record = records[0]
+        return TwilioCallRecord(
+            sid=str(record.sid),
+            status=str(record.status),
+            date=record.date_created,
+            duration_seconds=self._parse_duration_seconds(record.duration),
+            to=str(record.to),
+            from_=str(getattr(record, "from_", getattr(record, "_from", ""))),
+        )
+
+    def get_call_events(self, call_sid: str, *, limit: int = 20) -> list[object]:
+        """Return Twilio Events for one call.
+
+        Twilio exposes these roughly 15 minutes after a call ends. The event
+        objects are SDK resources; callers can inspect ``request``/``response``.
+        """
+        return list(self._client.calls(call_sid).events.list(limit=limit))
 
 
 @lru_cache(maxsize=1)

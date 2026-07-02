@@ -9,10 +9,13 @@
   Dot-sourcing runs $env:KEY = '...' assignments. Missing or wrong secrets show up as Python errors.
 
 .PARAMETER Task
-  MakeCalls | SendEmail | SyncWithToku | ExplainCustomer | Both
+  MakeCalls | SendEmail | SyncWithToku | ExplainCustomer | ExplainLastTwilioDigit | Both
 
 .PARAMETER CustomerNumber
   Required for ExplainCustomer: Toku / Firebase client number (# Cliente).
+
+.PARAMETER PhoneNumber
+  Required for ExplainLastTwilioDigit: switch phone number.
 
 .PARAMETER SkipPip
   Skip pip install (faster reruns)
@@ -31,12 +34,15 @@
 
 .EXAMPLE
   .\run-local.ps1 -Task ExplainCustomer -CustomerNumber 12345 -EnvFile secrets\env.ps1
+
+.EXAMPLE
+  .\run-local.ps1 -Task ExplainLastTwilioDigit -PhoneNumber +528711234567 -EnvFile secrets\env.ps1
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("MakeCalls", "SendEmail", "SyncWithToku", "ExplainCustomer", "Both")]
+    [ValidateSet("MakeCalls", "SendEmail", "SyncWithToku", "ExplainCustomer", "ExplainLastTwilioDigit", "Both")]
     [string] $Task,
 
     [switch] $SkipPip,
@@ -44,7 +50,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $EnvFile,
 
-    [string] $CustomerNumber = ""
+    [string] $CustomerNumber = "",
+
+    [string] $PhoneNumber = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -87,6 +95,14 @@ if ($Task -eq "ExplainCustomer") {
     }
     Write-Host "python explain_customer_invoices.py $CustomerNumber"
     python explain_customer_invoices.py $CustomerNumber
+}
+
+if ($Task -eq "ExplainLastTwilioDigit") {
+    if (-not $PhoneNumber.Trim()) {
+        throw "ExplainLastTwilioDigit requires -PhoneNumber."
+    }
+    Write-Host "python explain_last_twilio_digit.py $PhoneNumber"
+    python explain_last_twilio_digit.py $PhoneNumber
 }
 
 Write-Host "Done."

@@ -9,6 +9,7 @@ import { Modal } from "bootstrap";
 import "datatables.net-responsive-dt";
 import AddClientModal from "./AddClientModal";
 import CallModal from "./CallModal";
+import repoConfig from "../../config.json";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 DataTable.use(DT);
@@ -107,7 +108,37 @@ const List = () => {
         }
       },
     },
-    { data: "date", responsivePriority: 1 },
+    {
+      data: "last_link",
+      responsivePriority: 1,
+      render: (last_link, type) => {
+        const text = last_link["text"];
+        const hasMismatch = last_link["has_digit_mismatch"];
+        const pressedDigit = last_link["pressed_digit"];
+        const desiredDigit = last_link["desired_digit"];
+
+        if (type === "sort") {
+          return last_link["days_since"] ?? 99999;
+        }
+        if (type === "filter") {
+          return (
+            text +
+            " " +
+            (hasMismatch ? "warning mismatch " : "") +
+            (pressedDigit ?? "")
+          );
+        }
+        if (!hasMismatch) {
+          return text;
+        }
+        return (
+          '<i class="bi bi-exclamation-triangle-fill" ' +
+          'style="color: rgb(245, 158, 11);" ' +
+          `title="Última llamada marcó ${pressedDigit}; esperado ${desiredDigit}"></i> ` +
+          text
+        );
+      },
+    },
   ];
 
   const dataTableLayout = {
@@ -296,11 +327,24 @@ const FormatDate = (date_str) => {
   return diffDays + days;
 };
 
+const DesiredPressedDigit = (phoneNumber, desiredEnabled) => {
+  const isInverted = repoConfig.inverted_phone_numbers.includes(phoneNumber);
+  const wantEnable = Boolean(desiredEnabled);
+  return (wantEnable && !isInverted) || (!wantEnable && isInverted) ? "5" : "1";
+};
+
 const ListToDataArray = (list) => {
   return Object.entries(list).map((entry) => {
     let phoneNumber = entry[0];
     let value = entry[1];
     let status = value["status"];
+    const effectiveEnabled = value["is_manual_override"]
+      ? value["enabled"]
+      : value["is_payment_current"];
+    const desiredDigit = DesiredPressedDigit(phoneNumber, effectiveEnabled);
+    const pressedDigit = value["last_completed_pressed_digit"];
+    const hasDigitMismatch =
+      value["is_active"] && pressedDigit != null && pressedDigit !== desiredDigit;
     return {
       serial_number: value["serial_number"],
       phone_number: phoneNumber,
@@ -319,15 +363,20 @@ const ListToDataArray = (list) => {
       status_icon: status,
       enabled_and_is_active: {
         // Effective on/off: respect manual override, otherwise follow Toku payment status.
-        enabled: value["is_manual_override"]
-          ? value["enabled"]
-          : value["is_payment_current"],
+        enabled: effectiveEnabled,
         is_active: value["is_active"],
       },
       status_and_diff_days: {
         status: status,
         diff_days: FormatDate(value["status_date"]),
         days_since_status: GetDaysSince(value["status_date"]),
+      },
+      last_link: {
+        text: FormatDate(value["date"]),
+        days_since: GetDaysSince(value["date"]),
+        pressed_digit: pressedDigit,
+        desired_digit: desiredDigit,
+        has_digit_mismatch: hasDigitMismatch,
       },
     };
   });
