@@ -6,9 +6,11 @@ from dataclasses import dataclass
 from datetime import date
 from functools import lru_cache
 import logging
+import time
 from typing import Any, Callable, TypeVar
 
 import requests
+from requests.exceptions import ConnectionError, ConnectTimeout, ReadTimeout, Timeout
 
 T = TypeVar("T")
 
@@ -20,6 +22,15 @@ CUSTOMERS_PATH = "/customers"
 INVOICES_PATH = "/invoices"
 DEFAULT_PAGE_SIZE = 50
 REQUEST_TIMEOUT_SECONDS = 30
+MAX_GET_RETRIES = 3
+GET_RETRY_BACKOFF_SECONDS = 2
+_RETRYABLE_GET_EXCEPTIONS = (
+    ConnectionError,
+    ConnectTimeout,
+    ReadTimeout,
+    Timeout,
+)
+_RETRYABLE_HTTP_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
 _LOG_PREFIX = "toku_api"
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,16 +76,59 @@ class TokuClient:
     # --- transport -------------------------------------------------------
 
     def _get(self, path: str, params: dict[str, Any]) -> dict[str, Any]:
-        response = self._session.get(
-            f"{self._base_url}{path}",
-            params=params,
-            timeout=REQUEST_TIMEOUT_SECONDS,
+        url = f"{self._base_url}{path}"
+        for attempt in range(MAX_GET_RETRIES + 1):
+            try:
+                response = self._session.get(
+                    url,
+                    params=params,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+                response.raise_for_status()
+                payload = response.json()
+                if not isinstance(payload, dict):
+                    raise RuntimeError(
+                        "Unexpected Toku response type: expected JSON object."
+                    )
+                return payload
+            except requests.HTTPError as exc:
+                status_code = exc.response.status_code if exc.response is not None else None
+                if status_code not in _RETRYABLE_HTTP_STATUS_CODES or attempt >= MAX_GET_RETRIES:
+                    raise
+                self._sleep_before_get_retry(
+                    path=path,
+                    attempt=attempt,
+                    error=exc,
+                )
+            except _RETRYABLE_GET_EXCEPTIONS as exc:
+                if attempt >= MAX_GET_RETRIES:
+                    raise
+                self._sleep_before_get_retry(
+                    path=path,
+                    attempt=attempt,
+                    error=exc,
+                )
+        raise RuntimeError("Toku GET retry loop exited without a response.")
+
+    def _sleep_before_get_retry(
+        self,
+        *,
+        path: str,
+        attempt: int,
+        error: Exception,
+    ) -> None:
+        backoff_seconds = GET_RETRY_BACKOFF_SECONDS * (2**attempt)
+        log_event(
+            _LOGGER,
+            prefix=_LOG_PREFIX,
+            event="request_retry",
+            path=path,
+            attempt=attempt + 1,
+            max_retries=MAX_GET_RETRIES,
+            backoff_seconds=backoff_seconds,
+            error=repr(error),
         )
-        response.raise_for_status()
-        payload = response.json()
-        if not isinstance(payload, dict):
-            raise RuntimeError("Unexpected Toku response type: expected JSON object.")
-        return payload
+        time.sleep(backoff_seconds)
 
     @staticmethod
     def _extract_items(payload: dict[str, Any]) -> list[dict[str, Any]]:
