@@ -6,6 +6,10 @@ import sys
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import requests
+from requests.exceptions import ReadTimeout
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -16,6 +20,61 @@ from toku_api import (
     are_invoices_current,
     customer_for_invoice_lookup,
 )
+
+
+class TestTokuClientGetRetries(unittest.TestCase):
+    def setUp(self) -> None:
+        self.client = TokuClient(api_token="test-token")
+
+    def test_retries_transient_read_timeout(self) -> None:
+        success_response = MagicMock()
+        success_response.json.return_value = {"items": []}
+        success_response.raise_for_status.return_value = None
+        self.client._session.get = MagicMock(
+            side_effect=[
+                ReadTimeout("read timed out"),
+                success_response,
+            ]
+        )
+
+        with patch("toku_api.time.sleep") as sleep_mock:
+            payload = self.client._get("/invoices", {"page_size": 50})
+
+        self.assertEqual(payload, {"items": []})
+        self.assertEqual(self.client._session.get.call_count, 2)
+        sleep_mock.assert_called_once_with(2)
+
+    def test_raises_after_exhausting_retries(self) -> None:
+        self.client._session.get = MagicMock(
+            side_effect=ReadTimeout("read timed out"),
+        )
+
+        with patch("toku_api.time.sleep"):
+            with self.assertRaises(ReadTimeout):
+                self.client._get("/invoices", {"page_size": 50})
+
+        self.assertEqual(self.client._session.get.call_count, 4)
+
+    def test_retries_retryable_http_status(self) -> None:
+        error_response = MagicMock()
+        error_response.status_code = 503
+        http_error = requests.HTTPError(response=error_response)
+        success_response = MagicMock()
+        success_response.json.return_value = {"items": []}
+        success_response.raise_for_status.return_value = None
+        failing_response = MagicMock()
+        failing_response.status_code = 503
+        failing_response.raise_for_status.side_effect = http_error
+
+        self.client._session.get = MagicMock(
+            side_effect=[failing_response, success_response],
+        )
+
+        with patch("toku_api.time.sleep") as sleep_mock:
+            payload = self.client._get("/invoices", {"page_size": 50})
+
+        self.assertEqual(payload, {"items": []})
+        sleep_mock.assert_called_once_with(2)
 
 
 class TestParseInvoice(unittest.TestCase):
