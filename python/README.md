@@ -93,8 +93,8 @@ Reconciles each device's `is_payment_current` with Toku (see `toku_api.are_invoi
 
 - Fetches invoices with due dates in the last year (`_INVOICE_FETCH_LOOKBACK_DAYS`, 365).
 - Applies `toku_sync_grace_period_days` from `config.json` as the overdue cutoff.
-- **Current** when the client has no invoices in that window, or when at least one invoice is paid and every unpaid invoice is still within the grace period.
-- **Not current** when there are invoices but none are paid, or any unpaid invoice is past the grace cutoff.
+- **Current** when the client has no non-void invoices in that window, or when at least one invoice is paid and every unpaid invoice is still within the grace period. Void invoices (`is_void` / status `VOID`) are ignored.
+- **Not current** when there are non-void invoices but none are paid, or any unpaid non-void invoice is past the grace cutoff.
 
 Prefix:
 

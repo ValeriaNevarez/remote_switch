@@ -60,6 +60,7 @@ class TokuInvoice:
     customer_id: str
     due_date: date
     is_paid: bool
+    is_void: bool = False
 
 
 class TokuClient:
@@ -202,6 +203,15 @@ class TokuClient:
         )
 
     @staticmethod
+    def _invoice_is_void(item: dict[str, Any]) -> bool:
+        """True when Toku marks the invoice void (anulado)."""
+        if _parse_optional_bool(item.get("is_void")) is True:
+            return True
+        status = str(item.get("status") or "").strip().lower()
+        general_status = str(item.get("general_status") or "").strip().lower()
+        return status == "void" or general_status == "void"
+
+    @staticmethod
     def _parse_invoice(item: dict[str, Any]) -> TokuInvoice | None:
         invoice_id = item.get("id")
         # Toku returns the customer reference under "customer" (a string id).
@@ -221,6 +231,7 @@ class TokuClient:
             customer_id=str(customer_id),
             due_date=due_date_value,
             is_paid=is_paid,
+            is_void=TokuClient._invoice_is_void(item),
         )
 
     # --- public API ------------------------------------------------------
@@ -293,14 +304,16 @@ def customer_for_invoice_lookup(
 def are_invoices_current(invoices: list[TokuInvoice], as_of_date: date) -> bool:
     """Return whether the customer's invoices are in good standing as of ``as_of_date``.
 
-    True when there are no invoices in the fetch window (client not billable).
-    False when none are paid, or when any unpaid invoice is past due.
+    Void invoices (Toku ``is_void`` / status ``VOID``) are ignored. True when
+    none remain in the fetch window. False when none of the remaining invoices
+    are paid, or when any unpaid invoice is past due.
     """
-    if not invoices:
+    active = [invoice for invoice in invoices if not invoice.is_void]
+    if not active:
         return True
-    if not any(invoice.is_paid for invoice in invoices):
+    if not any(invoice.is_paid for invoice in active):
         return False
-    return all(invoice.is_paid or invoice.due_date >= as_of_date for invoice in invoices)
+    return all(invoice.is_paid or invoice.due_date >= as_of_date for invoice in active)
 
 
 def main() -> None:
