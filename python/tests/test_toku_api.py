@@ -113,6 +113,35 @@ class TestParseInvoice(unittest.TestCase):
         )
         self.assertIsNone(invoice)
 
+    def test_marks_void_from_is_void(self) -> None:
+        invoice = TokuClient._parse_invoice(
+            {
+                "id": "inv-1",
+                "customer": "cust-1",
+                "due_date": "2026-04-01",
+                "is_paid": False,
+                "is_void": True,
+            }
+        )
+        self.assertIsNotNone(invoice)
+        assert invoice is not None
+        self.assertTrue(invoice.is_void)
+        self.assertFalse(invoice.is_paid)
+
+    def test_marks_void_from_status(self) -> None:
+        invoice = TokuClient._parse_invoice(
+            {
+                "id": "inv-1",
+                "customer": "cust-1",
+                "due_date": "2026-04-01",
+                "is_paid": False,
+                "status": "VOID",
+            }
+        )
+        self.assertIsNotNone(invoice)
+        assert invoice is not None
+        self.assertTrue(invoice.is_void)
+
 
 class TestParseCustomer(unittest.TestCase):
     def test_parses_quien_paga_from_metadata(self) -> None:
@@ -188,6 +217,19 @@ class TestAreInvoicesCurrent(unittest.TestCase):
 
     def test_returns_true_when_invoice_list_is_empty(self) -> None:
         self.assertTrue(are_invoices_current([], as_of_date=date(2026, 4, 1)))
+
+    def test_ignores_void_overdue_invoice(self) -> None:
+        invoices = [
+            TokuInvoice("voided", "cust-1", date(2026, 1, 1), False, is_void=True),
+            TokuInvoice("paid", "cust-1", date(2026, 2, 1), True),
+        ]
+        self.assertTrue(are_invoices_current(invoices, as_of_date=date(2026, 4, 1)))
+
+    def test_returns_true_when_only_void_invoices(self) -> None:
+        invoices = [
+            TokuInvoice("voided", "cust-1", date(2026, 1, 1), False, is_void=True),
+        ]
+        self.assertTrue(are_invoices_current(invoices, as_of_date=date(2026, 4, 1)))
 
 
 if __name__ == "__main__":

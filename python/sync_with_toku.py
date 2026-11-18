@@ -1,8 +1,9 @@
 """Sync job: reconcile each device's ``is_payment_current`` with Toku.
 
-Payment-current (see ``toku_api.are_invoices_current``): clients with no
-invoices in the fetch window are current; otherwise at least one paid invoice
-is required and no unpaid invoice may be past the grace cutoff. When Toku
+Payment-current (see ``toku_api.are_invoices_current``): void invoices are
+ignored. Clients with no remaining invoices in the fetch window are current;
+otherwise at least one paid invoice is required and no unpaid invoice may be
+past the grace cutoff. When Toku
 metadata ``quien_paga`` is a valid client number, the payer's invoices are used
 instead of the device's client.
 

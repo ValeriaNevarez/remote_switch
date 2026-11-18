@@ -40,7 +40,13 @@ class InvoiceRow:
     detail: str
 
 
+def _active_invoices(invoices: list[TokuInvoice]) -> list[TokuInvoice]:
+    return [invoice for invoice in invoices if not invoice.is_void]
+
+
 def _invoice_status(invoice: TokuInvoice, as_of_date: date) -> tuple[str, str]:
+    if invoice.is_void:
+        return "void", "Anulada (no cuenta para el estatus de pago)"
     if invoice.is_paid:
         return "paid", "Pagada"
     if invoice.due_date >= as_of_date:
@@ -67,6 +73,7 @@ def _build_invoice_rows(invoices: list[TokuInvoice], as_of_date: date) -> list[I
 
 
 def _reason_not_current(invoices: list[TokuInvoice], as_of_date: date) -> tuple[str, str]:
+    invoices = _active_invoices(invoices)
     if not invoices:
         return (
             "sin_facturas_en_ventana",
@@ -160,8 +167,12 @@ def explain_customer(customer_number: str) -> int:
     print()
     print(f"Toku al corriente: {_format_bool(toku_current)}")
     if toku_current:
-        if not invoices:
-            print("  Motivo: sin facturas en la ventana (se considera al corriente).")
+        active = _active_invoices(invoices)
+        if not active:
+            print(
+                "  Motivo: no hay facturas vigentes en la ventana "
+                "(las anuladas no cuentan)."
+            )
         else:
             print("  Motivo: al menos una factura pagada y ninguna impaga vencida.")
     else:
